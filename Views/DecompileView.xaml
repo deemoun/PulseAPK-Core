@@ -54,12 +54,19 @@
                     <TextBlock Text="{utils:Localization DragDropHint}" Foreground="{StaticResource Brush.TextSecondary}" FontSize="14" HorizontalAlignment="Center" Margin="0,5,0,0" Visibility="{Binding IsHintVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </StackPanel>
 
-                <Button Grid.Column="1"
-                        Content="{utils:Localization Run}"
-                        Style="{StaticResource RunButtonStyle}"
-                        Command="{Binding RunDecompileCommand}"
-                        Width="140" Height="110" Margin="20"
-                        VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <Button Content="{utils:Localization Browse}"
+                            Style="{StaticResource CyberButtonStyle}"
+                            Command="{Binding BrowseApkCommand}"
+                            Width="140"
+                            Height="42"
+                            Margin="0,0,0,12"/>
+                    <Button Content="{utils:Localization Run}"
+                            Style="{StaticResource RunButtonStyle}"
+                            Command="{Binding RunDecompileCommand}"
+                            Width="140"
+                            Height="56"/>
+                </StackPanel>
             </Grid>
         </Border>
 
