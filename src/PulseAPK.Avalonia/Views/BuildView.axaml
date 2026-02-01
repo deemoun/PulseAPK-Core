@@ -15,7 +15,7 @@
                 BorderThickness="1"
                 CornerRadius="6"
                 Padding="12"
-                AllowDrop="True"
+                DragDrop.AllowDrop="True"
                 DragDrop.DragOver="OnDragOver"
                 DragDrop.Drop="OnDrop">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
@@ -78,7 +78,7 @@
                          IsReadOnly="True"
                          AcceptsReturn="True"
                          TextWrapping="Wrap"
-                         VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                          Height="220" />
             </StackPanel>
         </Border>
