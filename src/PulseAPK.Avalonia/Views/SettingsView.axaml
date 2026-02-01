@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
+             xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
+             x:Class="PulseAPK.Avalonia.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+    <StackPanel Spacing="12" Margin="20">
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SettingsHeader]}"
+                   FontSize="24"
+                   FontWeight="SemiBold" />
+
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[LanguageLabel]}"
+                   FontWeight="SemiBold" />
+        <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                  SelectedItem="{Binding SelectedLanguage}"
+                  Width="260">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ApktoolPath]}"
+                   FontWeight="SemiBold" />
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox Text="{Binding ApktoolPath}" />
+            <Button Grid.Column="1"
+                    Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                    Command="{Binding BrowseApktoolCommand}"
+                    Width="110" />
+        </Grid>
+
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[UbersignPath]}"
+                   FontWeight="SemiBold" />
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox Text="{Binding UbersignPath}" />
+            <Button Grid.Column="1"
+                    Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                    Command="{Binding BrowseUbersignCommand}"
+                    Width="110" />
+        </Grid>
+    </StackPanel>
+</UserControl>

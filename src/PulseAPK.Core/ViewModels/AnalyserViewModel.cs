@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using PulseAPK.Core.Services;
@@ -23,6 +24,7 @@ public partial class AnalyserViewModel : ObservableObject
     
     private readonly SmaliAnalyserService _analyserService;
     private readonly ReportService _reportService;
+    private readonly IFilePickerService _filePickerService;
     private readonly IDialogService _dialogService;
     private readonly IDispatcherService _dispatcherService;
 
@@ -45,11 +47,13 @@ public partial class AnalyserViewModel : ObservableObject
     public AnalyserViewModel(
         SmaliAnalyserService analyserService,
         ReportService reportService,
+        IFilePickerService filePickerService,
         IDialogService dialogService,
         IDispatcherService dispatcherService)
     {
         _analyserService = analyserService;
         _reportService = reportService;
+        _filePickerService = filePickerService;
         _dialogService = dialogService;
         _dispatcherService = dispatcherService;
         
@@ -59,6 +63,32 @@ public partial class AnalyserViewModel : ObservableObject
     partial void OnProjectPathChanged(string value)
     {
         RunAnalysisCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand]
+    private async Task BrowseProject()
+    {
+        var folder = await _filePickerService.OpenFolderAsync(ProjectPath);
+
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            return;
+        }
+
+        if (!Directory.Exists(folder))
+        {
+            await _dialogService.ShowWarningAsync(Properties.Resources.Error_InvalidProjectSelection, Properties.Resources.AnalyserHeader);
+            return;
+        }
+
+        var smaliFiles = Directory.EnumerateFiles(folder, "*.smali", SearchOption.AllDirectories);
+        if (!smaliFiles.Any())
+        {
+            await _dialogService.ShowWarningAsync(Properties.Resources.Error_InvalidSmaliProject, Properties.Resources.AnalyserHeader);
+            return;
+        }
+
+        ProjectPath = folder;
     }
 
     [RelayCommand(CanExecute = nameof(CanRunAnalysis))]

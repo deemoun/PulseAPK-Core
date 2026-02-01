@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
+             xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
+             x:Class="PulseAPK.Avalonia.Views.AnalyserView"
+             x:DataType="vm:AnalyserViewModel">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="16" Margin="20">
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AnalyserHeader]}"
+                   FontSize="24"
+                   FontWeight="SemiBold" />
+
+        <Border Grid.Row="1"
+                Background="#1B1B1B"
+                BorderBrush="#3C3C3C"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12"
+                AllowDrop="True"
+                DragDrop.DragOver="OnDragOver"
+                DragDrop.Drop="OnDrop">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectProjectFolder]}"
+                               FontWeight="SemiBold" />
+                    <TextBox Text="{Binding ProjectPath}"
+                             Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectProjectFolder]}"
+                             IsReadOnly="True" />
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DragDropFolderHint]}"
+                               FontSize="12"
+                               Opacity="0.7"
+                               IsVisible="{Binding IsHintVisible}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                            Command="{Binding BrowseProjectCommand}"
+                            Width="120" />
+                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[RunAnalysis]}"
+                            Command="{Binding RunAnalysisCommand}"
+                            Width="120" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2"
+                Background="#121212"
+                BorderBrush="#2E2E2E"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12">
+            <StackPanel Spacing="8">
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}"
+                           FontWeight="SemiBold" />
+                <TextBox Text="{Binding ConsoleLog}"
+                         IsReadOnly="True"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto"
+                         Height="240" />
+            </StackPanel>
+        </Border>
+
+        <Button Grid.Row="3"
+                Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SaveReport]}"
+                Command="{Binding SaveReportCommand}"
+                HorizontalAlignment="Right"
+                Width="140" />
+    </Grid>
+</UserControl>

@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
+             xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
+             x:Class="PulseAPK.Avalonia.Views.AboutView"
+             x:DataType="vm:AboutViewModel">
+    <StackPanel Spacing="12" Margin="20" HorizontalAlignment="Center">
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AppTitle]}"
+                   FontSize="36"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center" />
+        <TextBlock Text="{Binding AppVersion}"
+                   FontSize="16"
+                   HorizontalAlignment="Center" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_DevelopedBy]}"
+                       FontSize="14" />
+            <TextBlock Text="{Binding DeveloperName}"
+                       FontSize="14"
+                       FontWeight="SemiBold" />
+        </StackPanel>
+
+        <TextBlock Text="{Binding Year}"
+                   FontSize="14"
+                   HorizontalAlignment="Center" />
+
+        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_ProjectPage]}"
+                Command="{Binding OpenProjectPageCommand}"
+                Width="200" />
+        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_DeveloperPage]}"
+                Command="{Binding OpenDeveloperPageCommand}"
+                Width="200" />
+    </StackPanel>
+</UserControl>

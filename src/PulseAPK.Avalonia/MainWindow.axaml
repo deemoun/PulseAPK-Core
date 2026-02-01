@@ -3,6 +3,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
+        xmlns:views="clr-namespace:PulseAPK.Avalonia.Views"
+        xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="650"
         x:Class="PulseAPK.Avalonia.MainWindow"
         x:DataType="vm:MainViewModel"
@@ -10,33 +12,48 @@
 
     <Window.DataTemplates>
         <DataTemplate DataType="{x:Type vm:DecompileViewModel}">
-            <TextBlock Text="Decompile View (Not Ported Yet)" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <views:DecompileView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:BuildViewModel}">
-            <TextBlock Text="Build View (Not Ported Yet)" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <views:BuildView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
-            <TextBlock Text="Settings View (Not Ported Yet)" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <views:SettingsView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:AnalyserViewModel}">
-            <TextBlock Text="Analyser View (Not Ported Yet)" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <views:AnalyserView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:AboutViewModel}">
-            <TextBlock Text="About View (Not Ported Yet)" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <views:AboutView/>
         </DataTemplate>
     </Window.DataTemplates>
 
-    <Grid ColumnDefinitions="200, *">
+    <Grid ColumnDefinitions="220, *">
         <!-- Sidebar -->
-        <Border Grid.Column="0" Background="#202020" Padding="10">
+        <Border Grid.Column="0" Background="#202020" Padding="16">
             <StackPanel Spacing="10">
-                <TextBlock Text="PulseAPK" FontSize="20" FontWeight="Bold" Foreground="Cyan" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AppTitle]}"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="Cyan"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,20"/>
                 
-                <Button Command="{Binding NavigateToDecompileCommand}" Content="Decompile" HorizontalAlignment="Stretch"/>
-                <Button Command="{Binding NavigateToBuildCommand}" Content="Build" HorizontalAlignment="Stretch"/>
-                <Button Command="{Binding NavigateToAnalyserCommand}" Content="Analyser" HorizontalAlignment="Stretch"/>
-                <Button Command="{Binding NavigateToSettingsCommand}" Content="Settings" HorizontalAlignment="Stretch"/>
-                <Button Command="{Binding NavigateToAboutCommand}" Content="About" HorizontalAlignment="Stretch"/>
+                <Button Command="{Binding NavigateToDecompileCommand}"
+                        Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuDecompile]}"
+                        HorizontalAlignment="Stretch"/>
+                <Button Command="{Binding NavigateToBuildCommand}"
+                        Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuBuild]}"
+                        HorizontalAlignment="Stretch"/>
+                <Button Command="{Binding NavigateToAnalyserCommand}"
+                        Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAnalyser]}"
+                        HorizontalAlignment="Stretch"/>
+                <Button Command="{Binding NavigateToSettingsCommand}"
+                        Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuSettings]}"
+                        HorizontalAlignment="Stretch"/>
+                <Button Command="{Binding NavigateToAboutCommand}"
+                        Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAbout]}"
+                        HorizontalAlignment="Stretch"/>
             </StackPanel>
         </Border>
 

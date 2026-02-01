@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
+             xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
+             x:Class="PulseAPK.Avalonia.Views.DecompileView"
+             x:DataType="vm:DecompileViewModel">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16" Margin="20">
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DecompileHeader]}"
+                   FontSize="24"
+                   FontWeight="SemiBold" />
+
+        <Border Grid.Row="1"
+                Background="#1B1B1B"
+                BorderBrush="#3C3C3C"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12"
+                AllowDrop="True"
+                DragDrop.DragOver="OnDragOver"
+                DragDrop.Drop="OnDrop">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectApk]}"
+                               FontWeight="SemiBold" />
+                    <TextBox Text="{Binding ApkPath}"
+                             Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectApk]}"
+                             IsReadOnly="True" />
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DragDropHint]}"
+                               FontSize="12"
+                               Opacity="0.7"
+                               IsVisible="{Binding IsHintVisible}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                            Command="{Binding BrowseApkCommand}"
+                            Width="120" />
+                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Run]}"
+                            Command="{Binding RunDecompileCommand}"
+                            Width="120" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="16">
+            <StackPanel Spacing="8">
+                <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DecodeResources]}"
+                          IsChecked="{Binding DecodeResources}" />
+                <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DecodeSources]}"
+                          IsChecked="{Binding DecodeSources}" />
+                <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[KeepOriginalManifest]}"
+                          IsChecked="{Binding KeepOriginalManifest}" />
+                <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ExtractToApkFolder]}"
+                          IsChecked="{Binding ExtractToApkFolder}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="8">
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[OutputFolder]}"
+                           FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBox Text="{Binding OutputFolder}" />
+                    <StackPanel Grid.Column="1" Spacing="6">
+                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                                Command="{Binding BrowseOutputFolderCommand}"
+                                Width="100" />
+                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Open]}"
+                                Command="{Binding OpenOutputFolderCommand}"
+                                Width="100" />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="3"
+                Background="#121212"
+                BorderBrush="#2E2E2E"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12">
+            <StackPanel Spacing="8">
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}"
+                           FontWeight="SemiBold" />
+                <TextBox Text="{Binding ConsoleLog}"
+                         IsReadOnly="True"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto"
+                         Height="220" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
