@@ -74,6 +74,7 @@ public class LocalizationService : INotifyPropertyChanged
                 _currentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
                 Thread.CurrentThread.CurrentCulture = value;
+                Resources.Culture = value;
                 
                 if (_settingsService != null)
                 {
@@ -81,7 +82,9 @@ public class LocalizationService : INotifyPropertyChanged
                     _settingsService.Save();
                 }
                 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item[]"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentLanguage)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentCulture)));
             }
         }
     }
