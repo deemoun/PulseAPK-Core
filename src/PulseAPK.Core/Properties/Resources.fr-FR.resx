@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTitle" xml:space="preserve">
+    <value>PulseAPK</value>
+  </data>
+  <data name="MenuDecompile" xml:space="preserve">
+    <value>Décompiler</value>
+  </data>
+  <data name="MenuSettings" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="MenuAbout" xml:space="preserve">
+    <value>À propos</value>
+  </data>
+  <data name="DecompileHeader" xml:space="preserve">
+    <value>Décompilation</value>
+  </data>
+  <data name="SelectApk" xml:space="preserve">
+    <value>Sélectionner un APK</value>
+  </data>
+  <data name="OutputFolder" xml:space="preserve">
+    <value>Dossier de sortie</value>
+  </data>
+  <data name="OutputApkLabel" xml:space="preserve">
+    <value>Chemin de l'APK de sortie</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Parcourir</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="DragDropHint" xml:space="preserve">
+    <value>Glisser-déposer un fichier</value>
+  </data>
+  <data name="DecodeResources" xml:space="preserve">
+    <value>Décoder les ressources</value>
+  </data>
+  <data name="KeepOriginalManifest" xml:space="preserve">
+    <value>Conserver le manifeste d'origine</value>
+  </data>
+  <data name="ExtractToApkFolder" xml:space="preserve">
+    <value>Extraire dans le dossier où se trouve l'APK</value>
+  </data>
+  <data name="DecodeSources" xml:space="preserve">
+    <value>Décoder les sources</value>
+  </data>
+  <data name="RunDecompile" xml:space="preserve">
+    <value>Lancer la décompilation</value>
+  </data>
+  <data name="WaitingForCommand" xml:space="preserve">
+    <value>En attente d'une commande...</value>
+  </data>
+  <data name="StartingApktool" xml:space="preserve">
+    <value>Démarrage d'apktool...</value>
+  </data>
+  <data name="DecompileFailed" xml:space="preserve">
+    <value>La décompilation a échoué</value>
+  </data>
+  <data name="DecompileSuccessful" xml:space="preserve">
+    <value>Décompilation réussie</value>
+  </data>
+  <data name="Error_OutputFolderNotSet" xml:space="preserve">
+    <value>Le dossier de sortie n'est pas défini.</value>
+  </data>
+  <data name="Error_FolderNotFound" xml:space="preserve">
+    <value>Le dossier '{0}' n'existe pas.</value>
+  </data>
+  <data name="Error_CouldNotOpenFolder" xml:space="preserve">
+    <value>Impossible d'ouvrir le dossier : {0}</value>
+  </data>
+  <data name="Error_MissingApktool" xml:space="preserve">
+    <value>Veuillez configurer le chemin apktool dans les paramètres avant de lancer une décompilation.</value>
+  </data>
+  <data name="Error_InvalidApktoolPath" xml:space="preserve">
+    <value>Le chemin apktool '{0}' n'existe pas. Veuillez le mettre à jour dans les paramètres.</value>
+  </data>
+  <data name="Error_InvalidApkFile" xml:space="preserve">
+    <value>Fichier APK invalide</value>
+  </data>
+  <data name="Error_InvalidJarFile" xml:space="preserve">
+    <value>Fichier JAR invalide</value>
+  </data>
+  <data name="Error_InvalidUbersignFile" xml:space="preserve">
+    <value>Fichier Ubersign invalide</value>
+  </data>
+  <data name="Error_InvalidProjectSelection" xml:space="preserve">
+    <value>Déposez un dossier de projet valide contenant apktool.yml et AndroidManifest.xml.</value>
+  </data>
+  <data name="FileFilter_Apk" xml:space="preserve">
+    <value>Fichiers APK (*.apk)|*.apk|Tous les fichiers (*.*)|*.*</value>
+  </data>
+  <data name="FileFilter_Jar" xml:space="preserve">
+    <value>Fichiers JAR (*.jar)|*.jar</value>
+  </data>
+  <data name="FileFilter_Ubersign" xml:space="preserve">
+    <value>Fichiers JAR Ubersign (*.jar)|*.jar</value>
+  </data>
+  <data name="SettingsHeader" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="ApktoolPath" xml:space="preserve">
+    <value>Chemin Apktool</value>
+  </data>
+  <data name="UbersignPath" xml:space="preserve">
+    <value>Chemin Ubersign</value>
+  </data>
+  <data name="JavaPathNotFound" xml:space="preserve">
+    <value>Chemin JAVA : introuvable</value>
+  </data>
+  <data name="JavaPathFound" xml:space="preserve">
+    <value>Chemin JAVA : {0}</value>
+  </data>
+  <data name="About_DevelopedBy" xml:space="preserve">
+    <value>Développé par</value>
+  </data>
+  <data name="About_ProjectPage" xml:space="preserve">
+    <value>Page du projet</value>
+  </data>
+  <data name="About_DeveloperPage" xml:space="preserve">
+    <value>Page du développeur</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version : {0}</value>
+  </data>
+  <data name="DownloadApktool" xml:space="preserve">
+    <value>Télécharger Apktool : </value>
+  </data>
+  <data name="DownloadJava" xml:space="preserve">
+    <value>Télécharger JAVA : </value>
+  </data>
+  <data name="MenuBuild" xml:space="preserve">
+    <value>Compiler l'APK</value>
+  </data>
+  <data name="BuildHeader" xml:space="preserve">
+    <value>Compiler l'APK</value>
+  </data>
+  <data name="SelectProjectFolder" xml:space="preserve">
+    <value>Sélectionner le dossier du projet</value>
+  </data>
+  <data name="SignApk" xml:space="preserve">
+    <value>Signer l'APK</value>
+  </data>
+  <data name="UseAapt2" xml:space="preserve">
+    <value>Utiliser AAPT2</value>
+  </data>
+  <data name="RunBuild" xml:space="preserve">
+    <value>Lancer la compilation</value>
+  </data>
+  <data name="BuildSuccessful" xml:space="preserve">
+    <value>Fichier APK créé avec succès.</value>
+  </data>
+  <data name="BuildFailed" xml:space="preserve">
+    <value>Échec de la création du fichier APK</value>
+  </data>
+  <data name="Warning_InvalidProjectFolder" xml:space="preserve">
+    <value>Le dossier sélectionné ne semble pas être un projet apktool valide (apktool.yml ou AndroidManifest.xml manquant).</value>
+  </data>
+  <data name="DragDropFolderHint" xml:space="preserve">
+    <value>Glisser-déposer un dossier</value>
+  </data>
+  <data name="MenuAnalyser" xml:space="preserve">
+    <value>Analyseur APK</value>
+  </data>
+  <data name="AnalyserHeader" xml:space="preserve">
+    <value>Analyseur APK</value>
+  </data>
+  <data name="RunAnalysis" xml:space="preserve">
+    <value>Lancer l'analyse</value>
+  </data>
+  <data name="AnalysisStarting" xml:space="preserve">
+    <value>Démarrage de l'analyse...</value>
+  </data>
+  <data name="AnalysisComplete" xml:space="preserve">
+    <value>Analyse terminée</value>
+  </data>
+  <data name="AnalysisFailed" xml:space="preserve">
+    <value>Échec de l'analyse</value>
+  </data>
+  <data name="RootCheckFound" xml:space="preserve">
+    <value>Vérification root : True</value>
+  </data>
+  <data name="RootCheckNotFound" xml:space="preserve">
+    <value>Vérification root : False</value>
+  </data>
+  <data name="EmulatorCheckFound" xml:space="preserve">
+    <value>Vérification émulateur : True</value>
+  </data>
+  <data name="EmulatorCheckNotFound" xml:space="preserve">
+    <value>Vérification émulateur : False</value>
+  </data>
+  <data name="CredentialsFound" xml:space="preserve">
+    <value>Nom d'utilisateur/mot de passe codés en dur : True</value>
+  </data>
+  <data name="CredentialsNotFound" xml:space="preserve">
+    <value>Nom d'utilisateur/mot de passe codés en dur : False</value>
+  </data>
+  <data name="SqlQueriesFound" xml:space="preserve">
+    <value>Requêtes SQL : True</value>
+  </data>
+  <data name="SqlQueriesNotFound" xml:space="preserve">
+    <value>Requêtes SQL : False</value>
+  </data>
+  <data name="HttpUrlsFound" xml:space="preserve">
+    <value>Chemins HTTP/HTTPS : True</value>
+  </data>
+  <data name="HttpUrlsNotFound" xml:space="preserve">
+    <value>Chemins HTTP/HTTPS : False</value>
+  </data>
+  <data name="FoundIn" xml:space="preserve">
+    <value>  Trouvé dans :</value>
+  </data>
+  <data name="Error_InvalidSmaliProject" xml:space="preserve">
+    <value>Le dossier sélectionné ne contient pas de fichiers Smali.</value>
+  </data>
+  <data name="DownloadApktoolButton" xml:space="preserve">
+    <value>Télécharger ApkTool</value>
+  </data>
+  <data name="DownloadJavaButton" xml:space="preserve">
+    <value>Télécharger JAVA</value>
+  </data>
+  <data name="DownloadUbersignerButton" xml:space="preserve">
+    <value>Télécharger Ubersigner</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="SaveReport" xml:space="preserve">
+    <value>Enregistrer le rapport</value>
+  </data>
+  <data name="Run" xml:space="preserve">
+    <value>Exécuter</value>
+  </data>
+  <data name="ApkName" xml:space="preserve">
+    <value>Nom de l'APK</value>
+  </data>
+  <data name="ConsoleLog" xml:space="preserve">
+    <value>Journal de console</value>
+  </data>
+</root>

@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTitle" xml:space="preserve">
+    <value>PulseAPK</value>
+  </data>
+  <data name="MenuDecompile" xml:space="preserve">
+    <value>反编译</value>
+  </data>
+  <data name="MenuSettings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="MenuAbout" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="DecompileHeader" xml:space="preserve">
+    <value>反编译</value>
+  </data>
+  <data name="SelectApk" xml:space="preserve">
+    <value>选择 APK</value>
+  </data>
+  <data name="OutputFolder" xml:space="preserve">
+    <value>输出文件夹</value>
+  </data>
+  <data name="OutputApkLabel" xml:space="preserve">
+    <value>输出 APK 路径</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>浏览</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="DragDropHint" xml:space="preserve">
+    <value>拖放文件</value>
+  </data>
+  <data name="DecodeResources" xml:space="preserve">
+    <value>解码资源</value>
+  </data>
+  <data name="KeepOriginalManifest" xml:space="preserve">
+    <value>保留原始清单</value>
+  </data>
+  <data name="ExtractToApkFolder" xml:space="preserve">
+    <value>解压到 APK 所在文件夹</value>
+  </data>
+  <data name="DecodeSources" xml:space="preserve">
+    <value>解码源码</value>
+  </data>
+  <data name="RunDecompile" xml:space="preserve">
+    <value>开始反编译</value>
+  </data>
+  <data name="WaitingForCommand" xml:space="preserve">
+    <value>等待命令...</value>
+  </data>
+  <data name="StartingApktool" xml:space="preserve">
+    <value>正在启动 apktool...</value>
+  </data>
+  <data name="DecompileFailed" xml:space="preserve">
+    <value>反编译失败</value>
+  </data>
+  <data name="DecompileSuccessful" xml:space="preserve">
+    <value>反编译成功</value>
+  </data>
+  <data name="Error_OutputFolderNotSet" xml:space="preserve">
+    <value>未设置输出文件夹。</value>
+  </data>
+  <data name="Error_FolderNotFound" xml:space="preserve">
+    <value>文件夹 '{0}' 不存在。</value>
+  </data>
+  <data name="Error_CouldNotOpenFolder" xml:space="preserve">
+    <value>无法打开文件夹: {0}</value>
+  </data>
+  <data name="Error_MissingApktool" xml:space="preserve">
+    <value>请先在设置中配置 apktool 路径再开始反编译。</value>
+  </data>
+  <data name="Error_InvalidApktoolPath" xml:space="preserve">
+    <value>apktool 路径 '{0}' 不存在。请在设置中更新。</value>
+  </data>
+  <data name="Error_InvalidApkFile" xml:space="preserve">
+    <value>无效的 APK 文件</value>
+  </data>
+  <data name="Error_InvalidJarFile" xml:space="preserve">
+    <value>无效的 JAR 文件</value>
+  </data>
+  <data name="Error_InvalidUbersignFile" xml:space="preserve">
+    <value>无效的 Ubersign 文件</value>
+  </data>
+  <data name="Error_InvalidProjectSelection" xml:space="preserve">
+    <value>请拖入包含 apktool.yml 和 AndroidManifest.xml 的有效项目文件夹。</value>
+  </data>
+  <data name="FileFilter_Apk" xml:space="preserve">
+    <value>APK 文件 (*.apk)|*.apk|所有文件 (*.*)|*.*</value>
+  </data>
+  <data name="FileFilter_Jar" xml:space="preserve">
+    <value>JAR 文件 (*.jar)|*.jar</value>
+  </data>
+  <data name="FileFilter_Ubersign" xml:space="preserve">
+    <value>Ubersign JAR 文件 (*.jar)|*.jar</value>
+  </data>
+  <data name="SettingsHeader" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="ApktoolPath" xml:space="preserve">
+    <value>Apktool 路径</value>
+  </data>
+  <data name="UbersignPath" xml:space="preserve">
+    <value>Ubersign 路径</value>
+  </data>
+  <data name="JavaPathNotFound" xml:space="preserve">
+    <value>JAVA 路径：未找到</value>
+  </data>
+  <data name="JavaPathFound" xml:space="preserve">
+    <value>JAVA 路径：{0}</value>
+  </data>
+  <data name="About_DevelopedBy" xml:space="preserve">
+    <value>开发者</value>
+  </data>
+  <data name="About_ProjectPage" xml:space="preserve">
+    <value>项目页面</value>
+  </data>
+  <data name="About_DeveloperPage" xml:space="preserve">
+    <value>开发者页面</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>版本：{0}</value>
+  </data>
+  <data name="DownloadApktool" xml:space="preserve">
+    <value>下载 Apktool：</value>
+  </data>
+  <data name="DownloadJava" xml:space="preserve">
+    <value>下载 JAVA：</value>
+  </data>
+  <data name="MenuBuild" xml:space="preserve">
+    <value>构建 APK</value>
+  </data>
+  <data name="BuildHeader" xml:space="preserve">
+    <value>构建 APK</value>
+  </data>
+  <data name="SelectProjectFolder" xml:space="preserve">
+    <value>选择项目文件夹</value>
+  </data>
+  <data name="SignApk" xml:space="preserve">
+    <value>签名 APK</value>
+  </data>
+  <data name="UseAapt2" xml:space="preserve">
+    <value>使用 AAPT2</value>
+  </data>
+  <data name="RunBuild" xml:space="preserve">
+    <value>开始构建</value>
+  </data>
+  <data name="BuildSuccessful" xml:space="preserve">
+    <value>APK 文件创建成功。</value>
+  </data>
+  <data name="BuildFailed" xml:space="preserve">
+    <value>APK 文件创建失败</value>
+  </data>
+  <data name="Warning_InvalidProjectFolder" xml:space="preserve">
+    <value>所选文件夹似乎不是有效的 apktool 项目（缺少 apktool.yml 或 AndroidManifest.xml）。</value>
+  </data>
+  <data name="DragDropFolderHint" xml:space="preserve">
+    <value>拖放文件夹</value>
+  </data>
+  <data name="MenuAnalyser" xml:space="preserve">
+    <value>APK 分析器</value>
+  </data>
+  <data name="AnalyserHeader" xml:space="preserve">
+    <value>APK 分析器</value>
+  </data>
+  <data name="RunAnalysis" xml:space="preserve">
+    <value>开始分析</value>
+  </data>
+  <data name="AnalysisStarting" xml:space="preserve">
+    <value>开始分析...</value>
+  </data>
+  <data name="AnalysisComplete" xml:space="preserve">
+    <value>分析完成</value>
+  </data>
+  <data name="AnalysisFailed" xml:space="preserve">
+    <value>分析失败</value>
+  </data>
+  <data name="RootCheckFound" xml:space="preserve">
+    <value>Root 检测：True</value>
+  </data>
+  <data name="RootCheckNotFound" xml:space="preserve">
+    <value>Root 检测：False</value>
+  </data>
+  <data name="EmulatorCheckFound" xml:space="preserve">
+    <value>模拟器检测：True</value>
+  </data>
+  <data name="EmulatorCheckNotFound" xml:space="preserve">
+    <value>模拟器检测：False</value>
+  </data>
+  <data name="CredentialsFound" xml:space="preserve">
+    <value>硬编码用户名/密码：True</value>
+  </data>
+  <data name="CredentialsNotFound" xml:space="preserve">
+    <value>硬编码用户名/密码：False</value>
+  </data>
+  <data name="SqlQueriesFound" xml:space="preserve">
+    <value>SQL 查询：True</value>
+  </data>
+  <data name="SqlQueriesNotFound" xml:space="preserve">
+    <value>SQL 查询：False</value>
+  </data>
+  <data name="HttpUrlsFound" xml:space="preserve">
+    <value>HTTP/HTTPS 路径：True</value>
+  </data>
+  <data name="HttpUrlsNotFound" xml:space="preserve">
+    <value>HTTP/HTTPS 路径：False</value>
+  </data>
+  <data name="FoundIn" xml:space="preserve">
+    <value>  发现于：</value>
+  </data>
+  <data name="Error_InvalidSmaliProject" xml:space="preserve">
+    <value>所选文件夹不包含 Smali 文件。</value>
+  </data>
+  <data name="DownloadApktoolButton" xml:space="preserve">
+    <value>下载 ApkTool</value>
+  </data>
+  <data name="DownloadJavaButton" xml:space="preserve">
+    <value>下载 JAVA</value>
+  </data>
+  <data name="DownloadUbersignerButton" xml:space="preserve">
+    <value>下载 Ubersigner</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="SaveReport" xml:space="preserve">
+    <value>保存报告</value>
+  </data>
+  <data name="Run" xml:space="preserve">
+    <value>运行</value>
+  </data>
+  <data name="ApkName" xml:space="preserve">
+    <value>APK 名称</value>
+  </data>
+  <data name="ConsoleLog" xml:space="preserve">
+    <value>控制台日志</value>
+  </data>
+</root>

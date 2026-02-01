@@ -74,6 +74,8 @@ public class LocalizationService : INotifyPropertyChanged
                 _currentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
                 Thread.CurrentThread.CurrentCulture = value;
+                CultureInfo.DefaultThreadCurrentCulture = value;
+                CultureInfo.DefaultThreadCurrentUICulture = value;
                 Resources.Culture = value;
                 
                 if (_settingsService != null)
