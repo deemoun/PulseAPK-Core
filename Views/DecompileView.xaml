@@ -28,7 +28,13 @@
         </TextBlock>
 
         <!-- Drop zone -->
-        <Border Grid.Row="1" Style="{StaticResource CyberPanelStyle}" Height="150" Margin="0,0,0,20" AllowDrop="True" DragEnter="Border_DragEnter" DragOver="Border_DragOver" Drop="Border_Drop">
+        <Border Grid.Row="1" Style="{StaticResource CyberPanelStyle}" Height="150" Margin="0,0,0,20" AllowDrop="True"
+                DragEnter="Border_DragEnter"
+                DragOver="Border_DragOver"
+                Drop="Border_Drop"
+                PreviewDragEnter="Border_DragEnter"
+                PreviewDragOver="Border_DragOver"
+                PreviewDrop="Border_Drop">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

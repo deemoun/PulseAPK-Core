@@ -4,7 +4,12 @@
              xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
              x:Class="PulseAPK.Avalonia.Views.DecompileView"
              x:DataType="vm:DecompileViewModel">
-    <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16" Margin="20">
+    <Grid RowDefinitions="Auto,Auto,Auto,*"
+          RowSpacing="16"
+          Margin="20"
+          DragDrop.AllowDrop="True"
+          DragDrop.DragOver="OnDragOver"
+          DragDrop.Drop="OnDrop">
         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DecompileHeader]}"
                    FontSize="24"
                    FontWeight="SemiBold" />

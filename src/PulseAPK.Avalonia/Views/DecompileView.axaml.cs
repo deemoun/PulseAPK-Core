@@ -59,6 +59,8 @@ public partial class DecompileView : UserControl
         {
             viewModel.ApkPath = path;
         }
+
+        e.Handled = true;
     }
 
     private static async Task ShowWarningAsync(string message, string title)
