@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>1.1.7</Version>
+    <Version>1.2.1</Version>
     <InformationalVersion>$(Version)</InformationalVersion>
     <ApplicationIcon>Resources\CyberUnpack.ico</ApplicationIcon>
   </PropertyGroup>

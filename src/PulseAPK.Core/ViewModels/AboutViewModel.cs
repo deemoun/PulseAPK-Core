@@ -22,7 +22,7 @@ public partial class AboutViewModel : ObservableObject
 
     private string GetAppVersion()
     {
-        var informationalVersion = Assembly.GetExecutingAssembly()
+        var informationalVersion = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
                                             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
                                             .InformationalVersion;
 
@@ -42,7 +42,7 @@ public partial class AboutViewModel : ObservableObject
         }
 
         var version = string.IsNullOrWhiteSpace(informationalVersion)
-            ? Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.1.7"
+            ? (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).GetName().Version?.ToString(3) ?? "1.2.1"
             : informationalVersion;
 
         return string.Format(Properties.Resources.About_Version, version);
