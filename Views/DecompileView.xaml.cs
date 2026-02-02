@@ -21,8 +21,6 @@ namespace PulseAPK.Views
             {
                 e.Effects = DragDropEffects.None;
             }
-
-            e.Handled = true;
         }
 
         private void Border_DragOver(object sender, DragEventArgs e)
@@ -35,8 +33,6 @@ namespace PulseAPK.Views
             {
                 e.Effects = DragDropEffects.None;
             }
-
-            e.Handled = true;
         }
 
         private void Border_Drop(object sender, DragEventArgs e)
@@ -62,8 +58,6 @@ namespace PulseAPK.Views
                     }
                 }
             }
-
-            e.Handled = true;
         }
     }
 }
