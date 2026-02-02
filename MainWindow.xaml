@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PulseAPK"
-        xmlns:utils="clr-namespace:PulseAPK.Utils"
         xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
         xmlns:views="clr-namespace:PulseAPK.Views"
         xmlns:properties="clr-namespace:PulseAPK.Core.Properties;assembly=PulseAPK.Core"
@@ -50,10 +49,10 @@
                                 <DropShadowEffect Color="{StaticResource Color.NeonCyan}" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
                             </Image.Effect>
                         </Image>
-                        <TextBlock Text="{utils:Localization Key=AppTitle}" Foreground="{StaticResource Brush.TextPrimary}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding WindowTitle}" Foreground="{StaticResource Brush.TextPrimary}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <Button Content="{utils:Localization Key=MenuDecompile}" Command="{Binding NavigateToDecompileCommand}">
+                    <Button Content="{Binding MenuDecompileLabel}" Command="{Binding NavigateToDecompileCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource CyberButtonStyle}">
                                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -67,7 +66,7 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button Content="{utils:Localization Key=MenuBuild}" Command="{Binding NavigateToBuildCommand}">
+                    <Button Content="{Binding MenuBuildLabel}" Command="{Binding NavigateToBuildCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource CyberButtonStyle}">
                                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -81,7 +80,7 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button Content="{utils:Localization Key=MenuAnalyser}" Command="{Binding NavigateToAnalyserCommand}">
+                    <Button Content="{Binding MenuAnalyserLabel}" Command="{Binding NavigateToAnalyserCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource CyberButtonStyle}">
                                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -95,7 +94,7 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button Content="{utils:Localization Key=MenuSettings}" Command="{Binding NavigateToSettingsCommand}">
+                    <Button Content="{Binding MenuSettingsLabel}" Command="{Binding NavigateToSettingsCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource CyberButtonStyle}">
                                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -109,7 +108,7 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button Content="{utils:Localization Key=MenuAbout}" Command="{Binding NavigateToAboutCommand}">
+                    <Button Content="{Binding MenuAboutLabel}" Command="{Binding NavigateToAboutCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource CyberButtonStyle}">
                                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
