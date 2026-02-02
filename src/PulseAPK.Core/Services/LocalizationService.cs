@@ -85,6 +85,8 @@ public class LocalizationService : INotifyPropertyChanged
                 }
                 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item[]"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentLanguage)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentCulture)));
             }
