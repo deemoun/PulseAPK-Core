@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.ComponentModel;
 using PulseAPK.Core.Abstractions;
+using PulseAPK.Core.Services;
 using Properties = PulseAPK.Core.Properties;
 
 namespace PulseAPK.Core.ViewModels;
@@ -8,6 +10,7 @@ namespace PulseAPK.Core.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly LocalizationService _localizationService;
 
     [ObservableProperty]
     private object _currentView;
@@ -18,9 +21,18 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _selectedMenu = "Decompile";
 
-    public MainViewModel(IServiceProvider serviceProvider)
+    public string MenuDecompileLabel => _localizationService["MenuDecompile"];
+    public string MenuBuildLabel => _localizationService["MenuBuild"];
+    public string MenuAnalyserLabel => _localizationService["MenuAnalyser"];
+    public string MenuSettingsLabel => _localizationService["MenuSettings"];
+    public string MenuAboutLabel => _localizationService["MenuAbout"];
+
+    public MainViewModel(IServiceProvider serviceProvider, LocalizationService localizationService)
     {
         _serviceProvider = serviceProvider;
+        _localizationService = localizationService;
+        WindowTitle = _localizationService["AppTitle"];
+        _localizationService.PropertyChanged += HandleLocalizationChanged;
         // Initial view
         CurrentView = Resolve<DecompileViewModel>();
     }
@@ -66,5 +78,20 @@ public partial class MainViewModel : ObservableObject
         if (service == null)
             throw new InvalidOperationException($"Could not resolve service of type {typeof(T).Name}");
         return (T)service;
+    }
+
+    private void HandleLocalizationChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != "Item[]")
+        {
+            return;
+        }
+
+        WindowTitle = _localizationService["AppTitle"];
+        OnPropertyChanged(nameof(MenuDecompileLabel));
+        OnPropertyChanged(nameof(MenuBuildLabel));
+        OnPropertyChanged(nameof(MenuAnalyserLabel));
+        OnPropertyChanged(nameof(MenuSettingsLabel));
+        OnPropertyChanged(nameof(MenuAboutLabel));
     }
 }
