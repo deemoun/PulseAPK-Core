@@ -3,22 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:properties="clr-namespace:PulseAPK.Properties"
              xmlns:utils="clr-namespace:PulseAPK.Utils"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="800">
-    <UserControl.Resources>
-        <utils:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
-    </UserControl.Resources>
     <Grid Margin="20">
         <StackPanel>
             <TextBlock Text="{utils:Localization SettingsHeader}" Foreground="{StaticResource Brush.TextPrimary}" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
 
             <TextBlock Text="{utils:Localization LanguageLabel}" Foreground="{StaticResource Brush.TextSecondary}" Margin="0,0,0,5"/>
-            <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}" Width="200" HorizontalAlignment="Left" Margin="0,0,0,10">
+            <ComboBox ItemsSource="{Binding AvailableLanguages}" SelectedItem="{Binding SelectedLanguage}" Width="200" HorizontalAlignment="Left" Margin="0,0,0,10">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}"/>
+                        <TextBlock Text="{Binding Name}"/>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
