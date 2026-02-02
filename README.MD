@@ -23,19 +23,11 @@
   <a href="README.zh.md">中文</a>
 </p>
 
-**PulseAPK** is a professional-grade GUI for Android reverse engineering and security analysis, built with WPF and .NET 8. It combines the raw power of `apktool` with advanced static analysis capabilities, wrapped in a high-performance, cyberpunk-inspired interface. PulseAPK streamlines the entire workflow from decompilation to analysis, rebuilding, and signing.
+**PulseAPK** is a professional-grade, cross-platform GUI for Android reverse engineering and security analysis, built with Avalonia and .NET 8. It combines the raw power of `apktool` with advanced static analysis capabilities, wrapped in a high-performance, cyberpunk-inspired interface. PulseAPK streamlines the entire workflow from decompilation to analysis, rebuilding, and signing.
 
 [Watch the demo on YouTube](https://youtu.be/Mkdt0c-7Wwg)
 
-![PulseAPK UI](images/apktool_decompile.png)
-
-You can also perform the Smali code analysis. Just drag and drop the Smali folder into the Analysis tab.
-
-![PulseAPK Smali Analysis](images/apktool_analysis.png)
-
-If you want to build (and sign, if necessary) the Smali folder - use the "Build APK" section.
-
-![PulseAPK Build APK](images/apktool_build_apk.png)
+PulseAPK is organized into a single-window workflow with top navigation for each tool: **Decompile**, **Build**, **Analyser**, **Settings**, and **About**. Each section focuses on one stage of the APK lifecycle so you can move from decoding to analysis and signing without leaving the app.
 
 ## Key Features
 
@@ -58,9 +50,9 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
 *Rules are defined in `smali_analysis_rules.json` and can be customized to your specific needs.*
 
 ### APK Management
-- **Decompilation**: Effortlessly decode resources and sources with configurable options.
-- **Recompilation**: Rebuild your modified projects into valid APKs.
-- **Signing**: Integrated keystore management for signing rebuilt APKs, ensuring they are ready for device installation.
+- **Decompile**: Drag-and-drop an APK, choose decode options (resources, sources, manifest handling), and extract to an output folder or the APK’s own folder.
+- **Build**: Recompile from a project folder, set output name and location, toggle AAPT2, and optionally sign the APK in one step.
+- **Analyser**: Point to a decompiled project folder, run the Smali analysis, and export the report when needed.
 
 ## Prerequisites
 
@@ -79,27 +71,29 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
 
 2.  **Setup**
     - Open **Settings**.
-    - Link your `apktool.jar` path.
-    - PulseAPK will automatically detect your Java installation based on environment variables.
+    - Link your `apktool.jar` and `uber-apk-signer.jar` paths.
+    - PulseAPK will display the Java runtime it detects from your environment variables.
+    - Use the built-in download shortcuts if you need to grab dependencies quickly.
 
 3.  **Analyze an APK**
     - **Decompile** your target APK using the Decompile tab.
-    - Switch to the **Analysis** tab.
+    - Switch to the **Analyser** tab.
     - Select your decompiled project folder.
     - Click **Analyze Smali** to generate a security report.
+    - Save the report from the footer action when you are ready.
 
 4.  **Modify & Rebuild**
     - Edit files in your project folder.
     - Use the **Build** tab to recompile into a new APK.
-    - Use the **Sign** tab to sign the output APK.
+    - Toggle signing during the build step to sign the output APK.
 
 ## Technical Architecture
 
 PulseAPK utilizes a clean MVVM (Model-View-ViewModel) architecture:
 
-- **Core**: .NET 8.0, WPF.
+- **Core**: .NET 8.0, Avalonia (cross-platform UI).
 - **Analysis**: Custom Regex-based static analysis engine with hot-reloadable rules.
-- **Services**: dedicated services for Apktool interaction, file system monitoring, and settings management.
+- **Services**: Dedicated services for Apktool interaction, file system monitoring, and settings management.
 
 ## License
 
