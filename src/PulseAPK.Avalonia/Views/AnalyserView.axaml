@@ -32,10 +32,18 @@
                 <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
                             Command="{Binding BrowseProjectCommand}"
-                            Width="120" />
+                            MinWidth="120"
+                            Height="38"
+                            FontSize="14"
+                            VerticalContentAlignment="Center"
+                            Padding="16,0" />
                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[RunAnalysis]}"
                             Command="{Binding RunAnalysisCommand}"
-                            Width="120" />
+                            MinWidth="120"
+                            Height="38"
+                            FontSize="14"
+                            VerticalContentAlignment="Center"
+                            Padding="16,0" />
                 </StackPanel>
             </Grid>
         </Border>
