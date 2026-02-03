@@ -16,22 +16,14 @@
                 BorderBrush="#3C3C3C"
                 BorderThickness="1"
                 CornerRadius="6"
-                Padding="12"
-                DragDrop.AllowDrop="True"
-                DragDrop.DragOver="OnDragOver"
-                DragDrop.Drop="OnDrop">
+                Padding="12">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                 <StackPanel Spacing="6">
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectApk]}"
                                FontWeight="SemiBold" />
                     <TextBox Text="{Binding ApkPath}"
                              Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectApk]}"
-                             IsReadOnly="True"
-                             IsHitTestVisible="False" />
-                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DragDropHint]}"
-                               FontSize="12"
-                               Opacity="0.7"
-                               IsVisible="{Binding IsHintVisible}" />
+                             IsReadOnly="True" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"

@@ -14,10 +14,7 @@
                 BorderBrush="#3C3C3C"
                 BorderThickness="1"
                 CornerRadius="6"
-                Padding="12"
-                DragDrop.AllowDrop="True"
-                DragDrop.DragOver="OnDragOver"
-                DragDrop.Drop="OnDrop">
+                Padding="12">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                 <StackPanel Spacing="6">
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectProjectFolder]}"
@@ -25,10 +22,6 @@
                     <TextBox Text="{Binding ProjectPath}"
                              Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectProjectFolder]}"
                              IsReadOnly="True" />
-                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DragDropFolderHint]}"
-                               FontSize="12"
-                               Opacity="0.7"
-                               IsVisible="{Binding IsHintVisible}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
