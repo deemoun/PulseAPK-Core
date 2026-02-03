@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulseAPK", "PulseAPK.csproj", "{32981A55-5260-4C0A-97A2-3093A06D80BF}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unit", "unit", "{9D556B49-86D1-93A7-9596-FFAAB74EC556}"
@@ -27,18 +25,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Debug|x64.Build.0 = Debug|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Debug|x86.Build.0 = Debug|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Release|x64.ActiveCfg = Release|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Release|x64.Build.0 = Release|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Release|x86.ActiveCfg = Release|Any CPU
-		{32981A55-5260-4C0A-97A2-3093A06D80BF}.Release|x86.Build.0 = Release|Any CPU
 		{5619EBDC-484C-4F27-8D2D-2F3E24D6CCAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5619EBDC-484C-4F27-8D2D-2F3E24D6CCAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5619EBDC-484C-4F27-8D2D-2F3E24D6CCAD}.Debug|x64.ActiveCfg = Debug|Any CPU
