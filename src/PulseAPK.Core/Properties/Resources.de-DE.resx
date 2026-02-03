@@ -295,4 +295,16 @@
   <data name="ConsoleLog" xml:space="preserve">
     <value>Konsolenprotokoll</value>
   </data>
+  <data name="ApkPathPlaceholder" xml:space="preserve">
+    <value>Der Pfad wird angezeigt, nachdem eine APK-Datei ausgewählt wurde.</value>
+  </data>
+  <data name="ProjectFolderPathPlaceholder" xml:space="preserve">
+    <value>Der Pfad wird angezeigt, nachdem ein Projektordner ausgewählt wurde.</value>
+  </data>
+  <data name="BrowseApkTip" xml:space="preserve">
+    <value>Tipp: Klicken Sie auf „Durchsuchen“, um eine APK-Datei auszuwählen.</value>
+  </data>
+  <data name="BrowseProjectFolderTip" xml:space="preserve">
+    <value>Tipp: Klicken Sie auf „Durchsuchen“, um einen Projektordner auszuwählen.</value>
+  </data>
 </root>

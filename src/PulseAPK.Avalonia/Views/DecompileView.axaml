@@ -22,11 +22,11 @@
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectApk]}"
                                FontWeight="SemiBold" />
                     <TextBox Text="{Binding ApkPath}"
-                             Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectApk]}"
+                             Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ApkPathPlaceholder]}"
                              IsReadOnly="True"
                              IsTabStop="False"
                              IsHitTestVisible="False" />
-                    <TextBlock Text="Tip: Click Browse to choose an APK file."
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[BrowseApkTip]}"
                                FontSize="12"
                                Opacity="0.7"
                                IsVisible="{Binding IsHintVisible}" />

@@ -295,4 +295,16 @@
   <data name="ConsoleLog" xml:space="preserve">
     <value>Console log</value>
   </data>
+  <data name="ApkPathPlaceholder" xml:space="preserve">
+    <value>The path will be displayed after picking an APK file.</value>
+  </data>
+  <data name="ProjectFolderPathPlaceholder" xml:space="preserve">
+    <value>The path will be displayed after picking a project folder.</value>
+  </data>
+  <data name="BrowseApkTip" xml:space="preserve">
+    <value>Tip: Click Browse to choose an APK file.</value>
+  </data>
+  <data name="BrowseProjectFolderTip" xml:space="preserve">
+    <value>Tip: Click Browse to choose a project folder.</value>
+  </data>
 </root>

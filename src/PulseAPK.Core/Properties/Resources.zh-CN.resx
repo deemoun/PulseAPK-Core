@@ -295,4 +295,16 @@
   <data name="ConsoleLog" xml:space="preserve">
     <value>控制台日志</value>
   </data>
+  <data name="ApkPathPlaceholder" xml:space="preserve">
+    <value>选择 APK 文件后将显示路径。</value>
+  </data>
+  <data name="ProjectFolderPathPlaceholder" xml:space="preserve">
+    <value>选择项目文件夹后将显示路径。</value>
+  </data>
+  <data name="BrowseApkTip" xml:space="preserve">
+    <value>提示：点击“浏览”以选择 APK 文件。</value>
+  </data>
+  <data name="BrowseProjectFolderTip" xml:space="preserve">
+    <value>提示：点击“浏览”以选择项目文件夹。</value>
+  </data>
 </root>

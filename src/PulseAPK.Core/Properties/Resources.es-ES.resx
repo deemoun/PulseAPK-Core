@@ -295,4 +295,16 @@
   <data name="ConsoleLog" xml:space="preserve">
     <value>Registro de consola</value>
   </data>
+  <data name="ApkPathPlaceholder" xml:space="preserve">
+    <value>La ruta se mostrará después de seleccionar un archivo APK.</value>
+  </data>
+  <data name="ProjectFolderPathPlaceholder" xml:space="preserve">
+    <value>La ruta se mostrará después de seleccionar una carpeta de proyecto.</value>
+  </data>
+  <data name="BrowseApkTip" xml:space="preserve">
+    <value>Sugerencia: haz clic en Examinar para seleccionar un archivo APK.</value>
+  </data>
+  <data name="BrowseProjectFolderTip" xml:space="preserve">
+    <value>Sugerencia: haz clic en Examinar para seleccionar una carpeta de proyecto.</value>
+  </data>
 </root>

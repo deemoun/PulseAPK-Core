@@ -295,4 +295,16 @@
   <data name="ConsoleLog" xml:space="preserve">
     <value>Консольный журнал</value>
   </data>
+  <data name="ApkPathPlaceholder" xml:space="preserve">
+    <value>Путь будет отображен после выбора APK-файла.</value>
+  </data>
+  <data name="ProjectFolderPathPlaceholder" xml:space="preserve">
+    <value>Путь будет отображен после выбора папки проекта.</value>
+  </data>
+  <data name="BrowseApkTip" xml:space="preserve">
+    <value>Подсказка: нажмите «Обзор», чтобы выбрать APK-файл.</value>
+  </data>
+  <data name="BrowseProjectFolderTip" xml:space="preserve">
+    <value>Подсказка: нажмите «Обзор», чтобы выбрать папку проекта.</value>
+  </data>
 </root>

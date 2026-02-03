@@ -295,4 +295,16 @@
   <data name="ConsoleLog" xml:space="preserve">
     <value>سجل وحدة التحكم</value>
   </data>
+  <data name="ApkPathPlaceholder" xml:space="preserve">
+    <value>سيتم عرض المسار بعد اختيار ملف APK.</value>
+  </data>
+  <data name="ProjectFolderPathPlaceholder" xml:space="preserve">
+    <value>سيتم عرض المسار بعد اختيار مجلد المشروع.</value>
+  </data>
+  <data name="BrowseApkTip" xml:space="preserve">
+    <value>تلميح: انقر على "استعراض" لاختيار ملف APK.</value>
+  </data>
+  <data name="BrowseProjectFolderTip" xml:space="preserve">
+    <value>تلميح: انقر على "استعراض" لاختيار مجلد المشروع.</value>
+  </data>
 </root>

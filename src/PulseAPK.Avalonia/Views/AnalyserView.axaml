@@ -20,11 +20,11 @@
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectProjectFolder]}"
                                FontWeight="SemiBold" />
                     <TextBox Text="{Binding ProjectPath}"
-                             Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectProjectFolder]}"
+                             Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ProjectFolderPathPlaceholder]}"
                              IsReadOnly="True"
                              IsTabStop="False"
                              IsHitTestVisible="False" />
-                    <TextBlock Text="Tip: Click Browse to choose a project folder."
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[BrowseProjectFolderTip]}"
                                FontSize="12"
                                Opacity="0.7"
                                IsVisible="{Binding IsHintVisible}" />
