@@ -4,21 +4,21 @@
 
 [Demo megtekintése YouTube-on](https://youtu.be/Mkdt0c-7Wwg)
 
-![PulseAPK UI](images/apktool_decompile.png)
+![PulseAPK UI](images/pulse_apk_decompile.png)
 
-Smali kód elemzés is végezhető. Egyszerűen húzd a Smali mappát az Analysis fülre.
+Use the Analysis tab to select the decompiled project folder and run Smali analysis.
 
 ![PulseAPK Smali Analysis](images/apktool_analysis.png)
 
 Ha a Smali mappát szeretnéd összeállítani (és szükség esetén aláírni), használd a "Build APK" részt.
 
-![PulseAPK Build APK](images/apktool_build_apk.png)
+![PulseAPK Build APK](images/pulse_apk_build.png)
 
 ## Főbb funkciók
 
 - **🛡️ Statikus biztonsági elemzés**: automatikusan vizsgálja a Smali kódot sérülékenységek után, beleértve a root észlelést, emulátor-ellenőrzéseket, keménykódolt hitelesítő adatokat és a nem biztonságos SQL/HTTP használatot.
 - **⚙️ Dinamikus szabálymotor**: teljesen testreszabható elemzési szabályok a `smali_analysis_rules.json` fájlban. Az észlelési minták újraindítás nélkül módosíthatók. A gyorsítótárazás optimális teljesítményt biztosít.
-- **🚀 Modern UI/UX**: reszponzív, sötét felület hatékony munkához, drag-and-drop támogatással és valós idejű konzolvisszajelzéssel.
+- **🚀 Modern UI/UX**: A responsive, dark-themed interface designed for efficiency, with real-time console feedback.
 - **📦 Teljes munkafolyamat**: APK-k dekompilálása, elemzése, szerkesztése, újraépítése és aláírása egyetlen környezetben.
 - **⚡ Biztonságos és robusztus**: intelligens validációt és összeomlás-megelőző mechanizmusokat tartalmaz a munkaterület és adatok védelmére.
 - **🔧 Teljesen konfigurálható**: eszközútvonalak (Java, Apktool), munkaterület-beállítások és elemzési paraméterek könnyű kezelése.

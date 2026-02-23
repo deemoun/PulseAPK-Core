@@ -4,15 +4,15 @@
 
 [צפו בדמו ביוטיוב](https://youtu.be/Mkdt0c-7Wwg)
 
-![PulseAPK UI](images/apktool_decompile.png)
+![PulseAPK UI](images/pulse_apk_decompile.png)
 
-אפשר גם לבצע ניתוח קוד Smali. פשוט גררו ושחררו את תיקיית ה-Smali ללשונית Analysis.
+Use the Analysis tab to select the decompiled project folder and run Smali analysis.
 
 ![PulseAPK Smali Analysis](images/apktool_analysis.png)
 
 אם אתם רוצים לבנות (ולחתום אם צריך) את תיקיית ה-Smali – השתמשו בחלק "Build APK".
 
-![PulseAPK Build APK](images/apktool_build_apk.png)
+![PulseAPK Build APK](images/pulse_apk_build.png)
 
 ## תכונות מרכזיות
 

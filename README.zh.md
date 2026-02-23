@@ -4,21 +4,21 @@
 
 [观看 YouTube 演示](https://youtu.be/Mkdt0c-7Wwg)
 
-![PulseAPK UI](images/apktool_decompile.png)
+![PulseAPK UI](images/pulse_apk_decompile.png)
 
-你还可以进行 Smali 代码分析。只需将 Smali 文件夹拖放到 Analysis 标签页。
+Use the Analysis tab to select the decompiled project folder and run Smali analysis.
 
 ![PulseAPK Smali Analysis](images/apktool_analysis.png)
 
 如果要构建（并在必要时签名）Smali 文件夹，请使用 “Build APK” 部分。
 
-![PulseAPK Build APK](images/apktool_build_apk.png)
+![PulseAPK Build APK](images/pulse_apk_build.png)
 
 ## 关键特性
 
 - **🛡️ 静态安全分析**：自动扫描 Smali 代码中的漏洞，包括 root 检测、模拟器检测、硬编码凭据以及不安全的 SQL/HTTP 使用。
 - **⚙️ 动态规则引擎**：通过 `smali_analysis_rules.json` 完全可定制分析规则。无需重启应用即可实时修改检测模式，并使用缓存提升性能。
-- **🚀 现代 UI/UX**：响应式深色界面，专为效率设计，支持拖放与实时控制台反馈。
+- **🚀 Modern UI/UX**: A responsive, dark-themed interface designed for efficiency, with real-time console feedback.
 - **📦 全流程一体化**：在统一环境中完成 APK 的反编译、分析、编辑、重新编译与签名。
 - **⚡ 安全可靠**：包含智能校验与崩溃预防机制，保护工作区与数据。
 - **🔧 完全可配置**：轻松管理工具路径（Java、Apktool）、工作区设置与分析参数。

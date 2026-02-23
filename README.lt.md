@@ -4,15 +4,15 @@
 
 [Žiūrėti demonstraciją YouTube](https://youtu.be/Mkdt0c-7Wwg)
 
-![PulseAPK UI](images/apktool_decompile.png)
+![PulseAPK UI](images/pulse_apk_decompile.png)
 
-Taip pat galite atlikti Smali kodo analizę. Tiesiog nutempkite Smali aplanką į Analysis skirtuką.
+Use the Analysis tab to select the decompiled project folder and run Smali analysis.
 
 ![PulseAPK Smali Analysis](images/apktool_analysis.png)
 
 Jei norite sukurti (ir, jei reikia, pasirašyti) Smali aplanką, naudokite „Build APK“ skiltį.
 
-![PulseAPK Build APK](images/apktool_build_apk.png)
+![PulseAPK Build APK](images/pulse_apk_build.png)
 
 ## Pagrindinės funkcijos
 

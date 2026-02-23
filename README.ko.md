@@ -4,15 +4,15 @@
 
 [YouTube 데모 보기](https://youtu.be/Mkdt0c-7Wwg)
 
-![PulseAPK UI](images/apktool_decompile.png)
+![PulseAPK UI](images/pulse_apk_decompile.png)
 
-Smali 코드 분석도 수행할 수 있습니다. Smali 폴더를 Analysis 탭으로 드래그 앤 드롭하세요.
+Use the Analysis tab to select the decompiled project folder and run Smali analysis.
 
 ![PulseAPK Smali Analysis](images/apktool_analysis.png)
 
 Smali 폴더를 빌드(필요 시 서명)하려면 "Build APK" 섹션을 사용하세요.
 
-![PulseAPK Build APK](images/apktool_build_apk.png)
+![PulseAPK Build APK](images/pulse_apk_build.png)
 
 ## 주요 기능
 

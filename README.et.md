@@ -4,21 +4,21 @@
 
 [Vaata demo YouTube'is](https://youtu.be/Mkdt0c-7Wwg)
 
-![PulseAPK UI](images/apktool_decompile.png)
+![PulseAPK UI](images/pulse_apk_decompile.png)
 
-Saad teha ka Smali koodi analüüsi. Lohista Smali kaust Analysis vahelehele.
+Use the Analysis tab to select the decompiled project folder and run Smali analysis.
 
 ![PulseAPK Smali Analysis](images/apktool_analysis.png)
 
 Kui soovid Smali kausta ehitada (ja vajadusel allkirjastada), kasuta jaotist "Build APK".
 
-![PulseAPK Build APK](images/apktool_build_apk.png)
+![PulseAPK Build APK](images/pulse_apk_build.png)
 
 ## Põhifunktsioonid
 
 - **🛡️ Staatiline turvaanalüüs**: skaneerib Smali koodi automaatselt haavatavuste suhtes, sh root-tuvastus, emulaatori kontrollid, kõvakodeeritud mandaatandmed ja ebaturvaline SQL/HTTP kasutus.
 - **⚙️ Dünaamiline reeglimootor**: täielikult kohandatavad analüüsireeglid `smali_analysis_rules.json` kaudu. Tuvastusmustreid saab muuta ilma rakendust taaskäivitamata. Vahemälu tagab optimaalse jõudluse.
-- **🚀 Kaasaegne UI/UX**: reageeriv tume kasutajaliides tõhusa töö jaoks, drag-and-drop tugi ja reaalajas konsooli tagasiside.
+- **🚀 Modern UI/UX**: A responsive, dark-themed interface designed for efficiency, with real-time console feedback.
 - **📦 Täielik töövoog**: dekompileeri, analüüsi, muuda, ehita uuesti ja allkirjasta APK-sid ühes keskkonnas.
 - **⚡ Turvaline ja töökindel**: sisaldab nutikat valideerimist ja kokkujooksmiste ennetamist tööruumi ja andmete kaitseks.
 - **🔧 Täielikult seadistatav**: halda tööriistateid (Java, Apktool), tööruumi sätteid ja analüüsiparameetreid hõlpsalt.

@@ -4,21 +4,21 @@
 
 [Ver la demo en YouTube](https://youtu.be/Mkdt0c-7Wwg)
 
-![PulseAPK UI](images/apktool_decompile.png)
+![PulseAPK UI](images/pulse_apk_decompile.png)
 
-También puedes realizar el análisis de código Smali. Solo arrastra y suelta la carpeta Smali en la pestaña Analysis.
+Use the Analysis tab to select the decompiled project folder and run Smali analysis.
 
 ![PulseAPK Smali Analysis](images/apktool_analysis.png)
 
 Si quieres compilar (y firmar si es necesario) la carpeta Smali, usa la sección "Build APK".
 
-![PulseAPK Build APK](images/apktool_build_apk.png)
+![PulseAPK Build APK](images/pulse_apk_build.png)
 
 ## Funcionalidades clave
 
 - **🛡️ Análisis de seguridad estático**: Escanea automáticamente el código Smali en busca de vulnerabilidades, incluida la detección de root, comprobaciones de emulador, credenciales codificadas y uso inseguro de SQL/HTTP.
 - **⚙️ Motor de reglas dinámico**: Reglas de análisis totalmente personalizables a través de `smali_analysis_rules.json`. Modifica los patrones de detección al vuelo sin reiniciar la aplicación. Usa caché para un rendimiento óptimo.
-- **🚀 UI/UX moderno**: Interfaz oscura y adaptable diseñada para la eficiencia, con soporte de arrastrar y soltar y salida de consola en tiempo real.
+- **🚀 Modern UI/UX**: A responsive, dark-themed interface designed for efficiency, with real-time console feedback.
 - **📦 Flujo de trabajo completo**: Decompila, analiza, edita, recompila y firma APKs en un único entorno.
 - **⚡ Seguro y robusto**: Incluye validación inteligente y prevención de fallos para proteger tu espacio de trabajo y tus datos.
 - **🔧 Totalmente configurable**: Gestiona rutas de herramientas (Java, Apktool), ajustes del espacio de trabajo y parámetros de análisis con facilidad.

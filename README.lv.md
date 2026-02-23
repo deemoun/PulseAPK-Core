@@ -4,15 +4,15 @@
 
 [Skatīt demo YouTube](https://youtu.be/Mkdt0c-7Wwg)
 
-![PulseAPK UI](images/apktool_decompile.png)
+![PulseAPK UI](images/pulse_apk_decompile.png)
 
-Varat arī veikt Smali koda analīzi. Vienkārši velciet un nometiet Smali mapi uz Analysis cilni.
+Use the Analysis tab to select the decompiled project folder and run Smali analysis.
 
 ![PulseAPK Smali Analysis](images/apktool_analysis.png)
 
 Ja vēlaties uzbūvēt (un, ja nepieciešams, parakstīt) Smali mapi, izmantojiet "Build APK" sadaļu.
 
-![PulseAPK Build APK](images/apktool_build_apk.png)
+![PulseAPK Build APK](images/pulse_apk_build.png)
 
 ## Galvenās funkcijas
 
