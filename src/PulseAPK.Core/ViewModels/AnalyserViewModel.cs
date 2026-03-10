@@ -81,7 +81,15 @@ public partial class AnalyserViewModel : ObservableObject
             return;
         }
 
-        var smaliFiles = Directory.EnumerateFiles(folder, "*.smali", SearchOption.AllDirectories);
+        var options = new EnumerationOptions
+        {
+            RecurseSubdirectories = true,
+            IgnoreInaccessible = true,
+            ReturnSpecialDirectories = false,
+            AttributesToSkip = FileAttributes.ReparsePoint
+        };
+
+        var smaliFiles = Directory.EnumerateFiles(folder, "*.smali", options);
         if (!smaliFiles.Any())
         {
             await _dialogService.ShowWarningAsync(Properties.Resources.Error_InvalidSmaliProject, Properties.Resources.AnalyserHeader);

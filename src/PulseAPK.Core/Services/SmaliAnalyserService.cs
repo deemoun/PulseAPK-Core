@@ -30,8 +30,8 @@ namespace PulseAPK.Core.Services
                 rules = (AnalysisRuleSet)AnalysisRulesLoader.InitializeRules();
             }
 
-            // Find all .smali files recursively
-            var smaliFiles = Directory.GetFiles(projectPath, "*.smali", SearchOption.AllDirectories);
+            // Find all .smali files recursively, skipping inaccessible directories (sandbox/container safe)
+            var smaliFiles = GetSmaliFiles(projectPath, logCallback);
 
             if (smaliFiles.Length == 0)
             {
@@ -83,6 +83,27 @@ namespace PulseAPK.Core.Services
             });
 
             return result;
+        }
+
+        private string[] GetSmaliFiles(string projectPath, Action<string> logCallback)
+        {
+            try
+            {
+                var options = new EnumerationOptions
+                {
+                    RecurseSubdirectories = true,
+                    IgnoreInaccessible = true,
+                    ReturnSpecialDirectories = false,
+                    AttributesToSkip = FileAttributes.ReparsePoint
+                };
+
+                return Directory.GetFiles(projectPath, "*.smali", options);
+            }
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException)
+            {
+                logCallback?.Invoke($"Warning: Unable to enumerate some folders due to sandbox/file-system restrictions: {ex.Message}");
+                return Array.Empty<string>();
+            }
         }
 
         private void AnalyzeFile(
