@@ -17,6 +17,12 @@ namespace PulseAPK.Core.Utils
             return Path.Combine(writableRoot, "compiled");
         }
 
+        public static string GetDefaultReportsPath()
+        {
+            var writableRoot = GetWritableAppDataRoot();
+            return Path.Combine(writableRoot, "reports");
+        }
+
         private static string GetWritableAppDataRoot()
         {
             var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
