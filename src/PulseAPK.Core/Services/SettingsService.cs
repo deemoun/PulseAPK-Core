@@ -20,42 +20,109 @@ namespace PulseAPK.Core.Services
     public class SettingsService : ISettingsService
     {
         private const string SettingsFileName = "settings.json";
+        private const string AppName = "PulseAPK";
+
         private readonly string _settingsFilePath;
+        private readonly string _legacySettingsFilePath;
 
         public AppSettings Settings { get; private set; }
 
         public SettingsService()
         {
-            var settingsFolder = AppContext.BaseDirectory;
+            var baseDirectory = AppContext.BaseDirectory;
+            var settingsFolder = ResolveSettingsFolder(baseDirectory);
             _settingsFilePath = Path.Combine(settingsFolder, SettingsFileName);
+            _legacySettingsFilePath = Path.Combine(baseDirectory, SettingsFileName);
             Settings = LoadSettings();
+        }
+
+        private static string ResolveSettingsFolder(string baseDirectory)
+        {
+            if (Directory.Exists(baseDirectory) && IsDirectoryWritable(baseDirectory))
+            {
+                return baseDirectory;
+            }
+
+            var appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            if (string.IsNullOrWhiteSpace(appDataDirectory))
+            {
+                appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            }
+
+            if (string.IsNullOrWhiteSpace(appDataDirectory))
+            {
+                appDataDirectory = Environment.CurrentDirectory;
+            }
+
+            var settingsDirectory = Path.Combine(appDataDirectory, AppName);
+            Directory.CreateDirectory(settingsDirectory);
+            return settingsDirectory;
+        }
+
+        private static bool IsDirectoryWritable(string directory)
+        {
+            try
+            {
+                var testFilePath = Path.Combine(directory, $".{AppName}.write-test-{Guid.NewGuid():N}");
+                using (File.Create(testFilePath))
+                {
+                }
+
+                File.Delete(testFilePath);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private AppSettings LoadSettings()
         {
-            if (File.Exists(_settingsFilePath))
+            if (TryLoadSettings(_settingsFilePath, out var settings))
             {
-                try
-                {
-                    var json = File.ReadAllText(_settingsFilePath);
-                    var settings = JsonSerializer.Deserialize<AppSettings>(json);
-                    if (settings != null)
-                    {
-                        return settings;
-                    }
-                }
-                catch
-                {
-                    // Fallback to defaults when the settings file cannot be read
-                }
+                return settings;
+            }
+
+            // If we moved from base directory to app-data fallback, keep reading older file once.
+            if (!string.Equals(_legacySettingsFilePath, _settingsFilePath, StringComparison.OrdinalIgnoreCase)
+                && TryLoadSettings(_legacySettingsFilePath, out settings))
+            {
+                Save(settings);
+                return settings;
             }
 
             return new AppSettings();
         }
 
+        private static bool TryLoadSettings(string settingsPath, out AppSettings settings)
+        {
+            settings = null;
+            if (!File.Exists(settingsPath))
+            {
+                return false;
+            }
+
+            try
+            {
+                var json = File.ReadAllText(settingsPath);
+                settings = JsonSerializer.Deserialize<AppSettings>(json);
+                return settings != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public void Save()
         {
-            var json = JsonSerializer.Serialize(Settings, new JsonSerializerOptions { WriteIndented = true });
+            Save(Settings);
+        }
+
+        private void Save(AppSettings settings)
+        {
+            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(_settingsFilePath, json);
         }
     }
