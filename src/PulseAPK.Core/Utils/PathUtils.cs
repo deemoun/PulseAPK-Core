@@ -7,7 +7,25 @@ namespace PulseAPK.Core.Utils
     {
         public static string GetDefaultDecompilePath()
         {
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "decompiled");
+            var writableRoot = GetWritableAppDataRoot();
+            return Path.Combine(writableRoot, "decompiled");
+        }
+
+        private static string GetWritableAppDataRoot()
+        {
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (!string.IsNullOrWhiteSpace(localAppData))
+            {
+                return Path.Combine(localAppData, "PulseAPK");
+            }
+
+            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            if (!string.IsNullOrWhiteSpace(userProfile))
+            {
+                return Path.Combine(userProfile, ".pulseapk");
+            }
+
+            return Path.Combine(Path.GetTempPath(), "PulseAPK");
         }
     }
 }
