@@ -7,6 +7,9 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <Version>1.2.0</Version>
     <InformationalVersion>$(Version)</InformationalVersion>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PathMap>$(MSBuildProjectDirectory)=/src</PathMap>
     <ApplicationIcon>..\..\Resources\CyberUnpack.ico</ApplicationIcon>
   </PropertyGroup>
 

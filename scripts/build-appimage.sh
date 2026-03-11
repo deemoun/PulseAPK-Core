@@ -55,11 +55,21 @@ dotnet publish "${project_path}" \
   -c "${config}" \
   -r "${rid}" \
   --self-contained true \
+  -p:DebugType=None \
+  -p:DebugSymbols=false \
   /p:PublishSingleFile=false \
   -o "${publish_dir}"
 
+log "Removing non-runtime artifacts from publish output..."
+find "${publish_dir}" -type f \( -name '*.pdb' -o -name '*.xml' \) -delete
+
 log "Copying publish output into AppDir..."
 cp -a "${publish_dir}/." "${appdir}/usr/bin/"
+
+log "Verifying AppDir does not include forbidden debug artifacts..."
+if find "${appdir}/usr/bin" -type f -name '*.pdb' -print -quit | grep -q .; then
+  fail "Forbidden symbol files (*.pdb) were found in ${appdir}/usr/bin."
+fi
 
 if [[ ! -f "${appdir}/usr/bin/${entry_exe}" ]]; then
   fail "Expected executable '${entry_exe}' was not found in ${publish_dir}."
