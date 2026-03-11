@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Minimize external data sharing/noisy output during CI builds.
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export DOTNET_NOLOGO=1
+export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+
+# Ensure artifacts are not created world-readable by default.
+umask 077
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 
@@ -22,6 +30,16 @@ fi
 
 if [[ "${rid}" != osx-* ]]; then
   echo "RID must target macOS (for example 'osx-x64' or 'osx-arm64'). Received '${rid}'." >&2
+  exit 1
+fi
+
+if [[ ! "${app_name}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  echo "APP_NAME contains unsupported characters. Allowed: letters, digits, '.', '_' and '-'." >&2
+  exit 1
+fi
+
+if [[ ! "${bundle_name}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  echo "APP_BUNDLE_NAME contains unsupported characters. Allowed: letters, digits, '.', '_' and '-'." >&2
   exit 1
 fi
 
@@ -71,6 +89,10 @@ mkdir -p "${bundle_macos}" "${bundle_resources}"
 cp -a "${publish_dir}/." "${bundle_macos}/"
 chmod +x "${bundle_macos}/${app_exe}"
 
+# PDB files can include local source paths and machine/user details.
+# Exclude them from distributable artifacts by default.
+find "${bundle_macos}" -maxdepth 1 -type f \( -name '*.pdb' -o -name '*.dbg' \) -delete
+
 cat > "${bundle_contents}/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -104,7 +126,7 @@ if command -v tar >/dev/null 2>&1; then
   rm -f "${archive_path}"
   (
     cd "${out_root}"
-    tar -czf "${archive_path}" "${bundle_name}.app"
+    COPYFILE_DISABLE=1 tar -czf "${archive_path}" "${bundle_name}.app"
   )
   echo "macOS app bundle archive created: ${archive_path}"
 elif command -v zip >/dev/null 2>&1; then
