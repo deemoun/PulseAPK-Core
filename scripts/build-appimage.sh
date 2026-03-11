@@ -3,6 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
+project_relpath="src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 
 app_name="PulseAPK"
 entry_exe="PulseAPK.Avalonia"
@@ -15,6 +16,9 @@ appdir="${out_root}/AppDir"
 appimage_path="${out_root}/${app_name}-${rid}.AppImage"
 
 icon_src="${repo_root}/Resources/CyberUnpack.png"
+icon_relpath="Resources/CyberUnpack.png"
+
+verbose="${VERBOSE:-0}"
 
 log() {
   echo "[build-appimage] $*"
@@ -23,6 +27,11 @@ log() {
 fail() {
   echo "[build-appimage] ERROR: $*" >&2
   exit 1
+}
+
+debug_log() {
+  [[ "${verbose}" == "1" ]] || return 0
+  log "$*"
 }
 
 require_cmd() {
@@ -39,10 +48,12 @@ is_png_file() {
 require_cmd dotnet
 require_cmd appimagetool
 
-log "repo_root: ${repo_root}"
-log "project:   ${project_path}"
+log "Using project path: ${project_relpath}"
+debug_log "repo_root: ${repo_root}"
+debug_log "project:   ${project_path}"
 log "rid:       ${rid}"
 log "config:    ${config}"
+debug_log "output root: ${out_root}"
 
 rm -rf "${publish_dir}" "${appdir}"
 mkdir -p \
@@ -62,7 +73,7 @@ log "Copying publish output into AppDir..."
 cp -a "${publish_dir}/." "${appdir}/usr/bin/"
 
 if [[ ! -f "${appdir}/usr/bin/${entry_exe}" ]]; then
-  fail "Expected executable '${entry_exe}' was not found in ${publish_dir}."
+  fail "Expected executable '${entry_exe}' was not found in artifacts/linux/${rid}/publish."
 fi
 
 chmod +x "${appdir}/usr/bin/${entry_exe}"
@@ -90,15 +101,17 @@ Terminal=false
 EOF
 
 if [[ -f "${icon_src}" ]] && is_png_file "${icon_src}"; then
-  log "Icon found and valid PNG: ${icon_src}"
+  log "Using icon: ${icon_relpath}"
+  debug_log "Icon source path: ${icon_src}"
   cp "${icon_src}" "${appdir}/${app_name}.png"
   cp "${icon_src}" "${appdir}/usr/share/icons/hicolor/256x256/apps/${app_name}.png"
   cp "${icon_src}" "${appdir}/.DirIcon"
 else
   if [[ -f "${icon_src}" ]]; then
-    log "Icon exists but is not a valid PNG: ${icon_src}. Generating fallback SVG icon."
+    log "Icon '${icon_relpath}' is not a valid PNG. Generating fallback SVG icon."
+    debug_log "Invalid icon path: ${icon_src}"
   else
-    log "Icon not found, generating fallback SVG icon."
+    log "Icon '${icon_relpath}' not found. Generating fallback SVG icon."
   fi
 
   cat > "${appdir}/${app_name}.svg" <<'EOF'
@@ -123,4 +136,5 @@ esac
 log "Building AppImage for architecture: ${appimage_arch}"
 ARCH="${appimage_arch}" appimagetool "${appdir}" "${appimage_path}"
 
-log "AppImage created: ${appimage_path}"
+log "AppImage created: artifacts/linux/${rid}/${app_name}-${rid}.AppImage"
+debug_log "AppImage absolute path: ${appimage_path}"
