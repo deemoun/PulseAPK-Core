@@ -1,0 +1,47 @@
+name: Build Binaries
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install AppImage tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2 file zip
+          curl -L https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -o appimagetool
+          chmod +x appimagetool
+          sudo mv appimagetool /usr/local/bin/appimagetool
+
+      - name: Build Linux AppImage
+        run: ./scripts/build-appimage.sh
+
+      - name: Build Windows binaries
+        run: ./scripts/build-windows-exe.sh
+
+      - name: Upload Linux AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseAPK-linux-x64-appimage
+          path: artifacts/linux/linux-x64/PulseAPK-linux-x64.AppImage
+          if-no-files-found: error
+
+      - name: Upload Windows binaries artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseAPK-win-x64-binaries
+          path: |
+            artifacts/windows/win-x64/publish/*.exe
+            artifacts/windows/win-x64/PulseAPK-win-x64.zip
+          if-no-files-found: error
