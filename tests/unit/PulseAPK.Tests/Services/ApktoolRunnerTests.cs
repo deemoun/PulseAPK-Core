@@ -26,7 +26,7 @@ public class ApktoolRunnerTests
         File.WriteAllText(fakeApktoolPath, "fake apktool");
 
         var escapedCapturePath = capturedArgsPath.Replace("\\", "\\\\").Replace("\"", "\\\"");
-        var script = $"#!/usr/bin/env bash\nprintf '%s' \"$*\" > \"{escapedCapturePath}\"\nexit 0\n";
+        var script = $"#!/usr/bin/env bash\nprintf '%s\n' \"$@\" > \"{escapedCapturePath}\"\nexit 0\n";
         File.WriteAllText(fakeJavaPath, script);
         MakeExecutable(fakeJavaPath);
 
@@ -43,12 +43,9 @@ public class ApktoolRunnerTests
             Assert.Equal(0, exitCode);
             Assert.True(File.Exists(capturedArgsPath));
 
-            var args = File.ReadAllText(capturedArgsPath);
+            var args = File.ReadAllLines(capturedArgsPath);
 
-            Assert.Contains($"-jar \"{fakeApktoolPath}\"", args, StringComparison.Ordinal);
-            Assert.Contains($"b \"{projectDir}\"", args, StringComparison.Ordinal);
-            Assert.Contains($"-o \"{outputApk}\"", args, StringComparison.Ordinal);
-            Assert.DoesNotContain("\"\"", args, StringComparison.Ordinal);
+            Assert.Equal(new[] { "-jar", fakeApktoolPath, "b", projectDir, "-o", outputApk }, args);
         }
         finally
         {
@@ -80,7 +77,7 @@ public class ApktoolRunnerTests
         Directory.CreateDirectory(Path.GetDirectoryName(outputApk)!);
 
         var escapedCapturePath = capturedArgsPath.Replace("\\", "\\\\").Replace("\"", "\\\"");
-        var script = $"#!/usr/bin/env bash\nprintf '%s' \"$*\" > \"{escapedCapturePath}\"\nexit 0\n";
+        var script = $"#!/usr/bin/env bash\nprintf '%s\n' \"$@\" > \"{escapedCapturePath}\"\nexit 0\n";
         File.WriteAllText(fakeApktoolPath, script);
         MakeExecutable(fakeApktoolPath);
 
@@ -94,12 +91,9 @@ public class ApktoolRunnerTests
             Assert.Equal(0, exitCode);
             Assert.True(File.Exists(capturedArgsPath));
 
-            var args = File.ReadAllText(capturedArgsPath);
+            var args = File.ReadAllLines(capturedArgsPath);
 
-            Assert.Contains($"b \"{projectDir}\"", args, StringComparison.Ordinal);
-            Assert.Contains($"-o \"{outputApk}\"", args, StringComparison.Ordinal);
-            Assert.Contains("--use-aapt2", args, StringComparison.Ordinal);
-            Assert.DoesNotContain("-jar", args, StringComparison.Ordinal);
+            Assert.Equal(new[] { "b", projectDir, "-o", outputApk, "--use-aapt2" }, args);
         }
         finally
         {

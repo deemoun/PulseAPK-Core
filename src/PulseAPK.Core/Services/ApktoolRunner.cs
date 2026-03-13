@@ -110,15 +110,24 @@ namespace PulseAPK.Core.Services
 
             if (isJar)
             {
-                return new ProcessStartInfo
+                var startInfo = new ProcessStartInfo
                 {
                     FileName = "java",
-                    Arguments = $"-jar {QuoteArgument(apktoolPath)} {JoinArguments(arguments)}",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
+
+                startInfo.ArgumentList.Add("-jar");
+                startInfo.ArgumentList.Add(apktoolPath);
+
+                foreach (var argument in arguments)
+                {
+                    startInfo.ArgumentList.Add(argument);
+                }
+
+                return startInfo;
             }
 
             if (isBatchFile && OperatingSystem.IsWindows())
@@ -134,15 +143,21 @@ namespace PulseAPK.Core.Services
                 };
             }
 
-            return new ProcessStartInfo
+            var defaultStartInfo = new ProcessStartInfo
             {
                 FileName = apktoolPath,
-                Arguments = JoinArguments(arguments),
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
+
+            foreach (var argument in arguments)
+            {
+                defaultStartInfo.ArgumentList.Add(argument);
+            }
+
+            return defaultStartInfo;
         }
 
         private static string SanitizePathArgument(string? path)
