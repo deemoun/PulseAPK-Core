@@ -290,9 +290,7 @@ public partial class DecompileViewModel : ObservableObject
 
     private bool CanRunDecompile()
     {
-        return !IsRunning
-            && !string.IsNullOrWhiteSpace(ApkPath)
-            && !string.IsNullOrWhiteSpace(_settingsService.Settings.ApktoolPath);
+        return !IsRunning;
     }
 
     private string BuildCommandPreview()
