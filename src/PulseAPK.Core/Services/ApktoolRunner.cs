@@ -1,9 +1,11 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace PulseAPK.Core.Services
 {
@@ -28,20 +30,18 @@ namespace PulseAPK.Core.Services
             var sanitizedApkPath = SanitizePathArgument(apkPath);
             var sanitizedOutputDir = SanitizePathArgument(outputDir);
 
-            var args = new StringBuilder("d");
-            args.Append($" \"{sanitizedApkPath}\"");
-            args.Append($" -o \"{sanitizedOutputDir}\"");
+            var args = new List<string> { "d", sanitizedApkPath, "-o", sanitizedOutputDir };
 
-            if (!decodeResources) args.Append(" -r");
-            if (!decodeSources) args.Append(" -s");
-            if (keepOriginalManifest) args.Append(" -m");
+            if (!decodeResources) args.Add("-r");
+            if (!decodeSources) args.Add("-s");
+            if (keepOriginalManifest) args.Add("-m");
 
             if (forceOverwrite)
             {
-                args.Append(" -f"); // Force overwrite
+                args.Add("-f"); // Force overwrite
             }
 
-            return await RunProcessAsync(args.ToString(), cancellationToken);
+            return await RunProcessAsync(args, cancellationToken);
         }
 
         public async Task<int> RunBuildAsync(string projectPath, string outputApk, bool useAapt2, CancellationToken cancellationToken = default)
@@ -49,16 +49,14 @@ namespace PulseAPK.Core.Services
             var sanitizedProjectPath = SanitizePathArgument(projectPath);
             var sanitizedOutputApk = SanitizePathArgument(outputApk);
 
-            var args = new StringBuilder("b");
-            args.Append($" \"{sanitizedProjectPath}\"");
-            args.Append($" -o \"{sanitizedOutputApk}\"");
+            var args = new List<string> { "b", sanitizedProjectPath, "-o", sanitizedOutputApk };
 
-            if (useAapt2) args.Append(" --use-aapt2");
+            if (useAapt2) args.Add("--use-aapt2");
 
-            return await RunProcessAsync(args.ToString(), cancellationToken);
+            return await RunProcessAsync(args, cancellationToken);
         }
 
-        private async Task<int> RunProcessAsync(string arguments, CancellationToken cancellationToken)
+        private async Task<int> RunProcessAsync(IReadOnlyList<string> arguments, CancellationToken cancellationToken)
         {
             var apktoolPath = SanitizePathArgument(_settingsService.Settings.ApktoolPath);
 
@@ -103,7 +101,7 @@ namespace PulseAPK.Core.Services
             return process.ExitCode;
         }
 
-        private static ProcessStartInfo CreateStartInfo(string apktoolPath, string arguments)
+        private static ProcessStartInfo CreateStartInfo(string apktoolPath, IReadOnlyList<string> arguments)
         {
             var extension = Path.GetExtension(apktoolPath);
             var isJar = string.Equals(extension, ".jar", StringComparison.OrdinalIgnoreCase);
@@ -115,7 +113,7 @@ namespace PulseAPK.Core.Services
                 return new ProcessStartInfo
                 {
                     FileName = "java",
-                    Arguments = $"-jar \"{apktoolPath}\" {arguments}",
+                    Arguments = $"-jar {QuoteArgument(apktoolPath)} {JoinArguments(arguments)}",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -128,7 +126,7 @@ namespace PulseAPK.Core.Services
                 return new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
-                    Arguments = $"/c \"\"{apktoolPath}\" {arguments}\"",
+                    Arguments = $"/d /s /c \"\"{EscapeForCmd(apktoolPath)}\" {JoinArgumentsForCmd(arguments)}\"",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -139,7 +137,7 @@ namespace PulseAPK.Core.Services
             return new ProcessStartInfo
             {
                 FileName = apktoolPath,
-                Arguments = arguments,
+                Arguments = JoinArguments(arguments),
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -152,6 +150,26 @@ namespace PulseAPK.Core.Services
             return string.IsNullOrWhiteSpace(path)
                 ? string.Empty
                 : path.Trim().Trim('"');
+        }
+
+        private static string JoinArguments(IEnumerable<string> arguments)
+        {
+            return string.Join(" ", arguments.Select(QuoteArgument));
+        }
+
+        private static string JoinArgumentsForCmd(IEnumerable<string> arguments)
+        {
+            return string.Join(" ", arguments.Select(argument => QuoteArgument(EscapeForCmd(argument))));
+        }
+
+        private static string QuoteArgument(string argument)
+        {
+            return $"\"{argument}\"";
+        }
+
+        private static string EscapeForCmd(string argument)
+        {
+            return argument.Replace("\"", "\"\"");
         }
     }
 }
