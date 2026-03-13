@@ -60,6 +60,56 @@ public class ApktoolRunnerTests
         }
     }
 
+    [Fact]
+    public async Task RunBuildAsync_UsesExecutableDirectlyWhenApktoolPathIsNotJar()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return;
+        }
+
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"pulseapk-tests-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+
+        var fakeApktoolPath = Path.Combine(tempRoot, "apktool");
+        var capturedArgsPath = Path.Combine(tempRoot, "captured-args.txt");
+        var projectDir = Path.Combine(tempRoot, "decompiled");
+        var outputApk = Path.Combine(tempRoot, "compiled", "decompiled.apk");
+
+        Directory.CreateDirectory(projectDir);
+        Directory.CreateDirectory(Path.GetDirectoryName(outputApk)!);
+
+        var escapedCapturePath = capturedArgsPath.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        var script = $"#!/usr/bin/env bash\nprintf '%s' \"$*\" > \"{escapedCapturePath}\"\nexit 0\n";
+        File.WriteAllText(fakeApktoolPath, script);
+        MakeExecutable(fakeApktoolPath);
+
+        try
+        {
+            var settings = new TestSettingsService(fakeApktoolPath);
+            var runner = new ApktoolRunner(settings);
+
+            var exitCode = await runner.RunBuildAsync(projectDir, outputApk, useAapt2: true);
+
+            Assert.Equal(0, exitCode);
+            Assert.True(File.Exists(capturedArgsPath));
+
+            var args = File.ReadAllText(capturedArgsPath);
+
+            Assert.Contains($"b \"{projectDir}\"", args, StringComparison.Ordinal);
+            Assert.Contains($"-o \"{outputApk}\"", args, StringComparison.Ordinal);
+            Assert.Contains("--use-aapt2", args, StringComparison.Ordinal);
+            Assert.DoesNotContain("-jar", args, StringComparison.Ordinal);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
     private static void MakeExecutable(string path)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

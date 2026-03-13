@@ -62,7 +62,7 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task BrowseApktool()
     {
-        var file = await _filePickerService.OpenFileAsync("Jar Files (*.jar)|*.jar|All Files (*.*)|*.*");
+        var file = await _filePickerService.OpenFileAsync("Apktool files (*.jar;*.bat;*.cmd;*.exe)|*.jar;*.bat;*.cmd;*.exe|All Files (*.*)|*.*");
         if (file != null)
         {
             ApktoolPath = file;

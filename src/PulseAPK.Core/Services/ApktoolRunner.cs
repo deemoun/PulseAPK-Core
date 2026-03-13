@@ -72,15 +72,7 @@ namespace PulseAPK.Core.Services
                 throw new FileNotFoundException($"Apktool path '{apktoolPath}' does not exist.");
             }
 
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "java",
-                Arguments = $"-jar \"{apktoolPath}\" {arguments}",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+            var startInfo = CreateStartInfo(apktoolPath, arguments);
 
             using var process = new Process { StartInfo = startInfo };
 
@@ -109,6 +101,50 @@ namespace PulseAPK.Core.Services
             await process.WaitForExitAsync(cancellationToken);
 
             return process.ExitCode;
+        }
+
+        private static ProcessStartInfo CreateStartInfo(string apktoolPath, string arguments)
+        {
+            var extension = Path.GetExtension(apktoolPath);
+            var isJar = string.Equals(extension, ".jar", StringComparison.OrdinalIgnoreCase);
+            var isBatchFile = string.Equals(extension, ".bat", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(extension, ".cmd", StringComparison.OrdinalIgnoreCase);
+
+            if (isJar)
+            {
+                return new ProcessStartInfo
+                {
+                    FileName = "java",
+                    Arguments = $"-jar \"{apktoolPath}\" {arguments}",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+            }
+
+            if (isBatchFile && OperatingSystem.IsWindows())
+            {
+                return new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c \"\"{apktoolPath}\" {arguments}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+            }
+
+            return new ProcessStartInfo
+            {
+                FileName = apktoolPath,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
         }
 
         private static string SanitizePathArgument(string? path)
