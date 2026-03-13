@@ -74,6 +74,15 @@ public partial class DecompileViewModel : ObservableObject
 
     partial void OnApkPathChanged(string value)
     {
+        if (ExtractToApkFolder)
+        {
+            var apkDerivedOutputFolder = GetApkDerivedOutputFolder(value);
+            if (!string.IsNullOrWhiteSpace(apkDerivedOutputFolder))
+            {
+                OutputFolder = apkDerivedOutputFolder;
+            }
+        }
+
         UpdateCommandPreview();
         RunDecompileCommand.NotifyCanExecuteChanged();
     }
@@ -81,7 +90,25 @@ public partial class DecompileViewModel : ObservableObject
     partial void OnDecodeResourcesChanged(bool value) => UpdateCommandPreview();
     partial void OnDecodeSourcesChanged(bool value) => UpdateCommandPreview();
     partial void OnKeepOriginalManifestChanged(bool value) => UpdateCommandPreview();
-    partial void OnExtractToApkFolderChanged(bool value) => UpdateCommandPreview();
+
+    partial void OnExtractToApkFolderChanged(bool value)
+    {
+        if (value)
+        {
+            var apkDerivedOutputFolder = GetApkDerivedOutputFolder(ApkPath);
+            if (!string.IsNullOrWhiteSpace(apkDerivedOutputFolder))
+            {
+                OutputFolder = apkDerivedOutputFolder;
+            }
+        }
+        else
+        {
+            OutputFolder = PathUtils.GetDefaultDecompilePath();
+        }
+
+        UpdateCommandPreview();
+    }
+
     partial void OnOutputFolderChanged(string? value) => UpdateCommandPreview();
 
     [RelayCommand]
