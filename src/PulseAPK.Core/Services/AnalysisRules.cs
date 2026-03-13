@@ -30,6 +30,7 @@ namespace PulseAPK.Core.Services
     public static class AnalysisRulesLoader
     {
         private const string RulesFileName = "smali_analysis_rules.json";
+        private const string AppName = "PulseAPK";
         private const string DefaultRulesJson = """
             {
               "library_paths": [
@@ -216,38 +217,67 @@ namespace PulseAPK.Core.Services
         private static string EnsureRulesFileExists()
         {
             var baseDirectory = AppContext.BaseDirectory ?? Directory.GetCurrentDirectory();
-            var directPath = Path.Combine(baseDirectory, RulesFileName);
+            var rulesFolder = ResolveRulesFolder();
+            var userRulesPath = Path.Combine(rulesFolder, RulesFileName);
 
-            if (File.Exists(directPath))
+            if (File.Exists(userRulesPath))
             {
-                return directPath;
+                return userRulesPath;
             }
 
-            // When running from the build output, walk up to the project root for development convenience.
-            var projectRootPath = Path.GetFullPath(Path.Combine(baseDirectory, "..", "..", "..", RulesFileName));
-            if (File.Exists(projectRootPath))
+            var legacyPaths = new[]
             {
+                Path.Combine(baseDirectory, RulesFileName),
+                // When running from the build output, walk up to the project root for development convenience.
+                Path.GetFullPath(Path.Combine(baseDirectory, "..", "..", "..", RulesFileName))
+            };
+
+            foreach (var legacyPath in legacyPaths)
+            {
+                if (!File.Exists(legacyPath) || string.Equals(legacyPath, userRulesPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 try
                 {
-                    File.Copy(projectRootPath, directPath);
-                    return directPath;
+                    File.Copy(legacyPath, userRulesPath, overwrite: false);
+                    return userRulesPath;
                 }
                 catch
                 {
-                    // Ignore copy errors, fall through to creation
+                    // Ignore copy errors and keep checking additional legacy paths.
                 }
             }
 
             try
             {
-                File.WriteAllText(directPath, DefaultRulesJson);
+                File.WriteAllText(userRulesPath, DefaultRulesJson);
             }
             catch
             {
                 // Ignore write errors (e.g. permissions), we will just return the path and fail to read later, falling back to defaults in memory.
             }
 
-            return directPath;
+            return userRulesPath;
+        }
+
+        private static string ResolveRulesFolder()
+        {
+            var appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (string.IsNullOrWhiteSpace(appDataDirectory))
+            {
+                appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            }
+
+            if (string.IsNullOrWhiteSpace(appDataDirectory))
+            {
+                appDataDirectory = Environment.CurrentDirectory;
+            }
+
+            var rulesDirectory = Path.Combine(appDataDirectory, AppName);
+            Directory.CreateDirectory(rulesDirectory);
+            return rulesDirectory;
         }
 
         private static AnalysisRuleSet GetDefaultRuleSet()
@@ -259,4 +289,3 @@ namespace PulseAPK.Core.Services
         }
     }
 }
-
