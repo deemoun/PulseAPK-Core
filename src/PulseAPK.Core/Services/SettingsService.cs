@@ -38,15 +38,10 @@ namespace PulseAPK.Core.Services
 
         private static string ResolveSettingsFolder(string baseDirectory)
         {
-            if (Directory.Exists(baseDirectory) && IsDirectoryWritable(baseDirectory))
-            {
-                return baseDirectory;
-            }
-
-            var appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             if (string.IsNullOrWhiteSpace(appDataDirectory))
             {
-                appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             }
 
             if (string.IsNullOrWhiteSpace(appDataDirectory))
@@ -57,24 +52,6 @@ namespace PulseAPK.Core.Services
             var settingsDirectory = Path.Combine(appDataDirectory, AppName);
             Directory.CreateDirectory(settingsDirectory);
             return settingsDirectory;
-        }
-
-        private static bool IsDirectoryWritable(string directory)
-        {
-            try
-            {
-                var testFilePath = Path.Combine(directory, $".{AppName}.write-test-{Guid.NewGuid():N}");
-                using (File.Create(testFilePath))
-                {
-                }
-
-                File.Delete(testFilePath);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private AppSettings LoadSettings()
