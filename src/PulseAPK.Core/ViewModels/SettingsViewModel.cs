@@ -10,6 +10,9 @@ public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;
     private readonly IFilePickerService _filePickerService;
+    private readonly IDialogService _dialogService;
+    private readonly IToolRepository _toolRepository;
+    private readonly IToolDownloadService _toolDownloadService;
     private readonly LocalizationService _localizationService;
 
     [ObservableProperty]
@@ -17,6 +20,9 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private string _ubersignPath;
+
+    [ObservableProperty]
+    private bool _isDownloadingTools;
     
     [ObservableProperty]
     private LanguageItem _selectedLanguage;
@@ -24,17 +30,25 @@ public partial class SettingsViewModel : ObservableObject
     public List<LanguageItem> AvailableLanguages => _localizationService.AvailableLanguages;
 
     public SettingsViewModel(
-        ISettingsService settingsService, 
+        ISettingsService settingsService,
         IFilePickerService filePickerService,
+        IDialogService dialogService,
+        IToolRepository toolRepository,
+        IToolDownloadService toolDownloadService,
         LocalizationService localizationService)
     {
         _settingsService = settingsService;
         _filePickerService = filePickerService;
+        _dialogService = dialogService;
+        _toolRepository = toolRepository;
+        _toolDownloadService = toolDownloadService;
         _localizationService = localizationService;
 
         _apktoolPath = _settingsService.Settings.ApktoolPath;
         _ubersignPath = _settingsService.Settings.UbersignPath;
         _selectedLanguage = _localizationService.CurrentLanguage;
+
+        NormalizeManagedToolPathsIfMissing();
     }
 
     partial void OnApktoolPathChanged(string value)
@@ -62,7 +76,7 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task BrowseApktool()
     {
-        var file = await _filePickerService.OpenFileAsync("Jar Files (*.jar)|*.jar|All Files (*.*)|*.*");
+        var file = await _filePickerService.OpenFileAsync("Apktool files (*.jar;*.bat;*.cmd;*.exe)|*.jar;*.bat;*.cmd;*.exe|All Files (*.*)|*.*");
         if (file != null)
         {
             ApktoolPath = file;
@@ -77,5 +91,100 @@ public partial class SettingsViewModel : ObservableObject
         {
             UbersignPath = file;
         }
+    }
+
+    [RelayCommand]
+    private async Task DownloadApktool()
+    {
+        await DownloadToolAsync(
+            () => _toolDownloadService.DownloadApktoolAsync(),
+            path => ApktoolPath = path,
+            Properties.Resources.DownloadApktoolButton);
+    }
+
+    [RelayCommand]
+    private async Task DownloadUbersigner()
+    {
+        await DownloadToolAsync(
+            () => _toolDownloadService.DownloadUbersignerAsync(),
+            path => UbersignPath = path,
+            Properties.Resources.DownloadUbersignerButton);
+    }
+
+    private async Task DownloadToolAsync(
+        Func<Task<ToolDownloadResult>> action,
+        Action<string> applyPath,
+        string toolDisplayName)
+    {
+        if (IsDownloadingTools)
+        {
+            return;
+        }
+
+        try
+        {
+            IsDownloadingTools = true;
+            var result = await action();
+            applyPath(result.Path);
+
+            if (result.Downloaded)
+            {
+                await _dialogService.ShowInfoAsync($"{toolDisplayName} downloaded successfully.", Properties.Resources.SettingsHeader);
+            }
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowErrorAsync($"Failed to download {toolDisplayName}: {ex.Message}", Properties.Resources.SettingsHeader);
+        }
+        finally
+        {
+            IsDownloadingTools = false;
+        }
+    }
+
+    private void NormalizeManagedToolPathsIfMissing()
+    {
+        var changed = false;
+
+        if (IsManagedToolMissing(ApktoolPath))
+        {
+            _apktoolPath = string.Empty;
+            _settingsService.Settings.ApktoolPath = string.Empty;
+            changed = true;
+        }
+
+        if (IsManagedToolMissing(UbersignPath))
+        {
+            _ubersignPath = string.Empty;
+            _settingsService.Settings.UbersignPath = string.Empty;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            _settingsService.Save();
+            OnPropertyChanged(nameof(ApktoolPath));
+            OnPropertyChanged(nameof(UbersignPath));
+        }
+    }
+
+    private bool IsManagedToolMissing(string? configuredPath)
+    {
+        if (string.IsNullOrWhiteSpace(configuredPath))
+        {
+            return false;
+        }
+
+        if (File.Exists(configuredPath))
+        {
+            return false;
+        }
+
+        var normalizedToolFolder = Path.GetFullPath(_toolRepository.ToolsDirectory)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            + Path.DirectorySeparatorChar;
+        var normalizedConfiguredPath = Path.GetFullPath(configuredPath);
+
+        return normalizedConfiguredPath.StartsWith(normalizedToolFolder, StringComparison.OrdinalIgnoreCase);
     }
 }

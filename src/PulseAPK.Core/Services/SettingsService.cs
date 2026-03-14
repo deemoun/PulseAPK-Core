@@ -14,6 +14,7 @@ namespace PulseAPK.Core.Services
     public interface ISettingsService
     {
         AppSettings Settings { get; }
+        string SettingsDirectory { get; }
         void Save();
     }
 
@@ -26,11 +27,13 @@ namespace PulseAPK.Core.Services
         private readonly string _legacySettingsFilePath;
 
         public AppSettings Settings { get; private set; }
+        public string SettingsDirectory { get; }
 
         public SettingsService()
         {
             var baseDirectory = AppContext.BaseDirectory;
             var settingsFolder = ResolveSettingsFolder(baseDirectory);
+            SettingsDirectory = settingsFolder;
             _settingsFilePath = Path.Combine(settingsFolder, SettingsFileName);
             _legacySettingsFilePath = Path.Combine(baseDirectory, SettingsFileName);
             Settings = LoadSettings();
@@ -38,15 +41,10 @@ namespace PulseAPK.Core.Services
 
         private static string ResolveSettingsFolder(string baseDirectory)
         {
-            if (Directory.Exists(baseDirectory) && IsDirectoryWritable(baseDirectory))
-            {
-                return baseDirectory;
-            }
-
-            var appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             if (string.IsNullOrWhiteSpace(appDataDirectory))
             {
-                appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             }
 
             if (string.IsNullOrWhiteSpace(appDataDirectory))
@@ -57,24 +55,6 @@ namespace PulseAPK.Core.Services
             var settingsDirectory = Path.Combine(appDataDirectory, AppName);
             Directory.CreateDirectory(settingsDirectory);
             return settingsDirectory;
-        }
-
-        private static bool IsDirectoryWritable(string directory)
-        {
-            try
-            {
-                var testFilePath = Path.Combine(directory, $".{AppName}.write-test-{Guid.NewGuid():N}");
-                using (File.Create(testFilePath))
-                {
-                }
-
-                File.Delete(testFilePath);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private AppSettings LoadSettings()

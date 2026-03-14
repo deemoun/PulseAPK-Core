@@ -6,8 +6,10 @@ project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 
 config="${CONFIGURATION:-Release}"
 rid="${RID:-win-x64}"
-app_name="${APP_NAME:-PulseAPK.Avalonia}"
+app_name="${APP_NAME:-PulseAPK}"
 app_exe="${app_name}.exe"
+output_exe_name="${OUTPUT_EXE_NAME:-${app_exe}}"
+create_zip="${CREATE_ZIP:-true}"
 
 out_root="${repo_root}/artifacts/windows/${rid}"
 publish_dir="${out_root}/publish"
@@ -46,7 +48,7 @@ if [[ ! -f "${publish_dir}/${app_exe}" ]]; then
   fi
 
   app_exe="$(basename "${exe_candidates[0]}")"
-  echo "Expected '${APP_NAME:-PulseAPK.Avalonia}.exe' was not found; using discovered executable '${app_exe}'."
+  echo "Expected '${APP_NAME:-PulseAPK}.exe' was not found; using discovered executable '${app_exe}'."
 fi
 
 if ! file "${publish_dir}/${app_exe}" | grep -Eq 'PE32\+?|MS Windows'; then
@@ -54,15 +56,23 @@ if ! file "${publish_dir}/${app_exe}" | grep -Eq 'PE32\+?|MS Windows'; then
   exit 1
 fi
 
-if command -v zip >/dev/null 2>&1; then
+if [[ "${output_exe_name}" != "${app_exe}" ]]; then
+  mv -f "${publish_dir}/${app_exe}" "${publish_dir}/${output_exe_name}"
+  app_exe="${output_exe_name}"
+  echo "Windows executable renamed to: ${publish_dir}/${app_exe}"
+fi
+
+if [[ "${create_zip}" == "true" ]] && command -v zip >/dev/null 2>&1; then
   rm -f "${zip_path}"
   (
     cd "${publish_dir}"
     zip -r "${zip_path}" .
   )
   echo "Windows package created: ${zip_path}"
-else
+elif [[ "${create_zip}" == "true" ]]; then
   echo "zip not found. Skipping archive creation."
+else
+  echo "CREATE_ZIP=${create_zip}; skipping archive creation."
 fi
 
 echo "Windows executable created: ${publish_dir}/${app_exe}"

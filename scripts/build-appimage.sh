@@ -6,7 +6,7 @@ project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 project_relpath="src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 
 app_name="PulseAPK"
-entry_exe="PulseAPK.Avalonia"
+entry_exe="PulseAPK"
 config="${CONFIGURATION:-Release}"
 rid="${RID:-linux-x64}"
 
@@ -93,7 +93,7 @@ cat > "${appdir}/AppRun" <<'EOF'
 #!/usr/bin/env bash
 set -e
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec "${here}/usr/bin/PulseAPK.Avalonia" "$@"
+exec "${here}/usr/bin/PulseAPK" "$@"
 EOF
 chmod +x "${appdir}/AppRun"
 
