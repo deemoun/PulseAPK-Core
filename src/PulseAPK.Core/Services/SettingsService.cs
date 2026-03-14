@@ -14,6 +14,7 @@ namespace PulseAPK.Core.Services
     public interface ISettingsService
     {
         AppSettings Settings { get; }
+        string SettingsDirectory { get; }
         void Save();
     }
 
@@ -26,11 +27,13 @@ namespace PulseAPK.Core.Services
         private readonly string _legacySettingsFilePath;
 
         public AppSettings Settings { get; private set; }
+        public string SettingsDirectory { get; }
 
         public SettingsService()
         {
             var baseDirectory = AppContext.BaseDirectory;
             var settingsFolder = ResolveSettingsFolder(baseDirectory);
+            SettingsDirectory = settingsFolder;
             _settingsFilePath = Path.Combine(settingsFolder, SettingsFileName);
             _legacySettingsFilePath = Path.Combine(baseDirectory, SettingsFileName);
             Settings = LoadSettings();

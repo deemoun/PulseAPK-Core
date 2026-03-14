@@ -51,6 +51,8 @@ public partial class App : Application
     {
         // Core Services
         services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IToolRepository, ToolRepository>();
+        services.AddHttpClient<IToolDownloadService, ToolDownloadService>();
         services.AddSingleton(LocalizationService.Instance);
         services.AddTransient<ApktoolRunner>();
         services.AddTransient<UbersignRunner>();

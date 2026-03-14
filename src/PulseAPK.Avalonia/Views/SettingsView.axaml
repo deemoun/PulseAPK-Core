@@ -23,22 +23,30 @@
 
         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ApktoolPath]}"
                    FontWeight="SemiBold" />
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
             <TextBox Text="{Binding ApktoolPath}" />
             <Button Grid.Column="1"
                     Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
                     Command="{Binding BrowseApktoolCommand}"
                     Width="110" />
+            <Button Grid.Column="2"
+                    Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DownloadApktoolButton]}"
+                    Command="{Binding DownloadApktoolCommand}"
+                    Width="150" />
         </Grid>
 
         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[UbersignPath]}"
                    FontWeight="SemiBold" />
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
             <TextBox Text="{Binding UbersignPath}" />
             <Button Grid.Column="1"
                     Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
                     Command="{Binding BrowseUbersignCommand}"
                     Width="110" />
+            <Button Grid.Column="2"
+                    Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DownloadUbersignerButton]}"
+                    Command="{Binding DownloadUbersignerCommand}"
+                    Width="150" />
         </Grid>
     </StackPanel>
 </UserControl>
