@@ -116,6 +116,14 @@ PulseAPK utilizes a clean MVVM (Model-View-ViewModel) architecture:
 
 This project is open-source and available under the [Apache License 2.0](LICENSE.md).
 
+## Attribution and Copyright
+
+- Licensing terms are defined by [LICENSE.md](LICENSE.md) (Apache-2.0).
+- Contributor licensing and ownership terms are defined by [CLA.md](CLA.md).
+- Project-level copyright and attribution practices are documented in [NOTICE](NOTICE).
+- Per-file copyright/license headers are **optional** unless a file requires an explicit third-party notice; repository-level `LICENSE.md` and `NOTICE` remain authoritative.
+- Contributors do **not** need to add themselves to a separate acknowledgements list in this repository; attribution is handled through Git history, pull request metadata, and signed CLA records.
+
 ### ❤️ Support the project
 
 If PulseAPK is useful for you, you can support its development by pressing the "Support" button at the top
