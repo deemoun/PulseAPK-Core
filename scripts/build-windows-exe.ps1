@@ -1,7 +1,7 @@
 param(
     [string]$Configuration = $(if ($env:CONFIGURATION) { $env:CONFIGURATION } else { "Release" }),
     [string]$Rid = $(if ($env:RID) { $env:RID } else { "win-x64" }),
-    [string]$AppName = $(if ($env:APP_NAME) { $env:APP_NAME } else { "PulseAPK.Avalonia" })
+    [string]$AppName = $(if ($env:APP_NAME) { $env:APP_NAME } else { "PulseAPK" })
 )
 
 $ErrorActionPreference = "Stop"

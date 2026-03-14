@@ -6,7 +6,7 @@ project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 
 config="${CONFIGURATION:-Release}"
 rid="${RID:-win-x64}"
-app_name="${APP_NAME:-PulseAPK.Avalonia}"
+app_name="${APP_NAME:-PulseAPK}"
 app_exe="${app_name}.exe"
 output_exe_name="${OUTPUT_EXE_NAME:-${app_exe}}"
 create_zip="${CREATE_ZIP:-true}"
@@ -48,7 +48,7 @@ if [[ ! -f "${publish_dir}/${app_exe}" ]]; then
   fi
 
   app_exe="$(basename "${exe_candidates[0]}")"
-  echo "Expected '${APP_NAME:-PulseAPK.Avalonia}.exe' was not found; using discovered executable '${app_exe}'."
+  echo "Expected '${APP_NAME:-PulseAPK}.exe' was not found; using discovered executable '${app_exe}'."
 fi
 
 if ! file "${publish_dir}/${app_exe}" | grep -Eq 'PE32\+?|MS Windows'; then
