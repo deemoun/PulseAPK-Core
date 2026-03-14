@@ -191,12 +191,16 @@ public sealed class ToolDownloadService : IToolDownloadService
 
 public sealed class GitHubReleaseResponse
 {
+    [JsonPropertyName("assets")]
     public required List<GitHubReleaseAssetResponse> Assets { get; init; }
 }
 
 public sealed class GitHubReleaseAssetResponse
 {
+    [JsonPropertyName("name")]
     public required string Name { get; init; }
+
+    [JsonPropertyName("browser_download_url")]
     public required string BrowserDownloadUrl { get; init; }
 }
 
