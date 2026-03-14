@@ -144,7 +144,7 @@ public sealed class ToolDownloadService : IToolDownloadService
 
     private static string? ExtractSha256FromChecksumFile(string checksumContent, string assetName)
     {
-        var lines = checksumContent.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var lines = checksumContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         foreach (var line in lines)
         {

@@ -99,7 +99,7 @@ public partial class SettingsViewModel : ObservableObject
         await DownloadToolAsync(
             () => _toolDownloadService.DownloadApktoolAsync(),
             path => ApktoolPath = path,
-            Properties.Resources.DownloadApktoolButton);
+            Properties.Resources.ResourceManager.GetString("DownloadApktoolButton") ?? Properties.Resources.DownloadApktool);
     }
 
     [RelayCommand]
@@ -108,7 +108,7 @@ public partial class SettingsViewModel : ObservableObject
         await DownloadToolAsync(
             () => _toolDownloadService.DownloadUbersignerAsync(),
             path => UbersignPath = path,
-            Properties.Resources.DownloadUbersignerButton);
+            Properties.Resources.ResourceManager.GetString("DownloadUbersignerButton") ?? "Ubersigner");
     }
 
     private async Task DownloadToolAsync(
@@ -148,23 +148,19 @@ public partial class SettingsViewModel : ObservableObject
 
         if (IsManagedToolMissing(ApktoolPath))
         {
-            _apktoolPath = string.Empty;
-            _settingsService.Settings.ApktoolPath = string.Empty;
+            ApktoolPath = string.Empty;
             changed = true;
         }
 
         if (IsManagedToolMissing(UbersignPath))
         {
-            _ubersignPath = string.Empty;
-            _settingsService.Settings.UbersignPath = string.Empty;
+            UbersignPath = string.Empty;
             changed = true;
         }
 
         if (changed)
         {
             _settingsService.Save();
-            OnPropertyChanged(nameof(ApktoolPath));
-            OnPropertyChanged(nameof(UbersignPath));
         }
     }
 
