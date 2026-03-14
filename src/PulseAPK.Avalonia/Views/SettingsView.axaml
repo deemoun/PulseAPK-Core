@@ -32,7 +32,8 @@
             <Button Grid.Column="2"
                     Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DownloadApktoolButton]}"
                     Command="{Binding DownloadApktoolCommand}"
-                    Width="150" />
+                    MinWidth="150"
+                    Padding="16,0" />
         </Grid>
 
         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[UbersignPath]}"
@@ -46,7 +47,8 @@
             <Button Grid.Column="2"
                     Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DownloadUbersignerButton]}"
                     Command="{Binding DownloadUbersignerCommand}"
-                    Width="150" />
+                    MinWidth="150"
+                    Padding="16,0" />
         </Grid>
     </StackPanel>
 </UserControl>
