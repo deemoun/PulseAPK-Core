@@ -272,13 +272,13 @@
     <value>The selected folder does not contain Smali files.</value>
   </data>
   <data name="DownloadApktoolButton" xml:space="preserve">
-    <value>Download ApkTool</value>
+    <value>Get ApkTool</value>
   </data>
   <data name="DownloadJavaButton" xml:space="preserve">
     <value>Download JAVA</value>
   </data>
   <data name="DownloadUbersignerButton" xml:space="preserve">
-    <value>Download Ubersigner</value>
+    <value>Get Ubersigner</value>
   </data>
   <data name="LanguageLabel" xml:space="preserve">
     <value>Language</value>
