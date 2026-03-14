@@ -14,7 +14,7 @@ project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 
 config="${CONFIGURATION:-Release}"
 rid="${RID:-osx-x64}"
-app_name="${APP_NAME:-PulseAPK.Avalonia}"
+app_name="${APP_NAME:-PulseAPK}"
 bundle_name="${APP_BUNDLE_NAME:-PulseAPK}"
 app_exe="${app_name}"
 
@@ -73,7 +73,7 @@ if [[ ! -f "${publish_dir}/${app_exe}" ]]; then
   fi
 
   app_exe="$(basename "${executable_candidates[0]}")"
-  echo "Expected '${APP_NAME:-PulseAPK.Avalonia}' was not found; using discovered executable '${app_exe}'."
+  echo "Expected '${APP_NAME:-PulseAPK}' was not found; using discovered executable '${app_exe}'."
 fi
 
 if ! file "${publish_dir}/${app_exe}" | grep -Eq 'Mach-O'; then

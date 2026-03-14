@@ -11,6 +11,8 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <PathMap>$(MSBuildProjectDirectory)=/src</PathMap>
     <ApplicationIcon>..\..\Resources\CyberUnpack.ico</ApplicationIcon>
+    <AssemblyName>PulseAPK</AssemblyName>
+    <Product>PulseAPK</Product>
   </PropertyGroup>
 
   <ItemGroup>
