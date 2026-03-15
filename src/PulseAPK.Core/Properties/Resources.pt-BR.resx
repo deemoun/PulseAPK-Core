@@ -280,6 +280,15 @@
   <data name="DownloadUbersignerButton" xml:space="preserve">
     <value>Baixar Ubersigner</value>
   </data>
+  <data name="ToolNameApktool" xml:space="preserve">
+    <value>Apktool</value>
+  </data>
+  <data name="ToolNameUbersigner" xml:space="preserve">
+    <value>Ubersigner</value>
+  </data>
+  <data name="ToolDownloadedSuccessfullyMessage" xml:space="preserve">
+    <value>{0} baixado com sucesso.</value>
+  </data>
   <data name="LanguageLabel" xml:space="preserve">
     <value>Idioma</value>
   </data>

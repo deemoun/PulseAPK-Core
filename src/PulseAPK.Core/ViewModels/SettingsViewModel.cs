@@ -128,7 +128,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         await DownloadToolAsync(
             () => _toolDownloadService.DownloadApktoolAsync(),
             path => ApktoolPath = path,
-            Properties.Resources.ResourceManager.GetString("DownloadApktoolButton") ?? Properties.Resources.DownloadApktool);
+            Properties.Resources.ResourceManager.GetString("ToolNameApktool") ?? "Apktool");
     }
 
     [RelayCommand]
@@ -137,7 +137,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         await DownloadToolAsync(
             () => _toolDownloadService.DownloadUbersignerAsync(),
             path => UbersignPath = path,
-            Properties.Resources.ResourceManager.GetString("DownloadUbersignerButton") ?? "Ubersigner");
+            Properties.Resources.ResourceManager.GetString("ToolNameUbersigner") ?? "Ubersigner");
     }
 
     private async Task DownloadToolAsync(
@@ -158,7 +158,9 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
             if (result.Downloaded)
             {
-                await _dialogService.ShowInfoAsync($"{toolDisplayName} downloaded successfully.", Properties.Resources.SettingsHeader);
+                var successTemplate = Properties.Resources.ResourceManager.GetString("ToolDownloadedSuccessfullyMessage")
+                    ?? "{0} downloaded successfully.";
+                await _dialogService.ShowInfoAsync(string.Format(successTemplate, toolDisplayName), Properties.Resources.SettingsHeader);
             }
         }
         catch (Exception ex)
