@@ -18,6 +18,9 @@
         <DataTemplate DataType="{x:Type vm:BuildViewModel}">
             <views:BuildView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PatchViewModel}">
+            <views:PatchView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
             <views:SettingsView/>
         </DataTemplate>
@@ -45,6 +48,9 @@
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToBuildCommand}"
                         Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuBuild]}"
+                        HorizontalAlignment="Stretch"/>
+                <Button Command="{Binding NavigateToPatchCommand}"
+                        Content="{Binding MenuPatchLabel}"
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToAnalyserCommand}"
                         Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAnalyser]}"

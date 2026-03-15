@@ -23,6 +23,7 @@ public partial class MainViewModel : ObservableObject
 
     public string MenuDecompileLabel => _localizationService["MenuDecompile"];
     public string MenuBuildLabel => _localizationService["MenuBuild"];
+    public string MenuPatchLabel => "Patch APK";
     public string MenuAnalyserLabel => _localizationService["MenuAnalyser"];
     public string MenuSettingsLabel => _localizationService["MenuSettings"];
     public string MenuAboutLabel => _localizationService["MenuAbout"];
@@ -56,6 +57,13 @@ public partial class MainViewModel : ObservableObject
     {
         SetCurrentView(Resolve<BuildViewModel>());
         SelectedMenu = "Build";
+    }
+
+    [RelayCommand]
+    private void NavigateToPatch()
+    {
+        SetCurrentView(Resolve<PatchViewModel>());
+        SelectedMenu = "Patch";
     }
 
     [RelayCommand]
