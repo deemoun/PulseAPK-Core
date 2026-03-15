@@ -58,7 +58,7 @@ public partial class App : Application
         // Patching services
         services.AddTransient<PatchRequestValidatorService>();
         services.AddTransient<IArchitectureDetectionService, ArchitectureDetectionService>();
-        services.AddTransient<IFridaArtifactService, FridaArtifactService>();
+        services.AddHttpClient<IFridaArtifactService, FridaArtifactService>();
         services.AddTransient<IApktoolService, ApktoolServiceAdapter>();
         services.AddTransient<IActivityDetectionService, ActivityDetectionService>();
         services.AddTransient<IManifestPatchService, ManifestPatchService>();
