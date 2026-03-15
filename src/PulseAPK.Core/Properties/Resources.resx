@@ -307,4 +307,13 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>Tip: Click Browse to choose a project folder.</value>
   </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="ThemeModeDark" xml:space="preserve">
+    <value>Dark mode</value>
+  </data>
+  <data name="ThemeModeLight" xml:space="preserve">
+    <value>Light mode</value>
+  </data>
 </root>

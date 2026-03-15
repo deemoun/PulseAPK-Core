@@ -307,4 +307,13 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>提示：点击“浏览”以选择项目文件夹。</value>
   </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="ThemeModeDark" xml:space="preserve">
+    <value>深色模式</value>
+  </data>
+  <data name="ThemeModeLight" xml:space="preserve">
+    <value>浅色模式</value>
+  </data>
 </root>

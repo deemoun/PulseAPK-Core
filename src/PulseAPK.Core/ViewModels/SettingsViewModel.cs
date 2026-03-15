@@ -32,11 +32,13 @@ public partial class SettingsViewModel : ObservableObject
     private ThemeModeItem _selectedThemeMode;
     
     public List<LanguageItem> AvailableLanguages => _localizationService.AvailableLanguages;
-    public List<ThemeModeItem> AvailableThemeModes { get; } =
-    [
-        new("dark_mode", "Dark mode"),
-        new("light_mode", "Light mode")
-    ];
+    private List<ThemeModeItem> _availableThemeModes = [];
+
+    public List<ThemeModeItem> AvailableThemeModes
+    {
+        get => _availableThemeModes;
+        private set => SetProperty(ref _availableThemeModes, value);
+    }
 
     public SettingsViewModel(
         ISettingsService settingsService,
@@ -58,7 +60,9 @@ public partial class SettingsViewModel : ObservableObject
         _apktoolPath = _settingsService.Settings.ApktoolPath;
         _ubersignPath = _settingsService.Settings.UbersignPath;
         _selectedLanguage = _localizationService.CurrentLanguage;
-        _selectedThemeMode = ResolveThemeMode(_settingsService.Settings.ThemeMode);
+
+        RefreshThemeModes(_settingsService.Settings.ThemeMode);
+        _localizationService.PropertyChanged += OnLocalizationChanged;
 
         NormalizeManagedToolPathsIfMissing();
     }
@@ -206,6 +210,26 @@ public partial class SettingsViewModel : ObservableObject
         var normalizedConfiguredPath = Path.GetFullPath(configuredPath);
 
         return normalizedConfiguredPath.StartsWith(normalizedToolFolder, StringComparison.OrdinalIgnoreCase);
+    }
+
+
+    private void OnLocalizationChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == "Item[]" || e.PropertyName == string.Empty)
+        {
+            RefreshThemeModes(SelectedThemeMode?.Key);
+        }
+    }
+
+    private void RefreshThemeModes(string? selectedThemeKey)
+    {
+        AvailableThemeModes =
+        [
+            new ThemeModeItem("dark_mode", _localizationService["ThemeModeDark"]),
+            new ThemeModeItem("light_mode", _localizationService["ThemeModeLight"])
+        ];
+
+        SelectedThemeMode = ResolveThemeMode(selectedThemeKey);
     }
 
     private ThemeModeItem ResolveThemeMode(string? themeMode)

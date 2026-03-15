@@ -21,7 +21,7 @@
             </ComboBox.ItemTemplate>
         </ComboBox>
 
-        <TextBlock Text="Theme"
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ThemeLabel]}"
                    FontWeight="SemiBold" />
         <ComboBox ItemsSource="{Binding AvailableThemeModes}"
                   SelectedItem="{Binding SelectedThemeMode}"

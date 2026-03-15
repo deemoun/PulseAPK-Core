@@ -307,4 +307,13 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>Tipp: Klicken Sie auf „Durchsuchen“, um einen Projektordner auszuwählen.</value>
   </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Thema</value>
+  </data>
+  <data name="ThemeModeDark" xml:space="preserve">
+    <value>Dunkler Modus</value>
+  </data>
+  <data name="ThemeModeLight" xml:space="preserve">
+    <value>Heller Modus</value>
+  </data>
 </root>

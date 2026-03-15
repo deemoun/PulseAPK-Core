@@ -307,4 +307,13 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>Подсказка: нажмите «Обзор», чтобы выбрать папку проекта.</value>
   </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Тема</value>
+  </data>
+  <data name="ThemeModeDark" xml:space="preserve">
+    <value>Тёмная тема</value>
+  </data>
+  <data name="ThemeModeLight" xml:space="preserve">
+    <value>Светлая тема</value>
+  </data>
 </root>
