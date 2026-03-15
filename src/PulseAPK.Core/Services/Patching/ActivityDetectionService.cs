@@ -26,7 +26,7 @@ public sealed class ActivityDetectionService : IActivityDetectionService
                 string.Equals((string?)node.Attribute(androidNs + "name"), "android.intent.action.MAIN", StringComparison.Ordinal))
             && activity.Descendants().Any(node =>
                 node.Name.LocalName == "category" &&
-                string.Equals((string?)node.Attribute(androidNs + "name"), "android.intent.category.LAUNCHER", StringComparison.Ordinal))));
+                string.Equals((string?)node.Attribute(androidNs + "name"), "android.intent.category.LAUNCHER", StringComparison.Ordinal)));
 
         if (withLauncher is not null)
         {
