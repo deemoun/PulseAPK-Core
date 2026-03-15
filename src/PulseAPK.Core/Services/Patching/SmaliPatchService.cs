@@ -10,20 +10,20 @@ public sealed class SmaliPatchService : ISmaliPatchService
         var smaliFile = ResolveActivitySmaliFile(decompiledDirectory, activityName);
         if (smaliFile is null)
         {
-            return Task.FromResult((false, $"Could not locate smali file for activity '{activityName}'."));
+            return Task.FromResult<(bool Success, string? Error)>((false, $"Could not locate smali file for activity '{activityName}'."));
         }
 
         var originalContent = File.ReadAllText(smaliFile);
         if (originalContent.Contains("frida-gadget", StringComparison.Ordinal) ||
             originalContent.Contains("loadFridaGadget", StringComparison.Ordinal))
         {
-            return Task.FromResult((true, (string?)null));
+            return Task.FromResult<(bool Success, string? Error)>((true, null));
         }
 
         var classDescriptor = ExtractClassDescriptor(originalContent);
         if (string.IsNullOrWhiteSpace(classDescriptor))
         {
-            return Task.FromResult((false, "Unable to determine class descriptor from smali file."));
+            return Task.FromResult<(bool Success, string? Error)>((false, "Unable to determine class descriptor from smali file."));
         }
 
         var methodBody = useDelayedLoad
@@ -56,11 +56,11 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
         if (ReferenceEquals(patched, originalContent) || patched == originalContent)
         {
-            return Task.FromResult((false, "Unable to find an injection point in activity smali file."));
+            return Task.FromResult<(bool Success, string? Error)>((false, "Unable to find an injection point in activity smali file."));
         }
 
         File.WriteAllText(smaliFile, patched);
-        return Task.FromResult((true, (string?)null));
+        return Task.FromResult<(bool Success, string? Error)>((true, null));
     }
 
     private static string? ResolveActivitySmaliFile(string decompiledDirectory, string activityName)

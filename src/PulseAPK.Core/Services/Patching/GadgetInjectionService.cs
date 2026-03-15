@@ -9,7 +9,7 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
     {
         if (!File.Exists(gadgetSourcePath))
         {
-            return Task.FromResult((false, $"Resolved gadget source '{gadgetSourcePath}' does not exist."));
+            return Task.FromResult<(bool Success, string? Error)>((false, $"Resolved gadget source '{gadgetSourcePath}' does not exist."));
         }
 
         var libDirectory = Path.Combine(decompiledDirectory, "lib", architecture);
@@ -19,7 +19,7 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
         EnsureOptionalAsset(request.ConfigFilePath, decompiledDirectory, "frida-gadget.config");
         EnsureOptionalAsset(request.ScriptFilePath, decompiledDirectory, "frida-script.js");
 
-        return Task.FromResult((true, (string?)null));
+        return Task.FromResult<(bool Success, string? Error)>((true, null));
     }
 
     private static void EnsureOptionalAsset(string? sourceFile, string decompiledDirectory, string outputName)

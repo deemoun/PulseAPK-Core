@@ -12,7 +12,7 @@ public sealed class ManifestPatchService : IManifestPatchService
     {
         if (!File.Exists(manifestPath))
         {
-            return Task.FromResult((false, "Manifest file was not found."));
+            return Task.FromResult<(bool Success, string? Error)>((false, "Manifest file was not found."));
         }
 
         var document = new XmlDocument { PreserveWhitespace = true };
@@ -24,7 +24,7 @@ public sealed class ManifestPatchService : IManifestPatchService
         var manifestNode = document.SelectSingleNode("/manifest");
         if (manifestNode is null)
         {
-            return Task.FromResult((false, "Invalid AndroidManifest.xml structure."));
+            return Task.FromResult<(bool Success, string? Error)>((false, "Invalid AndroidManifest.xml structure."));
         }
 
         if (request.EnsureInternetPermission)
@@ -38,7 +38,7 @@ public sealed class ManifestPatchService : IManifestPatchService
         }
 
         document.Save(manifestPath);
-        return Task.FromResult((true, (string?)null));
+        return Task.FromResult<(bool Success, string? Error)>((true, null));
     }
 
     private static void EnsureInternetPermission(XmlDocument document, XmlNode manifestNode, XmlNamespaceManager manager)
