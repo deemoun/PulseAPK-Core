@@ -34,42 +34,57 @@ public partial class MainViewModel : ObservableObject
         WindowTitle = _localizationService["AppTitle"];
         _localizationService.PropertyChanged += HandleLocalizationChanged;
         // Initial view
-        CurrentView = Resolve<DecompileViewModel>();
+        SetCurrentView(Resolve<DecompileViewModel>());
     }
 
     [RelayCommand]
     private void NavigateToDecompile()
     {
-        CurrentView = Resolve<DecompileViewModel>();
+        SetCurrentView(Resolve<DecompileViewModel>());
         SelectedMenu = "Decompile";
     }
 
     [RelayCommand]
     private void NavigateToSettings()
     {
-        CurrentView = Resolve<SettingsViewModel>();
+        SetCurrentView(Resolve<SettingsViewModel>());
         SelectedMenu = "Settings";
     }
 
     [RelayCommand]
     private void NavigateToBuild()
     {
-        CurrentView = Resolve<BuildViewModel>();
+        SetCurrentView(Resolve<BuildViewModel>());
         SelectedMenu = "Build";
     }
 
     [RelayCommand]
     private void NavigateToAnalyser()
     {
-        CurrentView = Resolve<AnalyserViewModel>();
+        SetCurrentView(Resolve<AnalyserViewModel>());
         SelectedMenu = "Analyser";
     }
 
     [RelayCommand]
     private void NavigateToAbout()
     {
-        CurrentView = Resolve<AboutViewModel>();
+        SetCurrentView(Resolve<AboutViewModel>());
         SelectedMenu = "About";
+    }
+
+    private void SetCurrentView(object nextView)
+    {
+        if (ReferenceEquals(CurrentView, nextView))
+        {
+            return;
+        }
+
+        if (CurrentView is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+
+        CurrentView = nextView;
     }
 
     private T Resolve<T>() where T : notnull
