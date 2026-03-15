@@ -6,7 +6,7 @@ using Properties = PulseAPK.Core.Properties;
 
 namespace PulseAPK.Core.ViewModels;
 
-public partial class SettingsViewModel : ObservableObject
+public partial class SettingsViewModel : ObservableObject, IDisposable
 {
     private readonly ISettingsService _settingsService;
     private readonly IFilePickerService _filePickerService;
@@ -15,6 +15,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IToolDownloadService _toolDownloadService;
     private readonly LocalizationService _localizationService;
     private readonly IThemeService _themeService;
+    private bool _disposed;
 
     [ObservableProperty]
     private string _apktoolPath;
@@ -237,6 +238,17 @@ public partial class SettingsViewModel : ObservableObject
         return AvailableThemeModes.FirstOrDefault(mode =>
                    string.Equals(mode.Key, themeMode, StringComparison.OrdinalIgnoreCase))
                ?? AvailableThemeModes[0];
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _localizationService.PropertyChanged -= OnLocalizationChanged;
+        _disposed = true;
     }
 }
 
