@@ -15,12 +15,21 @@ public sealed class ActivityDetectionService : IActivityDetectionService
 
         var document = XDocument.Load(manifestPath);
         var androidNs = XNamespace.Get("http://schemas.android.com/apk/res/android");
+        var packageName = (string?)document.Root?.Attribute("package");
 
         var activities = document.Descendants()
-            .Where(element => element.Name.LocalName is "activity" or "activity-alias")
+            .Where(element => element.Name.LocalName == "activity")
             .ToList();
 
-        var withLauncher = activities.FirstOrDefault(activity =>
+        var aliases = document.Descendants()
+            .Where(element => element.Name.LocalName == "activity-alias")
+            .ToList();
+
+        var launchableComponents = activities
+            .Concat(aliases)
+            .ToList();
+
+        var withLauncher = launchableComponents.FirstOrDefault(activity =>
             activity.Descendants().Any(node =>
                 node.Name.LocalName == "action" &&
                 string.Equals((string?)node.Attribute(androidNs + "name"), "android.intent.action.MAIN", StringComparison.Ordinal))
@@ -30,6 +39,34 @@ public sealed class ActivityDetectionService : IActivityDetectionService
 
         if (withLauncher is not null)
         {
+            if (withLauncher.Name.LocalName == "activity-alias")
+            {
+                var targetActivity = (string?)withLauncher.Attribute(androidNs + "targetActivity");
+                var resolvedTarget = ResolveActivityName(targetActivity, packageName);
+
+                if (!string.IsNullOrWhiteSpace(resolvedTarget))
+                {
+                    var targetExists = activities.Any(activity =>
+                        string.Equals(
+                            ResolveActivityName((string?)activity.Attribute(androidNs + "name"), packageName),
+                            resolvedTarget,
+                            StringComparison.Ordinal));
+
+                    if (targetExists)
+                    {
+                        return Task.FromResult<(string?, string?, string?)>((resolvedTarget, null, null));
+                    }
+                }
+
+                var fallbackActivityName = (string?)activities.FirstOrDefault()?.Attribute(androidNs + "name");
+                if (!string.IsNullOrWhiteSpace(fallbackActivityName))
+                {
+                    return Task.FromResult<(string?, string?, string?)>((fallbackActivityName, "Launcher activity alias has missing or invalid targetActivity. Falling back to first concrete activity in manifest.", null));
+                }
+
+                return Task.FromResult<(string?, string?, string?)>((null, null, "Launcher activity alias has missing or invalid targetActivity, and no concrete activity entries were found in AndroidManifest.xml."));
+            }
+
             return Task.FromResult<(string?, string?, string?)>(((string?)withLauncher.Attribute(androidNs + "name"), null, null));
         }
 
@@ -40,5 +77,25 @@ public sealed class ActivityDetectionService : IActivityDetectionService
         }
 
         return Task.FromResult<(string?, string?, string?)>((null, null, "No activity entries found in AndroidManifest.xml."));
+    }
+
+    private static string? ResolveActivityName(string? activityName, string? packageName)
+    {
+        if (string.IsNullOrWhiteSpace(activityName))
+        {
+            return null;
+        }
+
+        if (activityName.StartsWith('.', StringComparison.Ordinal))
+        {
+            return string.IsNullOrWhiteSpace(packageName) ? null : packageName + activityName;
+        }
+
+        if (activityName.Contains('.', StringComparison.Ordinal))
+        {
+            return activityName;
+        }
+
+        return string.IsNullOrWhiteSpace(packageName) ? null : $"{packageName}.{activityName}";
     }
 }
