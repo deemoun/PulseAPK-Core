@@ -26,11 +26,15 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return Task.FromResult<(bool Success, string? Error)>((false, "Unable to determine class descriptor from smali file."));
         }
 
+        var superClassDescriptor = ExtractSuperClassDescriptor(originalContent);
+        if (string.IsNullOrWhiteSpace(superClassDescriptor))
+        {
+            return Task.FromResult<(bool Success, string? Error)>((false, $"Unable to determine superclass descriptor from smali file '{smaliFile}'."));
+        }
+
         var helperMethods = useDelayedLoad ? BuildDelayedLoadHelperMethods() : BuildImmediateLoadHelperMethods();
         var lifecycleMethodName = useDelayedLoad ? "onResume" : "onCreate";
         var lifecycleSignature = useDelayedLoad ? "()V" : "(Landroid/os/Bundle;)V";
-        var superClassDescriptor = useDelayedLoad ? "Landroid/app/Activity;" : "Landroid/app/Activity;";
-
         var patched = originalContent;
         patched = InsertHelperMethods(patched, helperMethods);
         patched = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor);
@@ -171,6 +175,12 @@ public sealed class SmaliPatchService : ISmaliPatchService
     private static string? ExtractClassDescriptor(string content)
     {
         var match = Regex.Match(content, @"\.class\s+[\w\s-]+\s+(L[^;]+;)");
+        return match.Success ? match.Groups[1].Value : null;
+    }
+
+    private static string? ExtractSuperClassDescriptor(string content)
+    {
+        var match = Regex.Match(content, @"(?m)^\.super\s+(L[^;]+;)");
         return match.Success ? match.Groups[1].Value : null;
     }
 

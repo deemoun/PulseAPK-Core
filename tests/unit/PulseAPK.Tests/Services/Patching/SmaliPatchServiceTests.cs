@@ -78,4 +78,70 @@ public class SmaliPatchServiceTests
         Assert.Contains(".method protected onResume()V", delayedOutput, StringComparison.Ordinal);
         Assert.DoesNotContain("loadFridaGadgetIfNeeded", immediateOutput, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task PatchAsync_GeneratesLifecycleMethodUsingParsedAppCompatSuperclass()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-appcompat-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "com", "example");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "MainActivity.smali");
+        await File.WriteAllTextAsync(file, @".class public Lcom/example/MainActivity;
+.super Landroidx/appcompat/app/AppCompatActivity;
+
+.end class");
+
+        var service = new SmaliPatchService();
+
+        var result = await service.PatchAsync(root, "com.example.MainActivity", useDelayedLoad: false);
+        var output = await File.ReadAllTextAsync(file);
+
+        Assert.True(result.Success);
+        Assert.Contains("invoke-super {p0, p1}, Landroidx/appcompat/app/AppCompatActivity;->onCreate(Landroid/os/Bundle;)V", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task PatchAsync_GeneratesLifecycleMethodUsingParsedCustomSuperclass()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-custom-super-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "com", "example");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "MainActivity.smali");
+        await File.WriteAllTextAsync(file, @".class public Lcom/example/MainActivity;
+.super Lcom/example/BaseActivity;
+
+.end class");
+
+        var service = new SmaliPatchService();
+
+        var result = await service.PatchAsync(root, "com.example.MainActivity", useDelayedLoad: true);
+        var output = await File.ReadAllTextAsync(file);
+
+        Assert.True(result.Success);
+        Assert.Contains("invoke-super {p0}, Lcom/example/BaseActivity;->onResume()V", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task PatchAsync_FailsWhenSuperclassDescriptorCannotBeParsed()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-missing-super-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "com", "example");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "MainActivity.smali");
+        await File.WriteAllTextAsync(file, @".class public Lcom/example/MainActivity;
+
+.end class");
+
+        var service = new SmaliPatchService();
+
+        var result = await service.PatchAsync(root, "com.example.MainActivity", useDelayedLoad: false);
+
+        Assert.False(result.Success);
+        Assert.NotNull(result.Error);
+        Assert.Contains("Unable to determine superclass descriptor", result.Error, StringComparison.Ordinal);
+        Assert.Contains(file, result.Error, StringComparison.Ordinal);
+    }
 }
