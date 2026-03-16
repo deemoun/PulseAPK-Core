@@ -6,6 +6,29 @@ namespace PulseAPK.Tests.Services.Patching;
 
 public class PatchPipelineServiceTests
 {
+    private static readonly string[] SuccessfulStagesWithoutSigning =
+    [
+        "architecture",
+        "decompile",
+        "activity-detection",
+        "manifest-patch",
+        "gadget-injection",
+        "smali-patch",
+        "build"
+    ];
+
+    private static readonly string[] SuccessfulStagesWithSigning =
+    [
+        "architecture",
+        "decompile",
+        "activity-detection",
+        "manifest-patch",
+        "gadget-injection",
+        "smali-patch",
+        "build",
+        "signing"
+    ];
+
     [Fact]
     public async Task RunAsync_ReturnsFailure_WhenValidationFails()
     {
@@ -35,6 +58,28 @@ public class PatchPipelineServiceTests
 
         Assert.True(result.Success);
         Assert.Equal(outputApk, result.OutputApkPath);
+        AssertStageSequence(result, SuccessfulStagesWithoutSigning);
+    }
+
+    [Fact]
+    public async Task RunAsync_RecordsExactStageSequence_WhenSigningEnabled()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var pipeline = CreatePipeline();
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            SignOutput = true
+        });
+
+        Assert.True(result.Success);
+        Assert.True(result.UsedSigning);
+        AssertStageSequence(result, SuccessfulStagesWithSigning);
     }
 
 
@@ -109,6 +154,7 @@ public class PatchPipelineServiceTests
         var dexStage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "dex-preservation"));
         Assert.False(dexStage.Success);
         Assert.Contains("discard injected smali changes", dexStage.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(result.Errors, error => error.Contains("replace all dex", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -157,29 +203,180 @@ public class PatchPipelineServiceTests
         var dexStage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "dex-preservation"));
         Assert.False(dexStage.Success);
         Assert.Contains("DEX merge failed", dexStage.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.NotEmpty(result.Errors);
     }
 
-    private static PatchPipelineService CreatePipeline(bool dexMergeShouldFail = false, FakeDexMergeService? fakeDexMergeService = null)
+    [Fact]
+    public async Task RunAsync_UsesSkipWarningSemantics_WhenDecodeSourcesDisabled()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var pipeline = CreatePipeline();
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            SignOutput = false,
+            DecodeSources = false
+        });
+
+        Assert.True(result.Success);
+        Assert.Contains(result.Warnings, warning => warning.Contains("Smali patch skipped", StringComparison.OrdinalIgnoreCase));
+        var smaliStage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "smali-patch"));
+        Assert.True(smaliStage.Success);
+        Assert.Contains("skipped", smaliStage.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task RunAsync_EmitsAliasFallbackWarning_WhenArchitectureResolverProvidesWarning()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        const string aliasFallbackWarning = "ABI alias fallback used: mapping arm64 to arm64-v8a.";
+        var pipeline = CreatePipeline(fakeArchitectureService: new FakeArchitectureService(warning: aliasFallbackWarning));
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            SignOutput = false
+        });
+
+        Assert.True(result.Success);
+        Assert.Contains(aliasFallbackWarning, result.Warnings);
+        AssertStageSequence(result, SuccessfulStagesWithoutSigning);
+    }
+
+    [Fact]
+    public async Task RunAsync_ReturnsFailedStageAndError_WhenDecompileFails()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var pipeline = CreatePipeline(fakeApktoolService: new FakeApktoolService(decompileExitCode: 7));
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk
+        });
+
+        Assert.False(result.Success);
+        Assert.NotEmpty(result.Errors);
+        var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "decompile"));
+        Assert.False(stage.Success);
+        Assert.Contains("exit code 7", stage.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(result.Errors, error => error.Contains("exit code 7", StringComparison.OrdinalIgnoreCase));
+        AssertStageSequence(result, ["architecture", "decompile"]);
+    }
+
+    [Fact]
+    public async Task RunAsync_ReturnsFailedStageAndError_WhenBuildFails()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var pipeline = CreatePipeline(fakeApktoolService: new FakeApktoolService(buildExitCode: 9));
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            SignOutput = false
+        });
+
+        Assert.False(result.Success);
+        Assert.NotEmpty(result.Errors);
+        var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "build"));
+        Assert.False(stage.Success);
+        Assert.Contains("exit code 9", stage.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(result.Errors, error => error.Contains("exit code 9", StringComparison.OrdinalIgnoreCase));
+        AssertStageSequence(result,
+        [
+            "architecture",
+            "decompile",
+            "activity-detection",
+            "manifest-patch",
+            "gadget-injection",
+            "smali-patch",
+            "build"
+        ]);
+    }
+
+    [Fact]
+    public async Task RunAsync_ReturnsFailedStageAndError_WhenSigningFails()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var pipeline = CreatePipeline(fakeSigningService: new FakeSigningService(shouldFail: true));
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            SignOutput = true
+        });
+
+        Assert.False(result.Success);
+        Assert.NotEmpty(result.Errors);
+        var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "signing"));
+        Assert.False(stage.Success);
+        Assert.Contains("Signing failed", stage.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(result.Errors, error => error.Contains("Signing failed", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Warnings, warning => warning.Contains("Unsigned rebuilt APK", StringComparison.OrdinalIgnoreCase));
+        AssertStageSequence(result, SuccessfulStagesWithSigning);
+    }
+
+    private static void AssertStageSequence(PatchResult result, IReadOnlyList<string> expectedStages)
+    {
+        Assert.Equal(expectedStages, result.StageSummaries.Select(static summary => summary.Stage));
+    }
+
+    private static PatchPipelineService CreatePipeline(
+        bool dexMergeShouldFail = false,
+        FakeDexMergeService? fakeDexMergeService = null,
+        FakeArchitectureService? fakeArchitectureService = null,
+        FakeApktoolService? fakeApktoolService = null,
+        FakeSigningService? fakeSigningService = null)
     {
         fakeDexMergeService ??= new FakeDexMergeService(dexMergeShouldFail);
+        fakeArchitectureService ??= new FakeArchitectureService();
+        fakeApktoolService ??= new FakeApktoolService();
+        fakeSigningService ??= new FakeSigningService();
 
         return new PatchPipelineService(
             new PatchRequestValidatorService(),
-            new FakeArchitectureService(),
+            fakeArchitectureService,
             new FakeArtifactService(),
-            new FakeApktoolService(),
+            fakeApktoolService,
             new FakeActivityDetectionService(),
             new FakeManifestPatchService(),
             new FakeGadgetInjectionService(),
             new FakeSmaliPatchService(),
             fakeDexMergeService,
-            new FakeSigningService());
+            fakeSigningService);
     }
 
     private sealed class FakeArchitectureService : IArchitectureDetectionService
     {
+        private readonly string? _warning;
+
+        public FakeArchitectureService(string? warning = null)
+        {
+            _warning = warning;
+        }
+
         public Task<(string? Architecture, string? Error, string? Warning)> ResolveAsync(PatchRequest request, CancellationToken cancellationToken = default)
-            => Task.FromResult<(string?, string?, string?)>(("arm64-v8a", null, null));
+            => Task.FromResult<(string?, string?, string?)>(("arm64-v8a", null, _warning));
     }
 
     private sealed class FakeArtifactService : IFridaArtifactService
@@ -190,8 +387,22 @@ public class PatchPipelineServiceTests
 
     private sealed class FakeApktoolService : IApktoolService
     {
+        private readonly int _decompileExitCode;
+        private readonly int _buildExitCode;
+
+        public FakeApktoolService(int decompileExitCode = 0, int buildExitCode = 0)
+        {
+            _decompileExitCode = decompileExitCode;
+            _buildExitCode = buildExitCode;
+        }
+
         public Task<int> DecompileAsync(string apkPath, string outputDirectory, bool decodeResources, bool decodeSources, CancellationToken cancellationToken = default)
         {
+            if (_decompileExitCode != 0)
+            {
+                return Task.FromResult(_decompileExitCode);
+            }
+
             Directory.CreateDirectory(outputDirectory);
             File.WriteAllText(Path.Combine(outputDirectory, "AndroidManifest.xml"), "<manifest xmlns:android='http://schemas.android.com/apk/res/android'><application><activity android:name='com.example.MainActivity' /></application></manifest>");
             Directory.CreateDirectory(Path.Combine(outputDirectory, "smali", "com", "example"));
@@ -201,6 +412,11 @@ public class PatchPipelineServiceTests
 
         public Task<int> BuildAsync(string decompiledDirectory, string outputApkPath, bool useAapt2, CancellationToken cancellationToken = default)
         {
+            if (_buildExitCode != 0)
+            {
+                return Task.FromResult(_buildExitCode);
+            }
+
             File.WriteAllText(outputApkPath, "built");
             return Task.FromResult(0);
         }
@@ -259,7 +475,16 @@ public class PatchPipelineServiceTests
 
     private sealed class FakeSigningService : ISigningService
     {
+        private readonly bool _shouldFail;
+
+        public FakeSigningService(bool shouldFail = false)
+        {
+            _shouldFail = shouldFail;
+        }
+
         public Task<(bool Success, string? SignedApkPath, string? Error)> SignAsync(string inputApkPath, string outputApkPath, CancellationToken cancellationToken = default)
-            => Task.FromResult((true, outputApkPath, (string?)null));
+            => Task.FromResult(_shouldFail
+                ? (false, (string?)null, (string?)"Signing failed in fake service.")
+                : (true, outputApkPath, (string?)null));
     }
 }
