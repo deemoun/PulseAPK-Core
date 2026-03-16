@@ -90,7 +90,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return null;
         }
 
-        var normalizedActivityName = activityName.Trim();
+        var normalizedActivityName = NormalizeActivityName(decompiledDirectory, activityName);
         var relativePath = normalizedActivityName.TrimStart('.').Replace('.', Path.DirectorySeparatorChar) + ".smali";
         var fallbackFileName = normalizedActivityName.TrimStart('.');
         if (fallbackFileName.Contains(Path.DirectorySeparatorChar) || fallbackFileName.Contains(Path.AltDirectorySeparatorChar))
@@ -129,6 +129,43 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         return null;
+    }
+
+
+    private static string NormalizeActivityName(string decompiledDirectory, string activityName)
+    {
+        var trimmedActivityName = activityName.Trim();
+        if (trimmedActivityName.StartsWith('.', StringComparison.Ordinal))
+        {
+            var packageName = ReadPackageName(decompiledDirectory);
+            if (!string.IsNullOrWhiteSpace(packageName))
+            {
+                return packageName + trimmedActivityName;
+            }
+
+            return trimmedActivityName;
+        }
+
+        if (trimmedActivityName.Contains('.', StringComparison.Ordinal))
+        {
+            return trimmedActivityName;
+        }
+
+        var manifestPackageName = ReadPackageName(decompiledDirectory);
+        return string.IsNullOrWhiteSpace(manifestPackageName) ? trimmedActivityName : $"{manifestPackageName}.{trimmedActivityName}";
+    }
+
+    private static string? ReadPackageName(string decompiledDirectory)
+    {
+        var manifestPath = Path.Combine(decompiledDirectory, "AndroidManifest.xml");
+        if (!File.Exists(manifestPath))
+        {
+            return null;
+        }
+
+        var manifestContent = File.ReadAllText(manifestPath);
+        var packageMatch = Regex.Match(manifestContent, @"\bpackage\s*=\s*['"](?<package>[^'"]+)['"]");
+        return packageMatch.Success ? packageMatch.Groups["package"].Value : null;
     }
 
     private static string? ExtractClassDescriptor(string content)

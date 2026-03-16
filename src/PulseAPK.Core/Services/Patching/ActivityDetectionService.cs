@@ -42,9 +42,7 @@ public sealed class ActivityDetectionService : IActivityDetectionService
             if (withLauncher.Name.LocalName == "activity-alias")
             {
                 var targetActivity = (string?)withLauncher.Attribute(androidNs + "targetActivity");
-                var resolvedTarget = ResolveActivityName(targetActivity, packageName);
-
-                if (!string.IsNullOrWhiteSpace(resolvedTarget))
+                if (TryResolveActivityName(targetActivity, packageName, out var resolvedTarget))
                 {
                     var targetExists = activities.Any(activity =>
                         string.Equals(
@@ -54,34 +52,32 @@ public sealed class ActivityDetectionService : IActivityDetectionService
 
                     if (targetExists)
                     {
-                        return Task.FromResult<(string?, string?, string?)>((resolvedTarget, null, null));
+                        return Task.FromResult<(string?, string?, string?)>((ResolveActivityName(resolvedTarget, packageName), null, null));
                     }
                 }
 
                 var fallbackActivityName = (string?)activities.FirstOrDefault()?.Attribute(androidNs + "name");
-                var resolvedFallback = ResolveActivityName(fallbackActivityName, packageName);
-                if (!string.IsNullOrWhiteSpace(resolvedFallback))
+                if (TryResolveActivityName(fallbackActivityName, packageName, out var resolvedFallback))
                 {
-                    return Task.FromResult<(string?, string?, string?)>((resolvedFallback, "Launcher activity alias has missing or invalid targetActivity. Falling back to first concrete activity in manifest.", null));
+                    return Task.FromResult<(string?, string?, string?)>((ResolveActivityName(resolvedFallback, packageName), "Launcher activity alias has missing or invalid targetActivity. Falling back to first concrete activity in manifest.", null));
                 }
 
                 return Task.FromResult<(string?, string?, string?)>((null, null, "Launcher activity alias has missing or invalid targetActivity, and no concrete activity entries were found in AndroidManifest.xml."));
             }
 
-            var resolvedLauncher = ResolveActivityName((string?)withLauncher.Attribute(androidNs + "name"), packageName);
-            if (!string.IsNullOrWhiteSpace(resolvedLauncher))
+            var launcherActivityName = (string?)withLauncher.Attribute(androidNs + "name");
+            if (TryResolveActivityName(launcherActivityName, packageName, out var resolvedLauncher))
             {
-                return Task.FromResult<(string?, string?, string?)>((resolvedLauncher, null, null));
+                return Task.FromResult<(string?, string?, string?)>((ResolveActivityName(resolvedLauncher, packageName), null, null));
             }
 
             return Task.FromResult<(string?, string?, string?)>((null, null, "Launcher activity is missing a valid android:name value in AndroidManifest.xml."));
         }
 
         var firstActivityName = (string?)activities.FirstOrDefault()?.Attribute(androidNs + "name");
-        var resolvedFirstActivity = ResolveActivityName(firstActivityName, packageName);
-        if (!string.IsNullOrWhiteSpace(resolvedFirstActivity))
+        if (TryResolveActivityName(firstActivityName, packageName, out var resolvedFirstActivity))
         {
-            return Task.FromResult<(string?, string?, string?)>((resolvedFirstActivity, "No MAIN/LAUNCHER activity found. Falling back to first activity in manifest.", null));
+            return Task.FromResult<(string?, string?, string?)>((ResolveActivityName(resolvedFirstActivity, packageName), "No MAIN/LAUNCHER activity found. Falling back to first activity in manifest.", null));
         }
 
         return Task.FromResult<(string?, string?, string?)>((null, null, "No activity entries found in AndroidManifest.xml."));
@@ -105,5 +101,11 @@ public sealed class ActivityDetectionService : IActivityDetectionService
         }
 
         return string.IsNullOrWhiteSpace(packageName) ? null : $"{packageName}.{activityName}";
+    }
+
+    private static bool TryResolveActivityName(string? activityName, string? packageName, out string resolvedActivityName)
+    {
+        resolvedActivityName = ResolveActivityName(activityName, packageName) ?? string.Empty;
+        return !string.IsNullOrWhiteSpace(resolvedActivityName);
     }
 }

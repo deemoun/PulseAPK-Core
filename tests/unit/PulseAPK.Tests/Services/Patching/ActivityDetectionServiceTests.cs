@@ -136,6 +136,53 @@ public class ActivityDetectionServiceTests
         Assert.Null(result.Error);
     }
 
+
+
+    [Fact]
+    public async Task DetectMainActivityAsync_LauncherAliasTargetWithDotPrefixedName_ReturnsFullyQualifiedActivity()
+    {
+        var root = CreateManifest(@"<manifest xmlns:android='http://schemas.android.com/apk/res/android' package='com.example'>
+  <application>
+    <activity android:name='com.example.MainActivity' />
+    <activity-alias android:name='com.example.EntryAlias' android:targetActivity='.MainActivity'>
+      <intent-filter>
+        <action android:name='android.intent.action.MAIN' />
+        <category android:name='android.intent.category.LAUNCHER' />
+      </intent-filter>
+    </activity-alias>
+  </application>
+</manifest>");
+
+        var service = new ActivityDetectionService();
+        var result = await service.DetectMainActivityAsync(root);
+
+        Assert.Equal("com.example.MainActivity", result.ActivityName);
+        Assert.Null(result.Warning);
+        Assert.Null(result.Error);
+    }
+
+    [Fact]
+    public async Task DetectMainActivityAsync_LauncherAliasTargetWithShortName_ReturnsFullyQualifiedActivity()
+    {
+        var root = CreateManifest(@"<manifest xmlns:android='http://schemas.android.com/apk/res/android' package='com.example'>
+  <application>
+    <activity android:name='com.example.MainActivity' />
+    <activity-alias android:name='com.example.EntryAlias' android:targetActivity='MainActivity'>
+      <intent-filter>
+        <action android:name='android.intent.action.MAIN' />
+        <category android:name='android.intent.category.LAUNCHER' />
+      </intent-filter>
+    </activity-alias>
+  </application>
+</manifest>");
+
+        var service = new ActivityDetectionService();
+        var result = await service.DetectMainActivityAsync(root);
+
+        Assert.Equal("com.example.MainActivity", result.ActivityName);
+        Assert.Null(result.Warning);
+        Assert.Null(result.Error);
+    }
     private static string CreateManifest(string manifest)
     {
         var root = Path.Combine(Path.GetTempPath(), $"pulseapk-manifest-{Guid.NewGuid():N}");
