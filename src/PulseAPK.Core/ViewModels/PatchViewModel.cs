@@ -158,7 +158,8 @@ public partial class PatchViewModel : ObservableObject
                 DecodeSources = DecodeSources,
                 UseAapt2ForBuild = UseAapt2ForBuild,
                 WorkingDirectory = Path.Combine(Path.GetTempPath(), "pulseapk-patch-ui"),
-                KeepIntermediateFiles = false
+                KeepIntermediateFiles = false,
+                PreserveOriginalDexFiles = false
             };
 
             AppendLog(BuildRunSummary(request));

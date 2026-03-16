@@ -78,6 +78,8 @@ public sealed class PatchPipelineService : IPatchPipelineService
         var decompiledDirectory = PrepareWorkingDirectory(request);
         var cleanupDirectory = !request.KeepIntermediateFiles ? decompiledDirectory : null;
 
+        var smaliInjectionApplied = false;
+
         try
         {
             var decompileCode = await _apktoolService.DecompileAsync(request.InputApkPath, decompiledDirectory, request.DecodeResources, request.DecodeSources, cancellationToken);
@@ -128,15 +130,25 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
             result.StageSummaries.Add(new PatchStageSummary("gadget-injection", true, "Frida gadget injected."));
 
-            var smaliPatch = await _smaliPatchService.PatchAsync(decompiledDirectory, activityName, request.UseDelayedLoad, cancellationToken);
-            if (!smaliPatch.Success)
+            if (!request.DecodeSources)
             {
-                result.Errors.Add(smaliPatch.Error ?? "Smali patch failed.");
-                result.StageSummaries.Add(new PatchStageSummary("smali-patch", false, result.Errors.Last()));
-                return result;
+                const string smaliSkipMessage = "Smali patch skipped because source decoding is disabled.";
+                result.Warnings.Add(smaliSkipMessage);
+                result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, smaliSkipMessage));
             }
+            else
+            {
+                var smaliPatch = await _smaliPatchService.PatchAsync(decompiledDirectory, activityName, request.UseDelayedLoad, cancellationToken);
+                if (!smaliPatch.Success)
+                {
+                    result.Errors.Add(smaliPatch.Error ?? "Smali patch failed.");
+                    result.StageSummaries.Add(new PatchStageSummary("smali-patch", false, result.Errors.Last()));
+                    return result;
+                }
 
-            result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Smali patched."));
+                result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Smali patched."));
+                smaliInjectionApplied = true;
+            }
 
             var buildCode = await _apktoolService.BuildAsync(decompiledDirectory, request.OutputApkPath, request.UseAapt2ForBuild, cancellationToken);
             if (buildCode != 0)
@@ -150,15 +162,28 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
             if (request.PreserveOriginalDexFiles)
             {
-                var dexResult = await _dexMergeService.PreserveOriginalDexFilesAsync(request.InputApkPath, request.OutputApkPath, cancellationToken);
-                if (!dexResult.Success)
+                if (smaliInjectionApplied)
                 {
-                    result.Errors.Add(dexResult.Error ?? "DEX merge failed.");
-                    result.StageSummaries.Add(new PatchStageSummary("dex-preservation", false, result.Errors.Last()));
-                    return result;
+                    const string skipMessage = "Dex preservation skipped because smali injection modified classes.dex; raw original-dex replacement would discard injected changes.";
+                    result.Warnings.Add(skipMessage);
+                    result.StageSummaries.Add(new PatchStageSummary("dex-preservation", true, skipMessage));
                 }
+                else
+                {
+                    var dexResult = await _dexMergeService.PreserveOriginalDexFilesAsync(
+                        request.InputApkPath,
+                        request.OutputApkPath,
+                        DexPreservationMode.PreserveUnmodifiedSecondaryDexFiles,
+                        cancellationToken);
+                    if (!dexResult.Success)
+                    {
+                        result.Errors.Add(dexResult.Error ?? "DEX merge failed.");
+                        result.StageSummaries.Add(new PatchStageSummary("dex-preservation", false, result.Errors.Last()));
+                        return result;
+                    }
 
-                result.StageSummaries.Add(new PatchStageSummary("dex-preservation", true, "Original dex files preserved."));
+                    result.StageSummaries.Add(new PatchStageSummary("dex-preservation", true, "Original non-modified secondary dex files preserved."));
+                }
             }
 
             if (request.SignOutput)
