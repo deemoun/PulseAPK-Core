@@ -201,7 +201,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
     private static string InjectCallIntoLifecycleMethod(string content, string classDescriptor, string methodName, string methodSignature, string superClassDescriptor)
     {
         var helperMethodName = methodName == "onResume" ? "loadFridaGadgetIfNeeded" : "loadFridaGadget";
-        var methodPattern = new Regex($@"(?ms)(\.method[^\n]* {methodName}\{Regex.Escape(methodSignature)}\s+)(.*?)(\.end method)");
+        var methodPattern = new Regex($@"(?ms)(\.method[^\n]* {methodName}{Regex.Escape(methodSignature)}\s+)(.*?)(\.end method)");
         var match = methodPattern.Match(content);
 
         if (match.Success)
@@ -213,7 +213,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
             }
 
             var call = "    invoke-static {}, " + classDescriptor + $"->{helperMethodName}()V";
-            var superCallPattern = new Regex($@"(?m)^\s*invoke-super \{{[^\n]+\}}, [^\n]+->{methodName}\{Regex.Escape(methodSignature)}\s*$");
+            var superCallPattern = new Regex($@"(?m)^\s*invoke-super \{{[^\n]+\}}, [^\n]+->{methodName}{Regex.Escape(methodSignature)}\s*$");
             if (superCallPattern.IsMatch(body))
             {
                 body = superCallPattern.Replace(body, m => m.Value + Environment.NewLine + call, 1);
