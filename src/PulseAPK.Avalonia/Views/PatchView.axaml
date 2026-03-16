@@ -77,7 +77,6 @@
                             Width="100" />
                 </Grid>
                 <TextBox Text="{Binding OutputApkName}" Watermark="patched.apk" />
-                <TextBox Text="{Binding OutputApkPath}" IsReadOnly="True" />
             </StackPanel>
         </Grid>
 
