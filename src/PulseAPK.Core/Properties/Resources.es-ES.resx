@@ -316,6 +316,30 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>Sugerencia: haz clic en Examinar para seleccionar una carpeta de proyecto.</value>
   </data>
+  <data name="PatchHeader" xml:space="preserve">
+    <value>Parchear APK</value>
+  </data>
+  <data name="PatchSignOutputApk" xml:space="preserve">
+    <value>Firmar APK de salida (ubersigner)</value>
+  </data>
+  <data name="PatchScriptProfile" xml:space="preserve">
+    <value>Perfil de script</value>
+  </data>
+  <data name="PatchDexPreservationMode" xml:space="preserve">
+    <value>Modo de preservación de DEX</value>
+  </data>
+  <data name="PatchOutputLabel" xml:space="preserve">
+    <value>Salida</value>
+  </data>
+  <data name="PatchDexDisabledDefault" xml:space="preserve">
+    <value>Desactivado (predeterminado)</value>
+  </data>
+  <data name="PatchDexPreserveUnmodifiedSecondary" xml:space="preserve">
+    <value>Conservar DEX secundario sin modificar</value>
+  </data>
+  <data name="PatchDexReplaceAllDangerous" xml:space="preserve">
+    <value>Reemplazar todos los DEX (peligroso)</value>
+  </data>
   <data name="ThemeLabel" xml:space="preserve">
     <value>Tema</value>
   </data>

@@ -316,6 +316,30 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>تلميح: انقر على "استعراض" لاختيار مجلد المشروع.</value>
   </data>
+  <data name="PatchHeader" xml:space="preserve">
+    <value>ترقيع APK</value>
+  </data>
+  <data name="PatchSignOutputApk" xml:space="preserve">
+    <value>توقيع APK الناتج (ubersigner)</value>
+  </data>
+  <data name="PatchScriptProfile" xml:space="preserve">
+    <value>ملف تعريف السكربت</value>
+  </data>
+  <data name="PatchDexPreservationMode" xml:space="preserve">
+    <value>وضع الحفاظ على DEX</value>
+  </data>
+  <data name="PatchOutputLabel" xml:space="preserve">
+    <value>المخرجات</value>
+  </data>
+  <data name="PatchDexDisabledDefault" xml:space="preserve">
+    <value>معطّل (افتراضي)</value>
+  </data>
+  <data name="PatchDexPreserveUnmodifiedSecondary" xml:space="preserve">
+    <value>الحفاظ على dex الثانوي غير المعدّل</value>
+  </data>
+  <data name="PatchDexReplaceAllDangerous" xml:space="preserve">
+    <value>استبدال كل dex (خطير)</value>
+  </data>
   <data name="ThemeLabel" xml:space="preserve">
     <value>السمة</value>
   </data>
