@@ -35,4 +35,47 @@ public class SmaliPatchServiceTests
         Assert.Equal(firstContent, secondContent);
         Assert.Contains("loadFridaGadget", secondContent, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task PatchAsync_ProducesDifferentInjection_ForDelayedMode()
+    {
+        var immediateRoot = Path.Combine(Path.GetTempPath(), $"smali-patch-immediate-{Guid.NewGuid():N}");
+        var delayedRoot = Path.Combine(Path.GetTempPath(), $"smali-patch-delayed-{Guid.NewGuid():N}");
+        var immediateSmaliPath = Path.Combine(immediateRoot, "smali", "com", "example");
+        var delayedSmaliPath = Path.Combine(delayedRoot, "smali", "com", "example");
+        Directory.CreateDirectory(immediateSmaliPath);
+        Directory.CreateDirectory(delayedSmaliPath);
+
+        var smaliContent = @".class public Lcom/example/MainActivity;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    return-void
+.end method
+
+.end class";
+
+        var immediateFile = Path.Combine(immediateSmaliPath, "MainActivity.smali");
+        var delayedFile = Path.Combine(delayedSmaliPath, "MainActivity.smali");
+        await File.WriteAllTextAsync(immediateFile, smaliContent);
+        await File.WriteAllTextAsync(delayedFile, smaliContent);
+
+        var service = new SmaliPatchService();
+
+        var immediate = await service.PatchAsync(immediateRoot, "com.example.MainActivity", useDelayedLoad: false);
+        var delayed = await service.PatchAsync(delayedRoot, "com.example.MainActivity", useDelayedLoad: true);
+
+        var immediateOutput = await File.ReadAllTextAsync(immediateFile);
+        var delayedOutput = await File.ReadAllTextAsync(delayedFile);
+
+        Assert.True(immediate.Success);
+        Assert.True(delayed.Success);
+        Assert.NotEqual(immediateOutput, delayedOutput);
+        Assert.Contains("invoke-static {}, Lcom/example/MainActivity;->loadFridaGadget()V", immediateOutput, StringComparison.Ordinal);
+        Assert.Contains("invoke-static {}, Lcom/example/MainActivity;->loadFridaGadgetIfNeeded()V", delayedOutput, StringComparison.Ordinal);
+        Assert.Contains(".method protected onResume()V", delayedOutput, StringComparison.Ordinal);
+        Assert.DoesNotContain("loadFridaGadgetIfNeeded", immediateOutput, StringComparison.Ordinal);
+    }
 }
