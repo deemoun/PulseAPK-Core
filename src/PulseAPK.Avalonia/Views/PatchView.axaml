@@ -54,13 +54,6 @@
             <StackPanel Spacing="8">
                 <CheckBox Content="Sign output APK (ubersigner)"
                           IsChecked="{Binding SignApk}" />
-                <CheckBox Content="Decode resources"
-                          IsChecked="{Binding DecodeResources}" />
-                <CheckBox Content="Decode sources"
-                          IsChecked="{Binding DecodeSources}" />
-                <CheckBox Content="Use AAPT2 for build"
-                          IsChecked="{Binding UseAapt2ForBuild}" />
-
                 <TextBlock Text="DEX preservation mode"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0" />

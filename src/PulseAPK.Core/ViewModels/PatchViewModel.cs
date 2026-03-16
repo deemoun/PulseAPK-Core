@@ -32,15 +32,6 @@ public partial class PatchViewModel : ObservableObject
     private bool _signApk = true;
 
     [ObservableProperty]
-    private bool _decodeResources = true;
-
-    [ObservableProperty]
-    private bool _decodeSources = true;
-
-    [ObservableProperty]
-    private bool _useAapt2ForBuild;
-
-    [ObservableProperty]
     private DexPreservationOption _selectedDexPreservationOption = new("Disabled (default)", DexPreservationMode.Disabled);
 
     [ObservableProperty]
@@ -110,9 +101,6 @@ public partial class PatchViewModel : ObservableObject
 
     partial void OnOutputApkPathChanged(string value) => UpdateCommandPreview();
     partial void OnSignApkChanged(bool value) => UpdateCommandPreview();
-    partial void OnDecodeResourcesChanged(bool value) => UpdateCommandPreview();
-    partial void OnDecodeSourcesChanged(bool value) => UpdateCommandPreview();
-    partial void OnUseAapt2ForBuildChanged(bool value) => UpdateCommandPreview();
     partial void OnSelectedDexPreservationOptionChanged(DexPreservationOption value) => UpdateCommandPreview();
 
     [RelayCommand]
@@ -184,9 +172,9 @@ public partial class PatchViewModel : ObservableObject
                 InputApkPath = ApkPath,
                 OutputApkPath = OutputApkPath,
                 SignOutput = SignApk,
-                DecodeResources = DecodeResources,
-                DecodeSources = DecodeSources,
-                UseAapt2ForBuild = UseAapt2ForBuild,
+                DecodeResources = true,
+                DecodeSources = true,
+                UseAapt2ForBuild = false,
                 WorkingDirectory = Path.Combine(Path.GetTempPath(), "pulseapk-patch-ui"),
                 KeepIntermediateFiles = false,
                 PreserveOriginalDexFiles = false,
@@ -299,9 +287,9 @@ public partial class PatchViewModel : ObservableObject
         builder.AppendLine("Patch preview:");
         builder.AppendLine($"Input APK: {(string.IsNullOrWhiteSpace(ApkPath) ? "<select apk>" : ApkPath)}");
         builder.AppendLine($"Output APK: {(string.IsNullOrWhiteSpace(OutputApkPath) ? "<output apk>" : OutputApkPath)}");
-        builder.AppendLine($"Decode resources: {DecodeResources}");
-        builder.AppendLine($"Decode sources: {DecodeSources}");
-        builder.AppendLine($"Use AAPT2: {UseAapt2ForBuild}");
+        builder.AppendLine("Decode resources: True (required)");
+        builder.AppendLine("Decode sources: True (required)");
+        builder.AppendLine("Use AAPT2: False (default)");
         builder.AppendLine($"Dex preservation: {SelectedDexPreservationOption.Label}");
         builder.Append($"Sign output: {SignApk}");
         ConsoleLog = builder.ToString();
