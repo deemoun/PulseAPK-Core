@@ -65,10 +65,6 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <TextBlock Text="Disabled: no dex copy. Preserve unmodified secondary dex: keeps additional original classes*.dex not produced during rebuild. Replace all dex (dangerous): restores every original dex and may discard injected smali changes."
-                           TextWrapping="Wrap"
-                           FontSize="12"
-                           Opacity="0.75" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="8">
                 <TextBlock Text="Output"
