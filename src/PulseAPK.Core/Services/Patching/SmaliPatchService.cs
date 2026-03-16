@@ -139,7 +139,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
     private static string NormalizeActivityName(string decompiledDirectory, string activityName)
     {
         var trimmedActivityName = activityName.Trim();
-        if (trimmedActivityName.StartsWith('.', StringComparison.Ordinal))
+        if (trimmedActivityName.StartsWith(".", StringComparison.Ordinal))
         {
             var packageName = ReadPackageName(decompiledDirectory);
             if (!string.IsNullOrWhiteSpace(packageName))
@@ -150,7 +150,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return trimmedActivityName;
         }
 
-        if (trimmedActivityName.Contains('.', StringComparison.Ordinal))
+        if (trimmedActivityName.Contains(".", StringComparison.Ordinal))
         {
             return trimmedActivityName;
         }

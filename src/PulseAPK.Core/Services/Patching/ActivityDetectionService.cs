@@ -90,12 +90,12 @@ public sealed class ActivityDetectionService : IActivityDetectionService
             return null;
         }
 
-        if (activityName.StartsWith('.', StringComparison.Ordinal))
+        if (activityName.StartsWith(".", StringComparison.Ordinal))
         {
             return string.IsNullOrWhiteSpace(packageName) ? null : packageName + activityName;
         }
 
-        if (activityName.Contains('.', StringComparison.Ordinal))
+        if (activityName.Contains(".", StringComparison.Ordinal))
         {
             return activityName;
         }
