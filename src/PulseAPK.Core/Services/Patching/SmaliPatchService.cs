@@ -26,33 +26,14 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return Task.FromResult<(bool Success, string? Error)>((false, "Unable to determine class descriptor from smali file."));
         }
 
-        var methodBody = useDelayedLoad
-            ? new[]
-            {
-                ".method private static loadFridaGadget()V",
-                "    .locals 1",
-                "",
-                "    const-string v0, \"frida-gadget\"",
-                "    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V",
-                "    return-void",
-                ".end method",
-                string.Empty
-            }
-            : new[]
-            {
-                ".method private static loadFridaGadget()V",
-                "    .locals 1",
-                "",
-                "    const-string v0, \"frida-gadget\"",
-                "    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V",
-                "    return-void",
-                ".end method",
-                string.Empty
-            };
+        var helperMethods = useDelayedLoad ? BuildDelayedLoadHelperMethods() : BuildImmediateLoadHelperMethods();
+        var lifecycleMethodName = useDelayedLoad ? "onResume" : "onCreate";
+        var lifecycleSignature = useDelayedLoad ? "()V" : "(Landroid/os/Bundle;)V";
+        var superClassDescriptor = useDelayedLoad ? "Landroid/app/Activity;" : "Landroid/app/Activity;";
 
         var patched = originalContent;
-        patched = InsertHelperMethod(patched, methodBody);
-        patched = InjectCallIntoOnCreate(patched, classDescriptor);
+        patched = InsertHelperMethods(patched, helperMethods);
+        patched = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor);
 
         if (ReferenceEquals(patched, originalContent) || patched == originalContent)
         {
@@ -61,6 +42,45 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
         File.WriteAllText(smaliFile, patched);
         return Task.FromResult<(bool Success, string? Error)>((true, null));
+    }
+
+    private static IReadOnlyList<string> BuildImmediateLoadHelperMethods()
+    {
+        return
+        [
+            ".method private static loadFridaGadget()V",
+            "    .locals 1",
+            string.Empty,
+            "    const-string v0, \"frida-gadget\"",
+            "    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V",
+            "    return-void",
+            ".end method",
+            string.Empty
+        ];
+    }
+
+    private static IReadOnlyList<string> BuildDelayedLoadHelperMethods()
+    {
+        return
+        [
+            ".field private static sFridaLoaded:Z",
+            string.Empty,
+            ".method private static loadFridaGadgetIfNeeded()V",
+            "    .locals 1",
+            string.Empty,
+            "    sget-boolean v0, Lcom/example/PLACEHOLDER;->sFridaLoaded:Z",
+            "    if-nez v0, :loaded",
+            string.Empty,
+            "    const-string v0, \"frida-gadget\"",
+            "    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V",
+            "    const/4 v0, 0x1",
+            "    sput-boolean v0, Lcom/example/PLACEHOLDER;->sFridaLoaded:Z",
+            string.Empty,
+            "    :loaded",
+            "    return-void",
+            ".end method",
+            string.Empty
+        ];
     }
 
     private static string? ResolveActivitySmaliFile(string decompiledDirectory, string activityName)
@@ -91,7 +111,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
         return match.Success ? match.Groups[1].Value : null;
     }
 
-    private static string InsertHelperMethod(string content, IReadOnlyList<string> lines)
+    private static string InsertHelperMethods(string content, IReadOnlyList<string> lines)
     {
         var endIndex = content.LastIndexOf(".end class", StringComparison.Ordinal);
         if (endIndex < 0)
@@ -99,25 +119,28 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return content;
         }
 
-        var method = string.Join(Environment.NewLine, lines) + Environment.NewLine;
+        var classDescriptor = ExtractClassDescriptor(content);
+        var normalizedLines = lines.Select(line => line.Replace("Lcom/example/PLACEHOLDER;", classDescriptor, StringComparison.Ordinal)).ToArray();
+        var method = string.Join(Environment.NewLine, normalizedLines) + Environment.NewLine;
         return content.Insert(endIndex, method);
     }
 
-    private static string InjectCallIntoOnCreate(string content, string classDescriptor)
+    private static string InjectCallIntoLifecycleMethod(string content, string classDescriptor, string methodName, string methodSignature, string superClassDescriptor)
     {
-        var onCreatePattern = new Regex(@"(?ms)(\.method[^\n]* onCreate\(Landroid/os/Bundle;\)V\s+)(.*?)(\.end method)");
-        var match = onCreatePattern.Match(content);
+        var helperMethodName = methodName == "onResume" ? "loadFridaGadgetIfNeeded" : "loadFridaGadget";
+        var methodPattern = new Regex($@"(?ms)(\.method[^\n]* {methodName}\{Regex.Escape(methodSignature)}\s+)(.*?)(\.end method)");
+        var match = methodPattern.Match(content);
 
         if (match.Success)
         {
             var body = match.Groups[2].Value;
-            if (body.Contains("loadFridaGadget", StringComparison.Ordinal))
+            if (body.Contains(helperMethodName, StringComparison.Ordinal))
             {
                 return content;
             }
 
-            var call = "    invoke-static {}, " + classDescriptor + "->loadFridaGadget()V";
-            var superCallPattern = new Regex(@"(?m)^\s*invoke-super \{[^\n]+\}, [^\n]+->onCreate\(Landroid/os/Bundle;\)V\s*$");
+            var call = "    invoke-static {}, " + classDescriptor + $"->{helperMethodName}()V";
+            var superCallPattern = new Regex($@"(?m)^\s*invoke-super \{{[^\n]+\}}, [^\n]+->{methodName}\{Regex.Escape(methodSignature)}\s*$");
             if (superCallPattern.IsMatch(body))
             {
                 body = superCallPattern.Replace(body, m => m.Value + Environment.NewLine + call, 1);
@@ -141,12 +164,19 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return content[..match.Groups[2].Index] + body + content[(match.Groups[2].Index + match.Groups[2].Length)..];
         }
 
-        var methodToAdd = $".method protected onCreate(Landroid/os/Bundle;)V{Environment.NewLine}" +
-                          "    .locals 0" + Environment.NewLine +
-                          "    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V" + Environment.NewLine +
-                          $"    invoke-static {{}}, {classDescriptor}->loadFridaGadget()V{Environment.NewLine}" +
-                          "    return-void" + Environment.NewLine +
-                          ".end method" + Environment.NewLine + Environment.NewLine;
+        var newMethod = methodName == "onResume"
+            ? $".method protected onResume()V{Environment.NewLine}" +
+              "    .locals 0" + Environment.NewLine +
+              $"    invoke-super {{p0}}, {superClassDescriptor}->onResume()V{Environment.NewLine}" +
+              $"    invoke-static {{}}, {classDescriptor}->loadFridaGadgetIfNeeded()V{Environment.NewLine}" +
+              "    return-void" + Environment.NewLine +
+              ".end method" + Environment.NewLine + Environment.NewLine
+            : $".method protected onCreate(Landroid/os/Bundle;)V{Environment.NewLine}" +
+              "    .locals 0" + Environment.NewLine +
+              $"    invoke-super {{p0, p1}}, {superClassDescriptor}->onCreate(Landroid/os/Bundle;)V{Environment.NewLine}" +
+              $"    invoke-static {{}}, {classDescriptor}->loadFridaGadget()V{Environment.NewLine}" +
+              "    return-void" + Environment.NewLine +
+              ".end method" + Environment.NewLine + Environment.NewLine;
 
         var endClassIndex = content.LastIndexOf(".end class", StringComparison.Ordinal);
         if (endClassIndex < 0)
@@ -154,6 +184,6 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return content;
         }
 
-        return content.Insert(endClassIndex, methodToAdd);
+        return content.Insert(endClassIndex, newMethod);
     }
 }
