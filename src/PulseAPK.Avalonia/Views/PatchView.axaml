@@ -54,6 +54,18 @@
             <StackPanel Spacing="8">
                 <CheckBox Content="Sign output APK (ubersigner)"
                           IsChecked="{Binding SignApk}" />
+                <TextBlock Text="Script profile"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0" />
+                <ComboBox ItemsSource="{Binding ScriptInjectionOptions}"
+                          SelectedItem="{Binding SelectedScriptInjectionOption}"
+                          IsEnabled="False">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Label}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <TextBlock Text="DEX preservation mode"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0" />

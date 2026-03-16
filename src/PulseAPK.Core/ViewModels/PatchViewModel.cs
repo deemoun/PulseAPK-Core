@@ -12,6 +12,7 @@ namespace PulseAPK.Core.ViewModels;
 
 
 public sealed record DexPreservationOption(string Label, DexPreservationMode Mode);
+public sealed record ScriptInjectionOption(string Label, bool IsEnabledForSelection);
 
 public partial class PatchViewModel : ObservableObject
 {
@@ -35,6 +36,9 @@ public partial class PatchViewModel : ObservableObject
     private DexPreservationOption _selectedDexPreservationOption = new("Disabled (default)", DexPreservationMode.Disabled);
 
     [ObservableProperty]
+    private ScriptInjectionOption _selectedScriptInjectionOption = new("Inject frida-gadget", false);
+
+    [ObservableProperty]
     private string _consoleLog;
 
     [ObservableProperty]
@@ -55,6 +59,11 @@ public partial class PatchViewModel : ObservableObject
         new("Replace all dex (dangerous)", DexPreservationMode.ReplaceAllDexFiles)
     ];
 
+    public IReadOnlyList<ScriptInjectionOption> ScriptInjectionOptions { get; } =
+    [
+        new("Inject frida-gadget", false)
+    ];
+
     public PatchViewModel(
         IFilePickerService filePickerService,
         ISettingsService settingsService,
@@ -69,6 +78,7 @@ public partial class PatchViewModel : ObservableObject
         _consoleLog = Properties.Resources.WaitingForCommand;
 
         SelectedDexPreservationOption = DexPreservationOptions[0];
+        SelectedScriptInjectionOption = ScriptInjectionOptions[0];
 
         OutputFolderPath = EnsureCompiledDirectory();
         OutputApkName = "patched.apk";
@@ -102,6 +112,7 @@ public partial class PatchViewModel : ObservableObject
     partial void OnOutputApkPathChanged(string value) => UpdateCommandPreview();
     partial void OnSignApkChanged(bool value) => UpdateCommandPreview();
     partial void OnSelectedDexPreservationOptionChanged(DexPreservationOption value) => UpdateCommandPreview();
+    partial void OnSelectedScriptInjectionOptionChanged(ScriptInjectionOption value) => UpdateCommandPreview();
 
     [RelayCommand]
     private async Task BrowseApk()
@@ -183,6 +194,7 @@ public partial class PatchViewModel : ObservableObject
             };
 
             AppendLog(BuildRunSummary(request));
+            AppendLog($"[INFO] Script profile: {SelectedScriptInjectionOption.Label}");
 
             var result = await _patchPipelineService.RunAsync(request);
 
@@ -290,6 +302,7 @@ public partial class PatchViewModel : ObservableObject
         builder.AppendLine("Decode resources: True (required)");
         builder.AppendLine("Decode sources: True (required)");
         builder.AppendLine("Use AAPT2: False (default)");
+        builder.AppendLine($"Script profile: {SelectedScriptInjectionOption.Label}");
         builder.AppendLine($"Dex preservation: {SelectedDexPreservationOption.Label}");
         builder.Append($"Sign output: {SignApk}");
         ConsoleLog = builder.ToString();
