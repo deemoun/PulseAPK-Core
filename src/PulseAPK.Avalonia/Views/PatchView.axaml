@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,Auto,Auto,*"
           RowSpacing="16"
           Margin="20">
-        <TextBlock Text="Patch APK"
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchHeader]}"
                    FontSize="24"
                    FontWeight="SemiBold" />
 
@@ -19,7 +19,7 @@
                 Padding="12">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Select APK"
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectApk]}"
                                FontWeight="SemiBold" />
                     <TextBox Text="{Binding ApkPath}"
                              Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ApkPathPlaceholder]}"
@@ -52,9 +52,9 @@
 
         <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="16">
             <StackPanel Spacing="8">
-                <CheckBox Content="Sign output APK (ubersigner)"
+                <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchSignOutputApk]}"
                           IsChecked="{Binding SignApk}" />
-                <TextBlock Text="Script profile"
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptProfile]}"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0" />
                 <ComboBox ItemsSource="{Binding ScriptInjectionOptions}"
@@ -66,7 +66,7 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <TextBlock Text="DEX preservation mode"
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchDexPreservationMode]}"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0" />
                 <ComboBox ItemsSource="{Binding DexPreservationOptions}"
@@ -79,7 +79,7 @@
                 </ComboBox>
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="8">
-                <TextBlock Text="Output"
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchOutputLabel]}"
                            FontWeight="SemiBold" />
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                     <TextBox Text="{Binding OutputFolderPath}" />
@@ -88,7 +88,8 @@
                             Command="{Binding BrowseOutputFolderCommand}"
                             Width="100" />
                 </Grid>
-                <TextBox Text="{Binding OutputApkName}" Watermark="patched.apk" />
+                <TextBox Text="{Binding OutputApkName}"
+                         Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchOutputApkNamePlaceholder]}" />
             </StackPanel>
         </Grid>
 

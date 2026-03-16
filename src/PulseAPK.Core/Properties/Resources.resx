@@ -316,6 +316,106 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>Tip: Click Browse to choose a project folder.</value>
   </data>
+  <data name="MenuPatch" xml:space="preserve">
+    <value>Patch APK</value>
+  </data>
+  <data name="PatchHeader" xml:space="preserve">
+    <value>Patch APK</value>
+  </data>
+  <data name="PatchSignOutputApk" xml:space="preserve">
+    <value>Sign output APK (ubersigner)</value>
+  </data>
+  <data name="PatchScriptProfile" xml:space="preserve">
+    <value>Script profile</value>
+  </data>
+  <data name="PatchDexPreservationMode" xml:space="preserve">
+    <value>DEX preservation mode</value>
+  </data>
+  <data name="PatchOutputLabel" xml:space="preserve">
+    <value>Output</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>Inject frida-gadget</value>
+  </data>
+  <data name="PatchDexDisabledDefault" xml:space="preserve">
+    <value>Disabled (default)</value>
+  </data>
+  <data name="PatchDexPreserveUnmodifiedSecondary" xml:space="preserve">
+    <value>Preserve unmodified secondary dex</value>
+  </data>
+  <data name="PatchDexReplaceAllDangerous" xml:space="preserve">
+    <value>Replace all dex (dangerous)</value>
+  </data>
+  <data name="PatchErrorSelectApk" xml:space="preserve">
+    <value>Please select an APK file to patch.</value>
+  </data>
+  <data name="PatchErrorMissingApkTitle" xml:space="preserve">
+    <value>Missing APK</value>
+  </data>
+  <data name="PatchDangerousDexConfirmation" xml:space="preserve">
+    <value>Replace all dex can discard injected smali changes. Continue only if you understand this risk.</value>
+  </data>
+  <data name="PatchDangerousDexTitle" xml:space="preserve">
+    <value>Dangerous dex replacement</value>
+  </data>
+  <data name="PatchLogDangerousDexCancelled" xml:space="preserve">
+    <value>[WARN] Dangerous dex replacement was cancelled by user.</value>
+  </data>
+  <data name="PatchLogStartingPipeline" xml:space="preserve">
+    <value>Starting patch pipeline...</value>
+  </data>
+  <data name="PatchLogCreated" xml:space="preserve">
+    <value>Patched APK created: {0}</value>
+  </data>
+  <data name="PatchInfoCompleteMessage" xml:space="preserve">
+    <value>Patch completed successfully.
+Output: {0}</value>
+  </data>
+  <data name="PatchInfoCompleteTitle" xml:space="preserve">
+    <value>Patch complete</value>
+  </data>
+  <data name="PatchErrorFailedMessage" xml:space="preserve">
+    <value>Patch failed. See console output for details.</value>
+  </data>
+  <data name="PatchErrorFailedTitle" xml:space="preserve">
+    <value>Patch failed</value>
+  </data>
+  <data name="PatchPreviewHeader" xml:space="preserve">
+    <value>Patch preview:</value>
+  </data>
+  <data name="PatchPreviewInputApk" xml:space="preserve">
+    <value>Input APK: {0}</value>
+  </data>
+  <data name="PatchPreviewSelectApk" xml:space="preserve">
+    <value>&lt;select apk&gt;</value>
+  </data>
+  <data name="PatchPreviewOutputApk" xml:space="preserve">
+    <value>Output APK: {0}</value>
+  </data>
+  <data name="PatchPreviewOutputApkPlaceholder" xml:space="preserve">
+    <value>&lt;output apk&gt;</value>
+  </data>
+  <data name="PatchPreviewDecodeResources" xml:space="preserve">
+    <value>Decode resources: True (required)</value>
+  </data>
+  <data name="PatchPreviewDecodeSources" xml:space="preserve">
+    <value>Decode sources: True (required)</value>
+  </data>
+  <data name="PatchPreviewUseAapt2" xml:space="preserve">
+    <value>Use AAPT2: False (default)</value>
+  </data>
+  <data name="PatchPreviewScriptProfile" xml:space="preserve">
+    <value>Script profile: {0}</value>
+  </data>
+  <data name="PatchPreviewDexPreservation" xml:space="preserve">
+    <value>Dex preservation: {0}</value>
+  </data>
+  <data name="PatchPreviewSignOutput" xml:space="preserve">
+    <value>Sign output: {0}</value>
+  </data>
   <data name="ThemeLabel" xml:space="preserve">
     <value>Theme</value>
   </data>

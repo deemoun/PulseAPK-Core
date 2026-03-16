@@ -49,31 +49,38 @@ public partial class PatchViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IPatchPipelineService _patchPipelineService;
     private readonly IDialogService _dialogService;
+    private readonly LocalizationService _localizationService;
 
     public bool IsHintVisible => string.IsNullOrWhiteSpace(ApkPath);
 
-    public IReadOnlyList<DexPreservationOption> DexPreservationOptions { get; } =
-    [
-        new("Disabled (default)", DexPreservationMode.Disabled),
-        new("Preserve unmodified secondary dex", DexPreservationMode.PreserveUnmodifiedSecondaryDexFiles),
-        new("Replace all dex (dangerous)", DexPreservationMode.ReplaceAllDexFiles)
-    ];
+    public IReadOnlyList<DexPreservationOption> DexPreservationOptions { get; }
 
-    public IReadOnlyList<ScriptInjectionOption> ScriptInjectionOptions { get; } =
-    [
-        new("Inject frida-gadget", false)
-    ];
+    public IReadOnlyList<ScriptInjectionOption> ScriptInjectionOptions { get; }
 
     public PatchViewModel(
         IFilePickerService filePickerService,
         ISettingsService settingsService,
         IPatchPipelineService patchPipelineService,
-        IDialogService dialogService)
+        IDialogService dialogService,
+        LocalizationService localizationService)
     {
         _filePickerService = filePickerService;
         _settingsService = settingsService;
         _patchPipelineService = patchPipelineService;
         _dialogService = dialogService;
+        _localizationService = localizationService;
+
+        DexPreservationOptions =
+        [
+            new(L("PatchDexDisabledDefault"), DexPreservationMode.Disabled),
+            new(L("PatchDexPreserveUnmodifiedSecondary"), DexPreservationMode.PreserveUnmodifiedSecondaryDexFiles),
+            new(L("PatchDexReplaceAllDangerous"), DexPreservationMode.ReplaceAllDexFiles)
+        ];
+
+        ScriptInjectionOptions =
+        [
+            new(L("PatchScriptInjectFridaGadget"), false)
+        ];
 
         _consoleLog = Properties.Resources.WaitingForCommand;
 
@@ -81,7 +88,7 @@ public partial class PatchViewModel : ObservableObject
         SelectedScriptInjectionOption = ScriptInjectionOptions[0];
 
         OutputFolderPath = EnsureCompiledDirectory();
-        OutputApkName = "patched.apk";
+        OutputApkName = L("PatchOutputApkNamePlaceholder");
         UpdateOutputApkPath();
         UpdateCommandPreview();
     }
@@ -148,7 +155,7 @@ public partial class PatchViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(ApkPath))
         {
-            await _dialogService.ShowWarningAsync("Please select an APK file to patch.", "Missing APK");
+            await _dialogService.ShowWarningAsync(L("PatchErrorSelectApk"), L("PatchErrorMissingApkTitle"));
             return;
         }
 
@@ -164,17 +171,17 @@ public partial class PatchViewModel : ObservableObject
         if (selectedDexMode == DexPreservationMode.ReplaceAllDexFiles)
         {
             confirmedDangerousDexMode = await _dialogService.ShowQuestionAsync(
-                "Replace all dex can discard injected smali changes. Continue only if you understand this risk.",
-                "Dangerous dex replacement");
+                L("PatchDangerousDexConfirmation"),
+                L("PatchDangerousDexTitle"));
             if (!confirmedDangerousDexMode)
             {
-                AppendLog("[WARN] Dangerous dex replacement was cancelled by user.");
+                AppendLog(L("PatchLogDangerousDexCancelled"));
                 return;
             }
         }
 
         IsRunning = true;
-        SetConsoleLog("Starting patch pipeline...");
+        SetConsoleLog(L("PatchLogStartingPipeline"));
 
         try
         {
@@ -211,8 +218,8 @@ public partial class PatchViewModel : ObservableObject
 
             if (result.Success)
             {
-                AppendLog($"Patched APK created: {result.OutputApkPath}");
-                await _dialogService.ShowInfoAsync($"Patch completed successfully.\nOutput: {result.OutputApkPath}", "Patch complete");
+                AppendLog(string.Format(L("PatchLogCreated"), result.OutputApkPath));
+                await _dialogService.ShowInfoAsync(string.Format(L("PatchInfoCompleteMessage"), result.OutputApkPath), L("PatchInfoCompleteTitle"));
             }
             else
             {
@@ -221,13 +228,13 @@ public partial class PatchViewModel : ObservableObject
                     AppendLog($"[ERROR] {error}");
                 }
 
-                await _dialogService.ShowErrorAsync("Patch failed. See console output for details.", "Patch failed");
+                await _dialogService.ShowErrorAsync(L("PatchErrorFailedMessage"), L("PatchErrorFailedTitle"));
             }
         }
         catch (Exception ex)
         {
             AppendLog($"[ERROR] {ex.Message}");
-            await _dialogService.ShowErrorAsync(ex.Message, "Patch failed");
+            await _dialogService.ShowErrorAsync(ex.Message, L("PatchErrorFailedTitle"));
         }
         finally
         {
@@ -273,7 +280,7 @@ public partial class PatchViewModel : ObservableObject
 
     private void AppendLog(string message)
     {
-        if (string.IsNullOrWhiteSpace(ConsoleLog) || ConsoleLog == "Waiting for command...")
+        if (string.IsNullOrWhiteSpace(ConsoleLog) || ConsoleLog == Properties.Resources.WaitingForCommand)
         {
             ConsoleLog = message;
         }
@@ -296,17 +303,20 @@ public partial class PatchViewModel : ObservableObject
         }
 
         var builder = new StringBuilder();
-        builder.AppendLine("Patch preview:");
-        builder.AppendLine($"Input APK: {(string.IsNullOrWhiteSpace(ApkPath) ? "<select apk>" : ApkPath)}");
-        builder.AppendLine($"Output APK: {(string.IsNullOrWhiteSpace(OutputApkPath) ? "<output apk>" : OutputApkPath)}");
-        builder.AppendLine("Decode resources: True (required)");
-        builder.AppendLine("Decode sources: True (required)");
-        builder.AppendLine("Use AAPT2: False (default)");
-        builder.AppendLine($"Script profile: {SelectedScriptInjectionOption.Label}");
-        builder.AppendLine($"Dex preservation: {SelectedDexPreservationOption.Label}");
-        builder.Append($"Sign output: {SignApk}");
+        builder.AppendLine(L("PatchPreviewHeader"));
+        builder.AppendLine(string.Format(L("PatchPreviewInputApk"), string.IsNullOrWhiteSpace(ApkPath) ? L("PatchPreviewSelectApk") : ApkPath));
+        builder.AppendLine(string.Format(L("PatchPreviewOutputApk"), string.IsNullOrWhiteSpace(OutputApkPath) ? L("PatchPreviewOutputApkPlaceholder") : OutputApkPath));
+        builder.AppendLine(L("PatchPreviewDecodeResources"));
+        builder.AppendLine(L("PatchPreviewDecodeSources"));
+        builder.AppendLine(L("PatchPreviewUseAapt2"));
+        builder.AppendLine(string.Format(L("PatchPreviewScriptProfile"), SelectedScriptInjectionOption.Label));
+        builder.AppendLine(string.Format(L("PatchPreviewDexPreservation"), SelectedDexPreservationOption.Label));
+        builder.Append(string.Format(L("PatchPreviewSignOutput"), SignApk));
         ConsoleLog = builder.ToString();
     }
+
+
+    private string L(string key) => _localizationService[key];
 
     private static string BuildRunSummary(PatchRequest request)
     {
