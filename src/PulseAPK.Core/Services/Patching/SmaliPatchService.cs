@@ -14,11 +14,6 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         var originalContent = File.ReadAllText(smaliFile);
-        if (originalContent.Contains("frida-gadget", StringComparison.Ordinal) ||
-            originalContent.Contains("loadFridaGadget", StringComparison.Ordinal))
-        {
-            return Task.FromResult<(bool Success, string? Error)>((true, null));
-        }
 
         var classDescriptor = ExtractClassDescriptor(originalContent);
         if (string.IsNullOrWhiteSpace(classDescriptor))
@@ -32,11 +27,19 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return Task.FromResult<(bool Success, string? Error)>((false, $"Unable to determine superclass descriptor from smali file '{smaliFile}'."));
         }
 
-        var helperMethods = useDelayedLoad ? BuildDelayedLoadHelperMethods() : BuildImmediateLoadHelperMethods();
         var lifecycleMethodName = useDelayedLoad ? "onResume" : "onCreate";
         var lifecycleSignature = useDelayedLoad ? "()V" : "(Landroid/os/Bundle;)V";
         var patched = originalContent;
-        patched = InsertHelperMethods(patched, helperMethods);
+
+        if (useDelayedLoad)
+        {
+            patched = EnsureDelayedLoadHelperMembers(patched, classDescriptor);
+        }
+        else
+        {
+            patched = EnsureImmediateLoadHelperMethod(patched);
+        }
+
         patched = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor);
 
         if (ReferenceEquals(patched, originalContent) || patched == originalContent)
@@ -184,7 +187,44 @@ public sealed class SmaliPatchService : ISmaliPatchService
         return match.Success ? match.Groups[1].Value : null;
     }
 
-    private static string InsertHelperMethods(string content, IReadOnlyList<string> lines)
+    private static string EnsureImmediateLoadHelperMethod(string content)
+    {
+        if (content.Contains(".method private static loadFridaGadget()V", StringComparison.Ordinal))
+        {
+            return content;
+        }
+
+        return InsertLinesBeforeEndClass(content, BuildImmediateLoadHelperMethods());
+    }
+
+    private static string EnsureDelayedLoadHelperMembers(string content, string classDescriptor)
+    {
+        if (!content.Contains(".field private static sFridaLoaded:Z", StringComparison.Ordinal))
+        {
+            content = InsertLinesBeforeEndClass(content,
+            [
+                ".field private static sFridaLoaded:Z",
+                string.Empty
+            ]);
+        }
+
+        if (content.Contains(".method private static loadFridaGadgetIfNeeded()V", StringComparison.Ordinal))
+        {
+            return content;
+        }
+
+        var helperMethodLines = BuildDelayedLoadHelperMethods()
+            .Where(line => !line.StartsWith(".field ", StringComparison.Ordinal))
+            .ToArray();
+
+        var normalizedLines = helperMethodLines
+            .Select(line => line.Replace("Lcom/example/PLACEHOLDER;", classDescriptor, StringComparison.Ordinal))
+            .ToArray();
+
+        return InsertLinesBeforeEndClass(content, normalizedLines);
+    }
+
+    private static string InsertLinesBeforeEndClass(string content, IReadOnlyList<string> lines)
     {
         var endIndex = content.LastIndexOf(".end class", StringComparison.Ordinal);
         if (endIndex < 0)
@@ -192,9 +232,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return content;
         }
 
-        var classDescriptor = ExtractClassDescriptor(content);
-        var normalizedLines = lines.Select(line => line.Replace("Lcom/example/PLACEHOLDER;", classDescriptor, StringComparison.Ordinal)).ToArray();
-        var method = string.Join(Environment.NewLine, normalizedLines) + Environment.NewLine;
+        var method = string.Join(Environment.NewLine, lines) + Environment.NewLine;
         return content.Insert(endIndex, method);
     }
 
