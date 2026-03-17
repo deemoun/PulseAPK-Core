@@ -236,14 +236,14 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
     private static string InsertLinesBeforeEndClass(string content, IReadOnlyList<string> lines)
     {
-        var endIndex = content.LastIndexOf(".end class", StringComparison.Ordinal);
-        if (endIndex < 0)
+        var endClassMatch = FindLastEndClassDirective(content);
+        if (endClassMatch is null)
         {
             return content;
         }
 
         var method = string.Join(Environment.NewLine, lines) + Environment.NewLine;
-        return content.Insert(endIndex, method);
+        return content.Insert(endClassMatch.Value.Index, method);
     }
 
     private static string InjectCallIntoLifecycleMethod(string content, string classDescriptor, string methodName, string methodSignature, string superClassDescriptor)
@@ -299,12 +299,23 @@ public sealed class SmaliPatchService : ISmaliPatchService
               "    return-void" + Environment.NewLine +
               ".end method" + Environment.NewLine + Environment.NewLine;
 
-        var endClassIndex = content.LastIndexOf(".end class", StringComparison.Ordinal);
-        if (endClassIndex < 0)
+        var endClassMatch = FindLastEndClassDirective(content);
+        if (endClassMatch is null)
         {
             return content;
         }
 
-        return content.Insert(endClassIndex, newMethod);
+        return content.Insert(endClassMatch.Value.Index, newMethod);
+    }
+
+    private static Match? FindLastEndClassDirective(string content)
+    {
+        var matches = Regex.Matches(content, @"(?m)^[ \t]*\.end class\b");
+        if (matches.Count == 0)
+        {
+            return null;
+        }
+
+        return matches[^1];
     }
 }
