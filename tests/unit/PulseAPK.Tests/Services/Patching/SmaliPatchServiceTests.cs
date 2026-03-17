@@ -191,6 +191,35 @@ public class SmaliPatchServiceTests
         Assert.DoesNotContain("loadFridaGadget", duplicateOutput, StringComparison.Ordinal);
     }
 
+
+    [Fact]
+    public async Task PatchAsync_InsertsHelperMethod_WhenEndClassDirectiveIsIndented()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-indented-end-class-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "com", "example");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "SplashScreen.smali");
+        await File.WriteAllTextAsync(file, @".class public Lcom/example/SplashScreen;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    return-void
+.end method
+
+    .end class");
+
+        var service = new SmaliPatchService();
+        var result = await service.PatchAsync(root, "com.example.SplashScreen", useDelayedLoad: false);
+        var output = await File.ReadAllTextAsync(file);
+
+        Assert.True(result.Success);
+        Assert.Contains(".method private static loadFridaGadget()V", output, StringComparison.Ordinal);
+        Assert.Contains("invoke-static {}, Lcom/example/SplashScreen;->loadFridaGadget()V", output, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task PatchAsync_AddsMissingHelperMethodEvenWhenLibraryStringAlreadyExists()
     {
