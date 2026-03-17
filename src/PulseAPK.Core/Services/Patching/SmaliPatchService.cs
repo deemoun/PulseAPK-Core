@@ -202,7 +202,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
     {
         content = EnsureHelperMethodIsStatic(content, "loadFridaGadget");
 
-        if (content.Contains(".method private static loadFridaGadget()V", StringComparison.Ordinal))
+        if (HasStaticHelperMethod(content, "loadFridaGadget"))
         {
             return content;
         }
@@ -223,7 +223,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
         content = EnsureHelperMethodIsStatic(content, "loadFridaGadgetIfNeeded");
 
-        if (content.Contains(".method private static loadFridaGadgetIfNeeded()V", StringComparison.Ordinal))
+        if (HasStaticHelperMethod(content, "loadFridaGadgetIfNeeded"))
         {
             return content;
         }
@@ -242,13 +242,13 @@ public sealed class SmaliPatchService : ISmaliPatchService
     private static string EnsureHelpersForReferencedCalls(string content, string classDescriptor)
     {
         if (content.Contains("->loadFridaGadget()V", StringComparison.Ordinal) &&
-            !content.Contains(".method private static loadFridaGadget()V", StringComparison.Ordinal))
+            !HasStaticHelperMethod(content, "loadFridaGadget"))
         {
             content = EnsureImmediateLoadHelperMethod(content);
         }
 
         if (content.Contains("->loadFridaGadgetIfNeeded()V", StringComparison.Ordinal) &&
-            !content.Contains(".method private static loadFridaGadgetIfNeeded()V", StringComparison.Ordinal))
+            !HasStaticHelperMethod(content, "loadFridaGadgetIfNeeded"))
         {
             content = EnsureDelayedLoadHelperMembers(content, classDescriptor);
         }
@@ -258,7 +258,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
     private static string EnsureHelperMethodIsStatic(string content, string methodName)
     {
-        var methodPattern = new Regex($@"(?m)^\.method\s+(?<modifiers>[^\n]*?)\b{Regex.Escape(methodName)}\(\)V\s*$");
+        var methodPattern = new Regex($@"(?m)^(?<indent>[ \t]*)\.method\s+(?<modifiers>[^\n]*?)\b{Regex.Escape(methodName)}\s*\(\)V\s*$");
         var match = methodPattern.Match(content);
         if (!match.Success)
         {
@@ -272,8 +272,15 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         var normalizedModifiers = string.Join(" ", modifiers.Split(' ', StringSplitOptions.RemoveEmptyEntries));
-        var updatedSignature = $".method {normalizedModifiers} static {methodName}()V";
+        var indent = match.Groups["indent"].Value;
+        var updatedSignature = $"{indent}.method {normalizedModifiers} static {methodName}()V";
         return content[..match.Index] + updatedSignature + content[(match.Index + match.Length)..];
+    }
+
+    private static bool HasStaticHelperMethod(string content, string methodName)
+    {
+        var staticMethodPattern = new Regex($@"(?m)^[ \t]*\.method\s+[^\n]*\bstatic\b[^\n]*\b{Regex.Escape(methodName)}\s*\(\)V\s*$");
+        return staticMethodPattern.IsMatch(content);
     }
 
     private static string InsertLinesBeforeEndClass(string content, IReadOnlyList<string> lines)
