@@ -275,7 +275,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
     private static string EnsureHelperMethodIsStatic(string content, string methodName)
     {
-        var methodPattern = new Regex($@"(?m)^(?<indent>[ \t]*)\.method\s+(?<modifiers>[^\n]*?)\b{Regex.Escape(methodName)}\s*\(\)V\s*$");
+        var methodPattern = new Regex($@"(?m)^(?<indent>\s*)\.method\s+(?<modifiers>[^\n]*?)\b{Regex.Escape(methodName)}\s*\(\s*\)\s*V\s*$");
         var match = methodPattern.Match(content);
         if (!match.Success)
         {
@@ -296,7 +296,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
     private static bool HasStaticHelperMethod(string content, string methodName)
     {
-        var staticMethodPattern = new Regex($@"(?m)^[ \t]*\.method\s+[^\n]*\bstatic\b[^\n]*\b{Regex.Escape(methodName)}\s*\(\)V\s*$");
+        var staticMethodPattern = new Regex($@"(?m)^\s*\.method\s+[^\n]*\bstatic\b[^\n]*\b{Regex.Escape(methodName)}\s*\(\s*\)\s*V\s*$");
         return staticMethodPattern.IsMatch(content);
     }
 
@@ -376,7 +376,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
     private static Match? FindLastEndClassDirective(string content)
     {
-        var matches = Regex.Matches(content, @"(?m)^[ \t]*\.end class\b");
+        var matches = Regex.Matches(content, @"(?m)^\s*\.end class\b");
         if (matches.Count == 0)
         {
             return null;
