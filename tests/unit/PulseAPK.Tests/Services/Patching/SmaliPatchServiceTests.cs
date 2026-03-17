@@ -350,4 +350,28 @@ public class SmaliPatchServiceTests
         Assert.DoesNotContain(".method private loadFridaGadget ()V", output, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task PatchAsync_Fails_WhenLifecycleCallIsInjectedButStaticHelperCannotBeAdded()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-missing-end-class-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "com", "app", "damnvulnerablebank");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "SplashScreen.smali");
+        await File.WriteAllTextAsync(file, @".class public Lcom/app/damnvulnerablebank/SplashScreen;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    return-void
+.end method");
+
+        var service = new SmaliPatchService();
+        var result = await service.PatchAsync(root, "com.app.damnvulnerablebank.SplashScreen", useDelayedLoad: false);
+
+        Assert.False(result.Success);
+        Assert.Equal("Patched smali references Frida helper methods that are missing static definitions.", result.Error);
+    }
+
 }

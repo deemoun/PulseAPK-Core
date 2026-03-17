@@ -43,6 +43,11 @@ public sealed class SmaliPatchService : ISmaliPatchService
         patched = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor);
         patched = EnsureHelpersForReferencedCalls(patched, classDescriptor);
 
+        if (HasMissingStaticHelperForReferencedCalls(patched, classDescriptor))
+        {
+            return Task.FromResult<(bool Success, string? Error)>((false, "Patched smali references Frida helper methods that are missing static definitions."));
+        }
+
         if (ReferenceEquals(patched, originalContent) || patched == originalContent)
         {
             return Task.FromResult<(bool Success, string? Error)>((false, "Unable to find an injection point in activity smali file."));
@@ -241,19 +246,31 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
     private static string EnsureHelpersForReferencedCalls(string content, string classDescriptor)
     {
-        if (content.Contains("->loadFridaGadget()V", StringComparison.Ordinal) &&
+        if (content.Contains($"{classDescriptor}->loadFridaGadget()V", StringComparison.Ordinal) &&
             !HasStaticHelperMethod(content, "loadFridaGadget"))
         {
             content = EnsureImmediateLoadHelperMethod(content);
         }
 
-        if (content.Contains("->loadFridaGadgetIfNeeded()V", StringComparison.Ordinal) &&
+        if (content.Contains($"{classDescriptor}->loadFridaGadgetIfNeeded()V", StringComparison.Ordinal) &&
             !HasStaticHelperMethod(content, "loadFridaGadgetIfNeeded"))
         {
             content = EnsureDelayedLoadHelperMembers(content, classDescriptor);
         }
 
         return content;
+    }
+
+    private static bool HasMissingStaticHelperForReferencedCalls(string content, string classDescriptor)
+    {
+        var referencesImmediateHelper = content.Contains($"{classDescriptor}->loadFridaGadget()V", StringComparison.Ordinal);
+        if (referencesImmediateHelper && !HasStaticHelperMethod(content, "loadFridaGadget"))
+        {
+            return true;
+        }
+
+        var referencesDelayedHelper = content.Contains($"{classDescriptor}->loadFridaGadgetIfNeeded()V", StringComparison.Ordinal);
+        return referencesDelayedHelper && !HasStaticHelperMethod(content, "loadFridaGadgetIfNeeded");
     }
 
     private static string EnsureHelperMethodIsStatic(string content, string methodName)
