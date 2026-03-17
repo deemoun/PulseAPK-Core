@@ -200,6 +200,8 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
     private static string EnsureImmediateLoadHelperMethod(string content)
     {
+        content = EnsureHelperMethodIsStatic(content, "loadFridaGadget");
+
         if (content.Contains(".method private static loadFridaGadget()V", StringComparison.Ordinal))
         {
             return content;
@@ -218,6 +220,8 @@ public sealed class SmaliPatchService : ISmaliPatchService
                 string.Empty
             ]);
         }
+
+        content = EnsureHelperMethodIsStatic(content, "loadFridaGadgetIfNeeded");
 
         if (content.Contains(".method private static loadFridaGadgetIfNeeded()V", StringComparison.Ordinal))
         {
@@ -250,6 +254,26 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         return content;
+    }
+
+    private static string EnsureHelperMethodIsStatic(string content, string methodName)
+    {
+        var methodPattern = new Regex($@"(?m)^\.method\s+(?<modifiers>[^\n]*?)\b{Regex.Escape(methodName)}\(\)V\s*$");
+        var match = methodPattern.Match(content);
+        if (!match.Success)
+        {
+            return content;
+        }
+
+        var modifiers = match.Groups["modifiers"].Value;
+        if (Regex.IsMatch(modifiers, @"(^|\s)static(\s|$)"))
+        {
+            return content;
+        }
+
+        var normalizedModifiers = string.Join(" ", modifiers.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+        var updatedSignature = $".method {normalizedModifiers} static {methodName}()V";
+        return content[..match.Index] + updatedSignature + content[(match.Index + match.Length)..];
     }
 
     private static string InsertLinesBeforeEndClass(string content, IReadOnlyList<string> lines)
