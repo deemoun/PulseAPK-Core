@@ -350,6 +350,40 @@ public class SmaliPatchServiceTests
         Assert.DoesNotContain(".method private loadFridaGadget ()V", output, StringComparison.Ordinal);
     }
 
+
+    [Fact]
+    public async Task PatchAsync_AcceptsTabIndentedEndClassAndExistingStaticHelper()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-tab-indented-end-class-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "com", "app", "damnvulnerablebank");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "SplashScreen.smali");
+        await File.WriteAllTextAsync(file, ".class public Lcom/app/damnvulnerablebank/SplashScreen;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    invoke-static {}, Lcom/app/damnvulnerablebank/SplashScreen;->loadFridaGadget()V
+    return-void
+.end method
+
+	.method private static loadFridaGadget()V
+    .locals 1
+    const-string v0, "frida-gadget"
+    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+    return-void
+.end method
+
+	.end class");
+
+        var service = new SmaliPatchService();
+        var result = await service.PatchAsync(root, "com.app.damnvulnerablebank.SplashScreen", useDelayedLoad: false);
+
+        Assert.True(result.Success);
+    }
+
     [Fact]
     public async Task PatchAsync_Fails_WhenLifecycleCallIsInjectedButStaticHelperCannotBeAdded()
     {
