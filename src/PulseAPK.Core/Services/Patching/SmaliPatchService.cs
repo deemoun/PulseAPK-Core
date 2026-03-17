@@ -243,7 +243,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         var method = string.Join(Environment.NewLine, lines) + Environment.NewLine;
-        return content.Insert(endClassMatch.Value.Index, method);
+        return content.Insert(endClassMatch.Index, method);
     }
 
     private static string InjectCallIntoLifecycleMethod(string content, string classDescriptor, string methodName, string methodSignature, string superClassDescriptor)
@@ -305,7 +305,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return content;
         }
 
-        return content.Insert(endClassMatch.Value.Index, newMethod);
+        return content.Insert(endClassMatch.Index, newMethod);
     }
 
     private static Match? FindLastEndClassDirective(string content)
