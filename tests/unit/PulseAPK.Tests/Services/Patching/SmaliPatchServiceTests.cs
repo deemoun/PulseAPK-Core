@@ -145,6 +145,52 @@ public class SmaliPatchServiceTests
         Assert.Contains(file, result.Error, StringComparison.Ordinal);
     }
 
+
+    [Fact]
+    public async Task PatchAsync_SelectsSmaliFileMatchingExpectedClassDescriptor_WhenDuplicateFileNamesExist()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-duplicate-name-{Guid.NewGuid():N}");
+        var expectedDir = Path.Combine(root, "smali", "com", "app", "damnvulnerablebank");
+        var duplicateDir = Path.Combine(root, "smali_classes2", "com", "example");
+        Directory.CreateDirectory(expectedDir);
+        Directory.CreateDirectory(duplicateDir);
+
+        var expectedFile = Path.Combine(expectedDir, "SplashScreen.smali");
+        var duplicateFile = Path.Combine(duplicateDir, "SplashScreen.smali");
+
+        await File.WriteAllTextAsync(expectedFile, @".class public Lcom/app/damnvulnerablebank/SplashScreen;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    return-void
+.end method
+
+.end class");
+
+        await File.WriteAllTextAsync(duplicateFile, @".class public Lcom/example/SplashScreen;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    return-void
+.end method
+
+.end class");
+
+        var service = new SmaliPatchService();
+
+        var result = await service.PatchAsync(root, "com.app.damnvulnerablebank.SplashScreen", useDelayedLoad: false);
+        var expectedOutput = await File.ReadAllTextAsync(expectedFile);
+        var duplicateOutput = await File.ReadAllTextAsync(duplicateFile);
+
+        Assert.True(result.Success);
+        Assert.Contains("invoke-static {}, Lcom/app/damnvulnerablebank/SplashScreen;->loadFridaGadget()V", expectedOutput, StringComparison.Ordinal);
+        Assert.DoesNotContain("loadFridaGadget", duplicateOutput, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task PatchAsync_AddsMissingHelperMethodEvenWhenLibraryStringAlreadyExists()
     {

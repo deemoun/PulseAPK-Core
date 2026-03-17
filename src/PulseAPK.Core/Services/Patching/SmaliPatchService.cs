@@ -98,6 +98,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         var normalizedActivityName = NormalizeActivityName(decompiledDirectory, activityName);
+        var expectedClassDescriptor = "L" + normalizedActivityName.TrimStart('.').Replace('.', '/') + ";";
         var relativePath = normalizedActivityName.TrimStart('.').Replace('.', Path.DirectorySeparatorChar) + ".smali";
         var fallbackFileName = normalizedActivityName.TrimStart('.');
         if (fallbackFileName.Contains(Path.DirectorySeparatorChar) || fallbackFileName.Contains(Path.AltDirectorySeparatorChar))
@@ -110,13 +111,15 @@ public sealed class SmaliPatchService : ISmaliPatchService
         foreach (var smaliRoot in Directory.EnumerateDirectories(decompiledDirectory, "smali*", SearchOption.TopDirectoryOnly))
         {
             var direct = Path.Combine(smaliRoot, relativePath);
-            if (File.Exists(direct))
+            if (File.Exists(direct) && SmaliFileMatchesClassDescriptor(direct, expectedClassDescriptor))
             {
                 return direct;
             }
 
             var match = Directory.EnumerateFiles(smaliRoot, Path.GetFileName(relativePath), SearchOption.AllDirectories)
-                .FirstOrDefault(path => path.EndsWith(relativePath, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(path =>
+                    path.EndsWith(relativePath, StringComparison.OrdinalIgnoreCase) &&
+                    SmaliFileMatchesClassDescriptor(path, expectedClassDescriptor));
             if (match is not null)
             {
                 return match;
@@ -128,7 +131,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
             }
 
             var fallbackMatch = Directory.EnumerateFiles(smaliRoot, fallbackFileName, SearchOption.AllDirectories)
-                .FirstOrDefault();
+                .FirstOrDefault(path => SmaliFileMatchesClassDescriptor(path, expectedClassDescriptor));
             if (fallbackMatch is not null)
             {
                 return fallbackMatch;
@@ -136,6 +139,13 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         return null;
+    }
+
+    private static bool SmaliFileMatchesClassDescriptor(string smaliFilePath, string expectedClassDescriptor)
+    {
+        var fileContent = File.ReadAllText(smaliFilePath);
+        var descriptor = ExtractClassDescriptor(fileContent);
+        return string.Equals(descriptor, expectedClassDescriptor, StringComparison.Ordinal);
     }
 
 
