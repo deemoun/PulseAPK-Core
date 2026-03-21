@@ -326,13 +326,21 @@ public sealed class SmaliPatchService : ISmaliPatchService
             }
 
             var call = "    invoke-static {}, " + classDescriptor + $"->{helperMethodName}()V";
-            var superCallPattern = new Regex($@"(?m)^\s*invoke-super \{{[^\n]+\}}, [^\n]+->{methodName}{Regex.Escape(methodSignature)}\s*$");
-            if (superCallPattern.IsMatch(body))
+            var superCallPattern = new Regex($@"(?m)^(?<indent>\s*)invoke-super \{{[^\n]+\}}, [^\n]+->{methodName}{Regex.Escape(methodSignature)}\s*$");
+            var superCallMatch = superCallPattern.Match(body);
+            if (superCallMatch.Success)
             {
-                body = superCallPattern.Replace(body, m => m.Value + Environment.NewLine + call, 1);
+                var superCallEndIndex = superCallMatch.Index + superCallMatch.Length;
+                var callLine = Environment.NewLine + superCallMatch.Groups["indent"].Value + call.TrimStart();
+                body = body.Insert(superCallEndIndex, callLine);
             }
             else
             {
+                if (methodName == "onCreate")
+                {
+                    return content;
+                }
+
                 var split = body.Split(Environment.NewLine);
                 var insertAt = Array.FindIndex(split, line => line.TrimStart().StartsWith(".locals", StringComparison.Ordinal) || line.TrimStart().StartsWith(".registers", StringComparison.Ordinal));
                 if (insertAt >= 0)
