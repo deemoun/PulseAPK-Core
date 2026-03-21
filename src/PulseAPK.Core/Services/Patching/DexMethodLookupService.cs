@@ -1,6 +1,7 @@
 using AlphaOmega.Debug;
 using AlphaOmega.Debug.Dex;
 using System.Reflection;
+using System.Text;
 using PulseAPK.Core.Abstractions.Patching;
 
 namespace PulseAPK.Core.Services.Patching;
@@ -11,49 +12,77 @@ public sealed class DexMethodLookupService : IDexMethodLookupService
     {
         ArgumentNullException.ThrowIfNull(dexData);
 
-        using var stream = new MemoryStream(dexData, writable: false);
-        using var streamLoader = new StreamLoader(stream);
-        using var dexFile = new DexFile(streamLoader);
+        try
+        {
+            using var stream = new MemoryStream(dexData, writable: false);
+            using var streamLoader = new StreamLoader(stream);
+            using var dexFile = new DexFile(streamLoader);
 
-        var methods = GetObjectArray(dexFile, "MethodIdItems");
-        if (methods is null || methods.Length == 0)
+            var methods = GetObjectArray(dexFile, "MethodIdItems");
+            if (methods is null || methods.Length == 0)
+            {
+                return ContainsTokenHeuristic(dexData, classDescriptor, methodName, signature);
+            }
+
+            var strings = GetStringTable(dexFile);
+            var types = GetTypeTable(dexFile, strings);
+            var protos = GetProtoTable(dexFile, types);
+
+            foreach (var method in methods)
+            {
+                var classIndex = GetIntMember(method, "ClassTypeIndex", "ClassIndex", "ClassIdx");
+                var protoIndex = GetIntMember(method, "ProtoIndex", "ProtoIdx");
+                var nameIndex = GetIntMember(method, "NameStringIndex", "NameIndex", "NameIdx");
+
+                if (classIndex < 0 || protoIndex < 0 || nameIndex < 0 ||
+                    classIndex >= types.Length || protoIndex >= protos.Length || nameIndex >= strings.Length)
+                {
+                    continue;
+                }
+
+                if (!string.Equals(types[classIndex], classDescriptor, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (!string.Equals(strings[nameIndex], methodName, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (string.Equals(protos[protoIndex], signature, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return ContainsTokenHeuristic(dexData, classDescriptor, methodName, signature);
+        }
+        catch
+        {
+            if (ContainsTokenHeuristic(dexData, classDescriptor, methodName, signature))
+            {
+                return true;
+            }
+
+            throw;
+        }
+    }
+
+    private static bool ContainsTokenHeuristic(byte[] dexData, string classDescriptor, string methodName, string signature)
+        => ContainsUtf8Token(dexData, classDescriptor) &&
+           ContainsUtf8Token(dexData, methodName) &&
+           ContainsUtf8Token(dexData, signature);
+
+    private static bool ContainsUtf8Token(byte[] data, string token)
+    {
+        if (string.IsNullOrEmpty(token))
         {
             return false;
         }
 
-        var strings = GetStringTable(dexFile);
-        var types = GetTypeTable(dexFile, strings);
-        var protos = GetProtoTable(dexFile, types);
-
-        foreach (var method in methods)
-        {
-            var classIndex = GetIntMember(method, "ClassTypeIndex", "ClassIndex", "ClassIdx");
-            var protoIndex = GetIntMember(method, "ProtoIndex", "ProtoIdx");
-            var nameIndex = GetIntMember(method, "NameStringIndex", "NameIndex", "NameIdx");
-
-            if (classIndex < 0 || protoIndex < 0 || nameIndex < 0 ||
-                classIndex >= types.Length || protoIndex >= protos.Length || nameIndex >= strings.Length)
-            {
-                continue;
-            }
-
-            if (!string.Equals(types[classIndex], classDescriptor, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            if (!string.Equals(strings[nameIndex], methodName, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            if (string.Equals(protos[protoIndex], signature, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        var tokenBytes = Encoding.UTF8.GetBytes(token);
+        return data.AsSpan().IndexOf(tokenBytes) >= 0;
     }
 
     private static string[] GetStringTable(object dexFile)
