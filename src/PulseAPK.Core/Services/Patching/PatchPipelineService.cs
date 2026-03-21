@@ -5,6 +5,14 @@ namespace PulseAPK.Core.Services.Patching;
 
 public sealed class PatchPipelineService : IPatchPipelineService
 {
+    private static readonly HashSet<string> SupportedArchitectures = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "arm64-v8a",
+        "armeabi-v7a",
+        "x86",
+        "x86_64"
+    };
+
     private readonly PatchRequestValidatorService _requestValidator;
     private readonly IArchitectureDetectionService _architectureDetectionService;
     private readonly IFridaArtifactService _fridaArtifactService;
@@ -70,14 +78,6 @@ public sealed class PatchPipelineService : IPatchPipelineService
         var architecture = architectureResolution.Architecture;
         result.StageSummaries.Add(new PatchStageSummary("architecture", true, $"Using architecture '{architecture}'."));
 
-        var gadgetResolution = await _fridaArtifactService.ResolveGadgetAsync(request, architecture, cancellationToken);
-        if (gadgetResolution.Error is not null || gadgetResolution.GadgetPath is null)
-        {
-            result.Errors.Add(gadgetResolution.Error ?? "Unable to resolve Frida gadget artifact.");
-            result.StageSummaries.Add(new PatchStageSummary("artifact-resolution", false, result.Errors.Last()));
-            return result;
-        }
-
         var decompiledDirectory = PrepareWorkingDirectory(request);
         var cleanupDirectory = !request.KeepIntermediateFiles ? decompiledDirectory : null;
 
@@ -123,15 +123,35 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
             result.StageSummaries.Add(new PatchStageSummary("manifest-patch", true, "Manifest patched."));
 
-            var gadgetInject = await _gadgetInjectionService.InjectAsync(decompiledDirectory, request, architecture, gadgetResolution.GadgetPath, cancellationToken);
-            if (!gadgetInject.Success)
+            var injectionArchitectures = ResolveInjectionArchitectures(decompiledDirectory, architecture);
+            foreach (var targetArchitecture in injectionArchitectures)
             {
-                result.Errors.Add(gadgetInject.Error ?? "Gadget injection failed.");
-                result.StageSummaries.Add(new PatchStageSummary("gadget-injection", false, result.Errors.Last()));
-                return result;
+                var gadgetResolution = await _fridaArtifactService.ResolveGadgetAsync(request, targetArchitecture, cancellationToken);
+                if (gadgetResolution.Error is not null || gadgetResolution.GadgetPath is null)
+                {
+                    result.Errors.Add(gadgetResolution.Error ?? "Unable to resolve Frida gadget artifact.");
+                    result.StageSummaries.Add(new PatchStageSummary("artifact-resolution", false, result.Errors.Last()));
+                    return result;
+                }
+
+                var gadgetInject = await _gadgetInjectionService.InjectAsync(
+                    decompiledDirectory,
+                    request,
+                    targetArchitecture,
+                    gadgetResolution.GadgetPath,
+                    cancellationToken);
+                if (!gadgetInject.Success)
+                {
+                    result.Errors.Add(gadgetInject.Error ?? "Gadget injection failed.");
+                    result.StageSummaries.Add(new PatchStageSummary("gadget-injection", false, result.Errors.Last()));
+                    return result;
+                }
             }
 
-            result.StageSummaries.Add(new PatchStageSummary("gadget-injection", true, "Frida gadget injected."));
+            var injectionMessage = injectionArchitectures.Count == 1
+                ? $"Frida gadget injected for ABI '{injectionArchitectures[0]}'."
+                : $"Frida gadget injected for ABIs: {string.Join(", ", injectionArchitectures)}.";
+            result.StageSummaries.Add(new PatchStageSummary("gadget-injection", true, injectionMessage));
 
             if (!request.DecodeSources)
             {
@@ -261,6 +281,32 @@ public sealed class PatchPipelineService : IPatchPipelineService
         var path = Path.Combine(root!, $"job-{Guid.NewGuid():N}", "decompiled");
         Directory.CreateDirectory(path);
         return path;
+    }
+
+    private static List<string> ResolveInjectionArchitectures(string decompiledDirectory, string selectedArchitecture)
+    {
+        var architectures = new List<string>();
+
+        if (Directory.Exists(Path.Combine(decompiledDirectory, "lib")))
+        {
+            foreach (var abiPath in Directory.EnumerateDirectories(Path.Combine(decompiledDirectory, "lib")))
+            {
+                var abi = Path.GetFileName(abiPath);
+                if (!string.IsNullOrWhiteSpace(abi) &&
+                    SupportedArchitectures.Contains(abi) &&
+                    !architectures.Contains(abi, StringComparer.OrdinalIgnoreCase))
+                {
+                    architectures.Add(abi);
+                }
+            }
+        }
+
+        if (!architectures.Contains(selectedArchitecture, StringComparer.OrdinalIgnoreCase))
+        {
+            architectures.Insert(0, selectedArchitecture);
+        }
+
+        return architectures;
     }
 
     private static string GetSignedPath(string outputApkPath)

@@ -257,6 +257,36 @@ public class PatchPipelineServiceTests
     }
 
     [Fact]
+    public async Task RunAsync_InsertsGadgetIntoAllDiscoveredAbis()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var fakeArtifactService = new FakeArtifactService();
+        var fakeGadgetInjectionService = new FakeGadgetInjectionService();
+        var fakeApktoolService = new FakeApktoolService(libAbis: ["arm64-v8a", "armeabi-v7a"]);
+        var pipeline = CreatePipeline(
+            fakeArtifactService: fakeArtifactService,
+            fakeGadgetInjectionService: fakeGadgetInjectionService,
+            fakeApktoolService: fakeApktoolService);
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            SignOutput = false
+        });
+
+        Assert.True(result.Success);
+        Assert.Equal(["arm64-v8a", "armeabi-v7a"], fakeArtifactService.ResolvedArchitectures);
+        Assert.Equal(["arm64-v8a", "armeabi-v7a"], fakeGadgetInjectionService.InjectedArchitectures);
+        Assert.Contains(result.StageSummaries, static stage =>
+            stage.Stage == "gadget-injection" &&
+            stage.Message.Contains("arm64-v8a, armeabi-v7a", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task RunAsync_ReturnsFailedStageAndError_WhenDecompileFails()
     {
         var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
@@ -382,24 +412,28 @@ public class PatchPipelineServiceTests
         bool dexMergeShouldFail = false,
         FakeDexMergeService? fakeDexMergeService = null,
         FakeArchitectureService? fakeArchitectureService = null,
+        FakeArtifactService? fakeArtifactService = null,
         FakeApktoolService? fakeApktoolService = null,
+        FakeGadgetInjectionService? fakeGadgetInjectionService = null,
         FakeSigningService? fakeSigningService = null,
         FakeFinalDexInspectionService? fakeFinalDexInspectionService = null)
     {
         fakeDexMergeService ??= new FakeDexMergeService(dexMergeShouldFail);
         fakeArchitectureService ??= new FakeArchitectureService();
+        fakeArtifactService ??= new FakeArtifactService();
         fakeApktoolService ??= new FakeApktoolService();
+        fakeGadgetInjectionService ??= new FakeGadgetInjectionService();
         fakeSigningService ??= new FakeSigningService();
         fakeFinalDexInspectionService ??= new FakeFinalDexInspectionService();
 
         return new PatchPipelineService(
             new PatchRequestValidatorService(),
             fakeArchitectureService,
-            new FakeArtifactService(),
+            fakeArtifactService,
             fakeApktoolService,
             new FakeActivityDetectionService(),
             new FakeManifestPatchService(),
-            new FakeGadgetInjectionService(),
+            fakeGadgetInjectionService,
             new FakeSmaliPatchService(),
             fakeDexMergeService,
             fakeSigningService,
@@ -421,19 +455,26 @@ public class PatchPipelineServiceTests
 
     private sealed class FakeArtifactService : IFridaArtifactService
     {
+        public List<string> ResolvedArchitectures { get; } = [];
+
         public Task<(string? GadgetPath, string? Error)> ResolveGadgetAsync(PatchRequest request, string architecture, CancellationToken cancellationToken = default)
-            => Task.FromResult<(string?, string?)>((request.InputApkPath, null));
+        {
+            ResolvedArchitectures.Add(architecture);
+            return Task.FromResult<(string?, string?)>((request.InputApkPath, null));
+        }
     }
 
     private sealed class FakeApktoolService : IApktoolService
     {
         private readonly int _decompileExitCode;
         private readonly int _buildExitCode;
+        private readonly IReadOnlyList<string> _libAbis;
 
-        public FakeApktoolService(int decompileExitCode = 0, int buildExitCode = 0)
+        public FakeApktoolService(int decompileExitCode = 0, int buildExitCode = 0, IReadOnlyList<string>? libAbis = null)
         {
             _decompileExitCode = decompileExitCode;
             _buildExitCode = buildExitCode;
+            _libAbis = libAbis ?? [];
         }
 
         public Task<int> DecompileAsync(string apkPath, string outputDirectory, bool decodeResources, bool decodeSources, CancellationToken cancellationToken = default)
@@ -447,6 +488,11 @@ public class PatchPipelineServiceTests
             File.WriteAllText(Path.Combine(outputDirectory, "AndroidManifest.xml"), "<manifest xmlns:android='http://schemas.android.com/apk/res/android'><application><activity android:name='com.example.MainActivity' /></application></manifest>");
             Directory.CreateDirectory(Path.Combine(outputDirectory, "smali", "com", "example"));
             File.WriteAllText(Path.Combine(outputDirectory, "smali", "com", "example", "MainActivity.smali"), ".class public Lcom/example/MainActivity;\n.super Landroid/app/Activity;\n\n.end class");
+            foreach (var abi in _libAbis)
+            {
+                Directory.CreateDirectory(Path.Combine(outputDirectory, "lib", abi));
+            }
+
             return Task.FromResult(0);
         }
 
@@ -480,8 +526,13 @@ public class PatchPipelineServiceTests
 
     private sealed class FakeGadgetInjectionService : IGadgetInjectionService
     {
+        public List<string> InjectedArchitectures { get; } = [];
+
         public Task<(bool Success, string? Error)> InjectAsync(string decompiledDirectory, PatchRequest request, string architecture, string gadgetSourcePath, CancellationToken cancellationToken = default)
-            => Task.FromResult((true, (string?)null));
+        {
+            InjectedArchitectures.Add(architecture);
+            return Task.FromResult((true, (string?)null));
+        }
     }
 
     private sealed class FakeSmaliPatchService : ISmaliPatchService
