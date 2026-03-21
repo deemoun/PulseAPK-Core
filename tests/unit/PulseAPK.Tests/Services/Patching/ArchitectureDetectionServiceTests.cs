@@ -30,6 +30,24 @@ public class ArchitectureDetectionServiceTests
         Assert.Null(result.Error);
     }
 
+    [Fact]
+    public async Task ResolveAsync_PrefersArm64_WhenMultipleArchitecturesExist()
+    {
+        var apkPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.apk");
+        using (var archive = ZipFile.Open(apkPath, ZipArchiveMode.Create))
+        {
+            archive.CreateEntry("lib/armeabi-v7a/libfoo.so");
+            archive.CreateEntry("lib/arm64-v8a/libfoo.so");
+        }
+
+        var service = new ArchitectureDetectionService();
+
+        var result = await service.ResolveAsync(new PatchRequest { InputApkPath = apkPath });
+
+        Assert.Equal("arm64-v8a", result.Architecture);
+        Assert.Null(result.Error);
+    }
+
     private static string CreateApkWithEntry(string entry)
     {
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.apk");

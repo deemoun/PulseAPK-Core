@@ -6,6 +6,14 @@ namespace PulseAPK.Core.Services.Patching;
 
 public sealed class ArchitectureDetectionService : IArchitectureDetectionService
 {
+    private static readonly string[] ArchitecturePreferenceOrder =
+    [
+        "arm64-v8a",
+        "armeabi-v7a",
+        "x86_64",
+        "x86"
+    ];
+
     private static readonly HashSet<string> SupportedArchitectures = new(StringComparer.OrdinalIgnoreCase)
     {
         "arm64-v8a", "armeabi-v7a", "x86", "x86_64"
@@ -31,14 +39,17 @@ public sealed class ArchitectureDetectionService : IArchitectureDetectionService
         }
 
         using var archive = ZipFile.OpenRead(request.InputApkPath);
-        var found = archive.Entries
+        var availableAbis = archive.Entries
             .Select(entry => entry.FullName)
             .Where(path => path.StartsWith("lib/", StringComparison.OrdinalIgnoreCase))
             .Select(path => path.Split('/'))
             .Where(parts => parts.Length >= 3)
             .Select(parts => parts[1])
-            .FirstOrDefault(abi => SupportedArchitectures.Contains(abi));
+            .Where(abi => SupportedArchitectures.Contains(abi))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+        var found = ArchitecturePreferenceOrder.FirstOrDefault(availableAbis.Contains);
         if (!string.IsNullOrWhiteSpace(found))
         {
             return Task.FromResult<(string?, string?, string?)>((found, null, null));
