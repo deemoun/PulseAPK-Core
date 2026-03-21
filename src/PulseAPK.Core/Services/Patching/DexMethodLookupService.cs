@@ -1,3 +1,5 @@
+using AlphaOmega.Debug;
+using AlphaOmega.Debug.Dex;
 using System.Reflection;
 using PulseAPK.Core.Abstractions.Patching;
 
@@ -10,13 +12,8 @@ public sealed class DexMethodLookupService : IDexMethodLookupService
         ArgumentNullException.ThrowIfNull(dexData);
 
         using var stream = new MemoryStream(dexData, writable: false);
-        var streamLoaderType = Type.GetType("AlphaOmega.Debug.StreamLoader, AlphaOmega.ApkReader", throwOnError: true)!;
-        using var streamLoader = (IDisposable?)Activator.CreateInstance(streamLoaderType, stream)
-            ?? throw new InvalidOperationException("Unable to construct AlphaOmega.Debug.StreamLoader.");
-
-        var dexFileType = Type.GetType("AlphaOmega.Debug.Dex.DexFile, AlphaOmega.ApkReader", throwOnError: true)!;
-        using var dexFile = (IDisposable?)Activator.CreateInstance(dexFileType, streamLoader)
-            ?? throw new InvalidOperationException("Unable to construct AlphaOmega.Debug.Dex.DexFile.");
+        using var streamLoader = new StreamLoader(stream);
+        using var dexFile = new DexFile(streamLoader);
 
         var methods = GetObjectArray(dexFile, "MethodIdItems");
         if (methods is null || methods.Length == 0)
