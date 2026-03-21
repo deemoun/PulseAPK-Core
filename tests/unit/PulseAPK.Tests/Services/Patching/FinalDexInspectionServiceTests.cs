@@ -86,15 +86,103 @@ public sealed class FinalDexInspectionServiceTests
         Assert.False(found);
     }
 
+    [Fact]
+    public async Task ContainsMethodReferenceAsync_ReturnsTrue_WhenClasses2IsMalformedAndClassesContainsMethod()
+    {
+        var apkPath = CreateApkWithDexPayloads(new Dictionary<string, byte[]>
+        {
+            ["classes.dex"] = CreateDexPayload(
+                strings:
+                [
+                    "Lzed/rainxch/githubstore/MainActivity;",
+                    "V",
+                    "loadFridaGadget"
+                ],
+                typeDescriptorStringIndexes: [0, 1],
+                protoDefinitions: [new ProtoDefinition(1, [])],
+                methodDefinitions: [new MethodDefinition(0, 0, 2)]),
+            ["classes2.dex"] = CreateMalformedDexPayload()
+        });
+
+        var service = new FinalDexInspectionService();
+
+        var (found, diagnostics) = await service.ContainsMethodReferenceAsync(
+            apkPath,
+            "Lzed/rainxch/githubstore/MainActivity;->loadFridaGadget()V");
+
+        Assert.True(found);
+        Assert.Contains("classes.dex", diagnostics);
+    }
+
+    [Fact]
+    public async Task ContainsMethodReferenceAsync_ReturnsTrue_WhenClassesIsMalformedAndClasses2ContainsMethod()
+    {
+        var apkPath = CreateApkWithDexPayloads(new Dictionary<string, byte[]>
+        {
+            ["classes.dex"] = CreateMalformedDexPayload(),
+            ["classes2.dex"] = CreateDexPayload(
+                strings:
+                [
+                    "Lzed/rainxch/githubstore/MainActivity;",
+                    "V",
+                    "loadFridaGadget"
+                ],
+                typeDescriptorStringIndexes: [0, 1],
+                protoDefinitions: [new ProtoDefinition(1, [])],
+                methodDefinitions: [new MethodDefinition(0, 0, 2)])
+        });
+
+        var service = new FinalDexInspectionService();
+
+        var (found, diagnostics) = await service.ContainsMethodReferenceAsync(
+            apkPath,
+            "Lzed/rainxch/githubstore/MainActivity;->loadFridaGadget()V");
+
+        Assert.True(found);
+        Assert.Contains("classes2.dex", diagnostics);
+    }
+
+    [Fact]
+    public async Task ContainsMethodReferenceAsync_ReturnsFalse_WithAggregatedDiagnostics_WhenAllDexEntriesMalformed()
+    {
+        var apkPath = CreateApkWithDexPayloads(new Dictionary<string, byte[]>
+        {
+            ["classes.dex"] = CreateMalformedDexPayload(),
+            ["classes2.dex"] = CreateMalformedDexPayload()
+        });
+
+        var service = new FinalDexInspectionService();
+
+        var (found, diagnostics) = await service.ContainsMethodReferenceAsync(
+            apkPath,
+            "Lzed/rainxch/githubstore/MainActivity;->loadFridaGadget()V");
+
+        Assert.False(found);
+        Assert.Contains("Inspection failed for all 2 dex entries", diagnostics);
+        Assert.Contains("'classes.dex':", diagnostics);
+        Assert.Contains("'classes2.dex':", diagnostics);
+    }
+
     private static string CreateApkWithDexPayload(byte[] dexPayload)
+    {
+        return CreateApkWithDexPayloads(new Dictionary<string, byte[]> { ["classes.dex"] = dexPayload });
+    }
+
+    private static string CreateApkWithDexPayloads(IReadOnlyDictionary<string, byte[]> dexPayloads)
     {
         var apkPath = Path.Combine(Path.GetTempPath(), $"final-dex-inspection-{Guid.NewGuid():N}.apk");
         using var archive = ZipFile.Open(apkPath, ZipArchiveMode.Create);
-        var dex = archive.CreateEntry("classes.dex", CompressionLevel.NoCompression);
-        using var stream = dex.Open();
-        stream.Write(dexPayload, 0, dexPayload.Length);
+        foreach (var dexPayload in dexPayloads)
+        {
+            var dex = archive.CreateEntry(dexPayload.Key, CompressionLevel.NoCompression);
+            using var stream = dex.Open();
+            stream.Write(dexPayload.Value, 0, dexPayload.Value.Length);
+        }
+
         return apkPath;
     }
+
+    private static byte[] CreateMalformedDexPayload() => [0x64, 0x65, 0x78];
 
     private static byte[] CreateDexPayload(
         string[] strings,

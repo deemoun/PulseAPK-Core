@@ -26,6 +26,8 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
                             entry.FullName.EndsWith(".dex", StringComparison.OrdinalIgnoreCase));
 
         var totalDexEntries = 0;
+        var successfulDexEntries = 0;
+        var parseFailures = new List<string>();
         foreach (var dexEntry in dexEntries)
         {
             totalDexEntries++;
@@ -42,8 +44,11 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
 
             if (!string.IsNullOrWhiteSpace(reason))
             {
-                return (false, $"Inspection failed on '{dexEntry.FullName}': {reason}");
+                parseFailures.Add($"'{dexEntry.FullName}': {reason}");
+                continue;
             }
+
+            successfulDexEntries++;
         }
 
         if (totalDexEntries == 0)
@@ -51,7 +56,21 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
             return (false, "No classes*.dex entries were found in the APK.");
         }
 
-        return (false, $"Method tuple not found in any of the {totalDexEntries} dex entries.");
+        if (successfulDexEntries > 0)
+        {
+            if (parseFailures.Count == 0)
+            {
+                return (false, $"Method tuple not found in any of the {totalDexEntries} dex entries.");
+            }
+
+            return (false,
+                $"Method tuple not found in any of the {totalDexEntries} dex entries. " +
+                $"Non-fatal parse failures: {string.Join("; ", parseFailures)}");
+        }
+
+        return (false,
+            $"Inspection failed for all {totalDexEntries} dex entries. " +
+            $"Parse failures: {string.Join("; ", parseFailures)}");
     }
 
     private static bool TryParseMethodReference(string methodReference, out string classDescriptor, out string methodName, out string signature)
