@@ -15,6 +15,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
     private readonly ISmaliPatchService _smaliPatchService;
     private readonly IDexMergeService _dexMergeService;
     private readonly ISigningService _signingService;
+    private readonly IFinalDexInspectionService _finalDexInspectionService;
 
     public PatchPipelineService(
         PatchRequestValidatorService requestValidator,
@@ -26,7 +27,8 @@ public sealed class PatchPipelineService : IPatchPipelineService
         IGadgetInjectionService gadgetInjectionService,
         ISmaliPatchService smaliPatchService,
         IDexMergeService dexMergeService,
-        ISigningService signingService)
+        ISigningService signingService,
+        IFinalDexInspectionService finalDexInspectionService)
     {
         _requestValidator = requestValidator;
         _architectureDetectionService = architectureDetectionService;
@@ -38,6 +40,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
         _smaliPatchService = smaliPatchService;
         _dexMergeService = dexMergeService;
         _signingService = signingService;
+        _finalDexInspectionService = finalDexInspectionService;
     }
 
     public async Task<PatchResult> RunAsync(PatchRequest request, CancellationToken cancellationToken = default)
@@ -195,6 +198,8 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 result.StageSummaries.Add(new PatchStageSummary("dex-preservation", true, dexMessage));
             }
 
+            var finalArtifactPath = request.OutputApkPath;
+
             if (request.SignOutput)
             {
                 var signedPath = GetSignedPath(request.OutputApkPath);
@@ -210,17 +215,32 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 }
 
                 result.StageSummaries.Add(new PatchStageSummary("signing", true, "Signed APK created."));
-                result.Success = true;
-                result.UsedSigning = true;
-                result.OutputApkPath = signResult.SignedApkPath;
-                result.SelectedArchitecture = architecture;
-                return result;
+                finalArtifactPath = signResult.SignedApkPath!;
+            }
+
+            if (smaliInjectionApplied)
+            {
+                var classDescriptor = ToClassDescriptor(activityName);
+                var methodReference = $"{classDescriptor}->loadFridaGadget()V";
+                var foundInFinalDex = await _finalDexInspectionService.ContainsMethodReferenceAsync(finalArtifactPath, methodReference, cancellationToken);
+                if (!foundInFinalDex)
+                {
+                    const string guidance = "Smali helper was present during patching but missing in the final DEX artifact. Ensure smali mutation runs after any transform that regenerates classes.dex, or disable that transform for patched classes.";
+                    result.Errors.Add($"Final DEX verification failed: '{methodReference}' was not found. {guidance}");
+                    result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, guidance));
+                    result.OutputApkPath = finalArtifactPath;
+                    result.SelectedArchitecture = architecture;
+                    result.UsedSigning = request.SignOutput;
+                    return result;
+                }
+
+                result.StageSummaries.Add(new PatchStageSummary("dex-verification", true, $"Confirmed '{methodReference}' in final APK dex."));
             }
 
             result.Success = true;
-            result.OutputApkPath = request.OutputApkPath;
+            result.OutputApkPath = finalArtifactPath;
             result.SelectedArchitecture = architecture;
-            result.UsedSigning = false;
+            result.UsedSigning = request.SignOutput;
             return result;
         }
         finally
@@ -250,4 +270,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
         var extension = Path.GetExtension(outputApkPath);
         return Path.Combine(directory, $"{name}_signed{extension}");
     }
+
+    private static string ToClassDescriptor(string activityName)
+        => $"L{activityName.Replace('.', '/')};";
 }

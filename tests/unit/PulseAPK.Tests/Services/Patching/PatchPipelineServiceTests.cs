@@ -1,6 +1,8 @@
 using PulseAPK.Core.Abstractions.Patching;
 using PulseAPK.Core.Models;
 using PulseAPK.Core.Services.Patching;
+using System.IO.Compression;
+using System.Text;
 
 namespace PulseAPK.Tests.Services.Patching;
 
@@ -14,7 +16,8 @@ public class PatchPipelineServiceTests
         "manifest-patch",
         "gadget-injection",
         "smali-patch",
-        "build"
+        "build",
+        "dex-verification"
     ];
 
     private static readonly string[] SuccessfulStagesWithSigning =
@@ -26,7 +29,8 @@ public class PatchPipelineServiceTests
         "gadget-injection",
         "smali-patch",
         "build",
-        "signing"
+        "signing",
+        "dex-verification"
     ];
 
     [Fact]
@@ -333,7 +337,40 @@ public class PatchPipelineServiceTests
         Assert.Contains("Signing failed", stage.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(result.Errors, error => error.Contains("Signing failed", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(result.Warnings, warning => warning.Contains("Unsigned rebuilt APK", StringComparison.OrdinalIgnoreCase));
-        AssertStageSequence(result, SuccessfulStagesWithSigning);
+        AssertStageSequence(result,
+        [
+            "architecture",
+            "decompile",
+            "activity-detection",
+            "manifest-patch",
+            "gadget-injection",
+            "smali-patch",
+            "build",
+            "signing"
+        ]);
+    }
+
+    [Fact]
+    public async Task RunAsync_ReturnsFailure_WhenInjectedMethodMissingInFinalDexArtifact()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var pipeline = CreatePipeline(fakeFinalDexInspectionService: new FakeFinalDexInspectionService(containsMethodReference: false));
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            SignOutput = true
+        });
+
+        Assert.False(result.Success);
+        var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "dex-verification"));
+        Assert.False(stage.Success);
+        Assert.Contains("regenerates classes.dex", stage.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("loadFridaGadget()V", Assert.Single(result.Errors), StringComparison.Ordinal);
     }
 
     private static void AssertStageSequence(PatchResult result, IReadOnlyList<string> expectedStages)
@@ -346,12 +383,14 @@ public class PatchPipelineServiceTests
         FakeDexMergeService? fakeDexMergeService = null,
         FakeArchitectureService? fakeArchitectureService = null,
         FakeApktoolService? fakeApktoolService = null,
-        FakeSigningService? fakeSigningService = null)
+        FakeSigningService? fakeSigningService = null,
+        FakeFinalDexInspectionService? fakeFinalDexInspectionService = null)
     {
         fakeDexMergeService ??= new FakeDexMergeService(dexMergeShouldFail);
         fakeArchitectureService ??= new FakeArchitectureService();
         fakeApktoolService ??= new FakeApktoolService();
         fakeSigningService ??= new FakeSigningService();
+        fakeFinalDexInspectionService ??= new FakeFinalDexInspectionService();
 
         return new PatchPipelineService(
             new PatchRequestValidatorService(),
@@ -363,7 +402,8 @@ public class PatchPipelineServiceTests
             new FakeGadgetInjectionService(),
             new FakeSmaliPatchService(),
             fakeDexMergeService,
-            fakeSigningService);
+            fakeSigningService,
+            fakeFinalDexInspectionService);
     }
 
     private sealed class FakeArchitectureService : IArchitectureDetectionService
@@ -417,7 +457,11 @@ public class PatchPipelineServiceTests
                 return Task.FromResult(_buildExitCode);
             }
 
-            File.WriteAllText(outputApkPath, "built");
+            using var stream = File.Create(outputApkPath);
+            using var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: false);
+            var dexEntry = archive.CreateEntry("classes.dex");
+            using var writer = new BinaryWriter(dexEntry.Open(), Encoding.UTF8, leaveOpen: false);
+            writer.Write(Encoding.ASCII.GetBytes("Lcom/example/MainActivity;->loadFridaGadget()V"));
             return Task.FromResult(0);
         }
     }
@@ -483,8 +527,27 @@ public class PatchPipelineServiceTests
         }
 
         public Task<(bool Success, string? SignedApkPath, string? Error)> SignAsync(string inputApkPath, string outputApkPath, CancellationToken cancellationToken = default)
-            => Task.FromResult(_shouldFail
-                ? (false, (string?)null, (string?)"Signing failed in fake service.")
-                : (true, outputApkPath, (string?)null));
+        {
+            if (_shouldFail)
+            {
+                return Task.FromResult((false, (string?)null, (string?)"Signing failed in fake service."));
+            }
+
+            File.Copy(inputApkPath, outputApkPath, overwrite: true);
+            return Task.FromResult((true, (string?)outputApkPath, (string?)null));
+        }
+    }
+
+    private sealed class FakeFinalDexInspectionService : IFinalDexInspectionService
+    {
+        private readonly bool _containsMethodReference;
+
+        public FakeFinalDexInspectionService(bool containsMethodReference = true)
+        {
+            _containsMethodReference = containsMethodReference;
+        }
+
+        public Task<bool> ContainsMethodReferenceAsync(string apkPath, string methodReference, CancellationToken cancellationToken = default)
+            => Task.FromResult(_containsMethodReference);
     }
 }

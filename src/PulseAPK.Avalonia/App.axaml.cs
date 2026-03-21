@@ -66,6 +66,7 @@ public partial class App : Application
         services.AddTransient<ISmaliPatchService, SmaliPatchService>();
         services.AddTransient<IDexMergeService, DexMergeService>();
         services.AddTransient<ISigningService, SigningService>();
+        services.AddTransient<IFinalDexInspectionService, FinalDexInspectionService>();
         services.AddTransient<IPatchPipelineService, PatchPipelineService>();
 
         // Avalonia Services
