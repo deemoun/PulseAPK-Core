@@ -1,5 +1,6 @@
 using PulseAPK.Core.Abstractions.Patching;
 using PulseAPK.Core.Models;
+using System.Text.RegularExpressions;
 
 namespace PulseAPK.Core.Services.Patching;
 
@@ -246,14 +247,35 @@ public sealed class PatchPipelineService : IPatchPipelineService
                     : "loadFridaGadget";
                 var methodReference = $"{classDescriptor}->{helperMethodName}()V";
                 var inspection = await _finalDexInspectionService.ContainsMethodReferenceAsync(finalArtifactPath, methodReference, cancellationToken);
+                var diagnosticSummary = SummarizeDexDiagnostics(inspection.Diagnostics);
                 result.Warnings.Add($"DEX verification target: '{methodReference}' in '{finalArtifactPath}'.");
-                result.Warnings.Add($"DEX verification diagnostics: {inspection.Diagnostics}");
+                result.Warnings.Add(
+                    $"DEX verification diagnostics: {inspection.Diagnostics} " +
+                    $"(parsed dex entries: {diagnosticSummary.ParsedDexEntries}, failed dex entries: {diagnosticSummary.FailedDexEntries}).");
 
                 if (!inspection.Found)
                 {
-                    const string guidance = "Smali helper was present during patching but missing in the final DEX artifact. Ensure smali mutation runs after any transform that regenerates classes.dex, or disable that transform for patched classes.";
-                    result.Errors.Add($"Final DEX verification failed: '{methodReference}' was not found. {inspection.Diagnostics} {guidance}");
-                    result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, $"{inspection.Diagnostics} {guidance}"));
+                    if (diagnosticSummary.ParsedDexEntries > 0 && diagnosticSummary.FailedDexEntries > 0)
+                    {
+                        const string inconclusiveMessage = "Final DEX verification inconclusive due to dex parse errors.";
+                        result.Errors.Add(
+                            $"{inconclusiveMessage} Unable to reliably verify '{methodReference}'. {inspection.Diagnostics}");
+                        result.StageSummaries.Add(
+                            new PatchStageSummary("dex-verification", false, $"{inconclusiveMessage} {inspection.Diagnostics}"));
+                    }
+                    else if (diagnosticSummary.ParsedDexEntries > 0 && diagnosticSummary.TupleSearchCompleted)
+                    {
+                        const string guidance = "Smali helper missing in final dex artifact. Ensure smali mutation runs after any transform that regenerates classes.dex, or disable that transform for patched classes.";
+                        result.Errors.Add($"Final DEX verification failed: '{methodReference}' was not found. {inspection.Diagnostics} {guidance}");
+                        result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, $"{inspection.Diagnostics} {guidance}"));
+                    }
+                    else
+                    {
+                        result.Errors.Add(
+                            $"Final DEX verification failed before tuple search completed for '{methodReference}'. {inspection.Diagnostics}");
+                        result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, inspection.Diagnostics));
+                    }
+
                     result.OutputApkPath = finalArtifactPath;
                     result.SelectedArchitecture = architecture;
                     result.UsedSigning = request.SignOutput;
@@ -325,4 +347,36 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
     private static string ToClassDescriptor(string activityName)
         => $"L{activityName.Replace('.', '/')};";
+
+    private static DexDiagnosticsSummary SummarizeDexDiagnostics(string diagnostics)
+    {
+        var summary = new DexDiagnosticsSummary();
+        if (string.IsNullOrWhiteSpace(diagnostics))
+        {
+            return summary;
+        }
+
+        var tupleSearchMatch = Regex.Match(diagnostics, @"Method tuple not found in any of the (\d+) dex entries\.", RegexOptions.CultureInvariant);
+        if (tupleSearchMatch.Success &&
+            int.TryParse(tupleSearchMatch.Groups[1].Value, out var tupleSearchTotalDexEntries))
+        {
+            var failedDexEntries = Regex.Matches(diagnostics, "warning '", RegexOptions.CultureInvariant).Count;
+            failedDexEntries = Math.Clamp(failedDexEntries, 0, tupleSearchTotalDexEntries);
+            return new DexDiagnosticsSummary(
+                ParsedDexEntries: tupleSearchTotalDexEntries - failedDexEntries,
+                FailedDexEntries: failedDexEntries,
+                TupleSearchCompleted: true);
+        }
+
+        var inspectionFailedMatch = Regex.Match(diagnostics, @"Inspection failed for all (\d+) dex entries\.", RegexOptions.CultureInvariant);
+        if (inspectionFailedMatch.Success &&
+            int.TryParse(inspectionFailedMatch.Groups[1].Value, out var failedAllDexEntries))
+        {
+            return new DexDiagnosticsSummary(ParsedDexEntries: 0, FailedDexEntries: failedAllDexEntries, TupleSearchCompleted: false);
+        }
+
+        return summary;
+    }
+
+    private readonly record struct DexDiagnosticsSummary(int ParsedDexEntries = 0, int FailedDexEntries = 0, bool TupleSearchCompleted = false);
 }

@@ -387,7 +387,9 @@ public class PatchPipelineServiceTests
         await File.WriteAllTextAsync(inputApk, "apk");
         var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
 
-        var pipeline = CreatePipeline(fakeFinalDexInspectionService: new FakeFinalDexInspectionService(containsMethodReference: false));
+        var pipeline = CreatePipeline(fakeFinalDexInspectionService: new FakeFinalDexInspectionService(
+            containsMethodReference: false,
+            diagnostics: "Method tuple not found in any of the 2 dex entries."));
 
         var result = await pipeline.RunAsync(new PatchRequest
         {
@@ -400,6 +402,7 @@ public class PatchPipelineServiceTests
         var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "dex-verification"));
         Assert.False(stage.Success);
         Assert.Contains("regenerates classes.dex", stage.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("helper missing in final dex artifact", stage.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("loadFridaGadget()V", Assert.Single(result.Errors), StringComparison.Ordinal);
     }
 
@@ -427,6 +430,57 @@ public class PatchPipelineServiceTests
             fakeFinalDexInspectionService.LastMethodReference);
         var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "dex-verification"));
         Assert.Contains("loadFridaGadgetIfNeeded()V", stage.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RunAsync_ReturnsInconclusiveVerification_WhenDexParsingFailsForSubsetOfEntries()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+        var diagnostics = "Method tuple not found in any of the 3 dex entries. Non-fatal parse failures: warning 'classes2.dex': malformed header";
+        var pipeline = CreatePipeline(
+            fakeFinalDexInspectionService: new FakeFinalDexInspectionService(containsMethodReference: false, diagnostics: diagnostics));
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk
+        });
+
+        Assert.False(result.Success);
+        var error = Assert.Single(result.Errors);
+        Assert.Contains("verification inconclusive due to dex parse errors", error, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("helper missing in final dex artifact", error, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(result.Warnings, static warning =>
+            warning.Contains("parsed dex entries: 2", StringComparison.OrdinalIgnoreCase) &&
+            warning.Contains("failed dex entries: 1", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task RunAsync_DoesNotReportHelperMissing_WhenNoDexEntriesParseSuccessfully()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+        var diagnostics = "Inspection failed for all 2 dex entries. Parse failures: warning 'classes.dex': malformed; warning 'classes2.dex': malformed";
+        var pipeline = CreatePipeline(
+            fakeFinalDexInspectionService: new FakeFinalDexInspectionService(containsMethodReference: false, diagnostics: diagnostics));
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk
+        });
+
+        Assert.False(result.Success);
+        var error = Assert.Single(result.Errors);
+        Assert.DoesNotContain("helper missing in final dex artifact", error, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("verification inconclusive due to dex parse errors", error, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("before tuple search completed", error, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(result.Warnings, static warning =>
+            warning.Contains("parsed dex entries: 0", StringComparison.OrdinalIgnoreCase) &&
+            warning.Contains("failed dex entries: 2", StringComparison.OrdinalIgnoreCase));
     }
 
     private static void AssertStageSequence(PatchResult result, IReadOnlyList<string> expectedStages)
@@ -618,17 +672,19 @@ public class PatchPipelineServiceTests
     private sealed class FakeFinalDexInspectionService : IFinalDexInspectionService
     {
         private readonly bool _containsMethodReference;
+        private readonly string _diagnostics;
         public string? LastMethodReference { get; private set; }
 
-        public FakeFinalDexInspectionService(bool containsMethodReference = true)
+        public FakeFinalDexInspectionService(bool containsMethodReference = true, string? diagnostics = null)
         {
             _containsMethodReference = containsMethodReference;
+            _diagnostics = diagnostics ?? (_containsMethodReference ? "Found in fake dex." : "Missing in fake dex.");
         }
 
         public Task<(bool Found, string Diagnostics)> ContainsMethodReferenceAsync(string apkPath, string methodReference, CancellationToken cancellationToken = default)
         {
             LastMethodReference = methodReference;
-            return Task.FromResult((_containsMethodReference, _containsMethodReference ? "Found in fake dex." : "Missing in fake dex."));
+            return Task.FromResult((_containsMethodReference, _diagnostics));
         }
     }
 }
