@@ -301,7 +301,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         var modifiers = match.Groups["modifiers"].Value
-            .Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries)
+            .Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)
             .Where(token => !string.Equals(token, "static", StringComparison.Ordinal))
             .ToList();
         modifiers.Add("static");
