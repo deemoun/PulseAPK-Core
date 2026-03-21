@@ -74,10 +74,11 @@ public class SmaliPatchServiceTests
         Assert.True(delayed.Success);
         Assert.NotEqual(immediateOutput, delayedOutput);
         Assert.Contains("invoke-static {}, Lcom/example/MainActivity;->loadFridaGadget()V", immediateOutput, StringComparison.Ordinal);
-        Assert.Contains("const-string v1, \"arm64-v8a\"", immediateOutput, StringComparison.Ordinal);
-        Assert.Contains("invoke-interface {v0, v1}, Ljava/util/List;->contains(Ljava/lang/Object;)Z", immediateOutput, StringComparison.Ordinal);
+        Assert.Contains(".catch Ljava/lang/Throwable;", immediateOutput, StringComparison.Ordinal);
+        Assert.DoesNotContain("arm64-v8a", immediateOutput, StringComparison.Ordinal);
         Assert.Contains("invoke-static {}, Lcom/example/MainActivity;->loadFridaGadgetIfNeeded()V", delayedOutput, StringComparison.Ordinal);
-        Assert.Contains("const-string v1, \"arm64-v8a\"", delayedOutput, StringComparison.Ordinal);
+        Assert.Contains(".catch Ljava/lang/Throwable;", delayedOutput, StringComparison.Ordinal);
+        Assert.DoesNotContain("arm64-v8a", delayedOutput, StringComparison.Ordinal);
         Assert.Contains(".method protected onResume()V", delayedOutput, StringComparison.Ordinal);
         Assert.DoesNotContain("loadFridaGadgetIfNeeded", immediateOutput, StringComparison.Ordinal);
     }
