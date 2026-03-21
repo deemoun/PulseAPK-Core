@@ -245,19 +245,22 @@ public sealed class PatchPipelineService : IPatchPipelineService
                     ? "loadFridaGadgetIfNeeded"
                     : "loadFridaGadget";
                 var methodReference = $"{classDescriptor}->{helperMethodName}()V";
-                var foundInFinalDex = await _finalDexInspectionService.ContainsMethodReferenceAsync(finalArtifactPath, methodReference, cancellationToken);
-                if (!foundInFinalDex)
+                var inspection = await _finalDexInspectionService.ContainsMethodReferenceAsync(finalArtifactPath, methodReference, cancellationToken);
+                result.Warnings.Add($"DEX verification target: '{methodReference}' in '{finalArtifactPath}'.");
+                result.Warnings.Add($"DEX verification diagnostics: {inspection.Diagnostics}");
+
+                if (!inspection.Found)
                 {
                     const string guidance = "Smali helper was present during patching but missing in the final DEX artifact. Ensure smali mutation runs after any transform that regenerates classes.dex, or disable that transform for patched classes.";
-                    result.Errors.Add($"Final DEX verification failed: '{methodReference}' was not found. {guidance}");
-                    result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, guidance));
+                    result.Errors.Add($"Final DEX verification failed: '{methodReference}' was not found. {inspection.Diagnostics} {guidance}");
+                    result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, $"{inspection.Diagnostics} {guidance}"));
                     result.OutputApkPath = finalArtifactPath;
                     result.SelectedArchitecture = architecture;
                     result.UsedSigning = request.SignOutput;
                     return result;
                 }
 
-                result.StageSummaries.Add(new PatchStageSummary("dex-verification", true, $"Confirmed '{methodReference}' in final APK dex."));
+                result.StageSummaries.Add(new PatchStageSummary("dex-verification", true, $"Confirmed '{methodReference}' in final APK dex. {inspection.Diagnostics}"));
             }
 
             result.Success = true;

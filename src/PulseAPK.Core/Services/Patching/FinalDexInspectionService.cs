@@ -6,16 +6,16 @@ namespace PulseAPK.Core.Services.Patching;
 
 public sealed class FinalDexInspectionService : IFinalDexInspectionService
 {
-    public async Task<bool> ContainsMethodReferenceAsync(string apkPath, string methodReference, CancellationToken cancellationToken = default)
+    public async Task<(bool Found, string Diagnostics)> ContainsMethodReferenceAsync(string apkPath, string methodReference, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(apkPath) || !File.Exists(apkPath))
         {
-            return false;
+            return (false, $"APK path is missing or file does not exist: '{apkPath}'.");
         }
 
         if (!TryParseMethodReference(methodReference, out var classDescriptor, out var methodName, out var signature))
         {
-            return false;
+            return (false, $"Method reference '{methodReference}' is invalid.");
         }
 
         using var stream = File.OpenRead(apkPath);
@@ -25,19 +25,33 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
             .Where(entry => entry.FullName.StartsWith("classes", StringComparison.OrdinalIgnoreCase) &&
                             entry.FullName.EndsWith(".dex", StringComparison.OrdinalIgnoreCase));
 
+        var totalDexEntries = 0;
         foreach (var dexEntry in dexEntries)
         {
+            totalDexEntries++;
             await using var dexStream = dexEntry.Open();
             using var buffer = new MemoryStream();
             await dexStream.CopyToAsync(buffer, cancellationToken);
 
-            if (DexContainsMethodReference(buffer.ToArray(), classDescriptor, methodName, signature))
+            var dexData = buffer.ToArray();
+            var (found, reason) = DexContainsMethodReference(dexData, classDescriptor, methodName, signature);
+            if (found)
             {
-                return true;
+                return (true, $"Found in '{dexEntry.FullName}' ({dexData.Length} bytes).");
+            }
+
+            if (!string.IsNullOrWhiteSpace(reason))
+            {
+                return (false, $"Inspection failed on '{dexEntry.FullName}': {reason}");
             }
         }
 
-        return false;
+        if (totalDexEntries == 0)
+        {
+            return (false, "No classes*.dex entries were found in the APK.");
+        }
+
+        return (false, $"Method tuple not found in any of the {totalDexEntries} dex entries.");
     }
 
     private static bool TryParseMethodReference(string methodReference, out string classDescriptor, out string methodName, out string signature)
@@ -64,11 +78,11 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
         return true;
     }
 
-    private static bool DexContainsMethodReference(byte[] dexData, string classDescriptor, string methodName, string signature)
+    private static (bool Found, string? Error) DexContainsMethodReference(byte[] dexData, string classDescriptor, string methodName, string signature)
     {
         if (dexData.Length < 0x70)
         {
-            return false;
+            return (false, $"DEX payload too small ({dexData.Length} bytes).");
         }
 
         using var stream = new MemoryStream(dexData, writable: false);
@@ -88,7 +102,7 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
             !TryReadProtoTable(dexData, reader, protoIdsSize, protoIdsOff, types, out var protos) ||
             !IsInBounds(dexData, methodIdsOff, methodIdsSize, 8))
         {
-            return false;
+            return (false, "DEX header tables are out of bounds or malformed.");
         }
 
         for (var i = 0; i < methodIdsSize; i++)
@@ -115,11 +129,11 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
 
             if (string.Equals(protos[protoIdx], signature, StringComparison.Ordinal))
             {
-                return true;
+                return (true, null);
             }
         }
 
-        return false;
+        return (false, null);
     }
 
     private static bool TryReadStringTable(byte[] dexData, BinaryReader reader, uint stringIdsSize, uint stringIdsOff, out string[] strings)

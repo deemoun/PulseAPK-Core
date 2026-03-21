@@ -625,10 +625,10 @@ public class PatchPipelineServiceTests
             _containsMethodReference = containsMethodReference;
         }
 
-        public Task<bool> ContainsMethodReferenceAsync(string apkPath, string methodReference, CancellationToken cancellationToken = default)
+        public Task<(bool Found, string Diagnostics)> ContainsMethodReferenceAsync(string apkPath, string methodReference, CancellationToken cancellationToken = default)
         {
             LastMethodReference = methodReference;
-            return Task.FromResult(_containsMethodReference);
+            return Task.FromResult((_containsMethodReference, _containsMethodReference ? "Found in fake dex." : "Missing in fake dex."));
         }
     }
 }
