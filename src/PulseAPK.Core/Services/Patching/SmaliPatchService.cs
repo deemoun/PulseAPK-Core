@@ -319,13 +319,18 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
     private static string InsertLinesBeforeEndClass(string content, IReadOnlyList<string> lines)
     {
+        var method = string.Join(Environment.NewLine, lines) + Environment.NewLine;
         var endClassMatch = FindLastEndClassDirective(content);
         if (endClassMatch is null)
         {
-            return content;
+            if (!content.EndsWith(Environment.NewLine, StringComparison.Ordinal))
+            {
+                content += Environment.NewLine;
+            }
+
+            return content + method;
         }
 
-        var method = string.Join(Environment.NewLine, lines) + Environment.NewLine;
         return content.Insert(endClassMatch.Index, method);
     }
 

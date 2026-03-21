@@ -425,7 +425,7 @@ public class SmaliPatchServiceTests
     }
 
     [Fact]
-    public async Task PatchAsync_Fails_WhenLifecycleCallIsInjectedButStaticHelperCannotBeAdded()
+    public async Task PatchAsync_AppendsStaticHelper_WhenEndClassDirectiveIsMissing()
     {
         var root = Path.Combine(Path.GetTempPath(), $"smali-patch-missing-end-class-{Guid.NewGuid():N}");
         var smaliPath = Path.Combine(root, "smali", "com", "app", "damnvulnerablebank");
@@ -444,8 +444,11 @@ public class SmaliPatchServiceTests
         var service = new SmaliPatchService();
         var result = await service.PatchAsync(root, "com.app.damnvulnerablebank.SplashScreen", useDelayedLoad: false);
 
-        Assert.False(result.Success);
-        Assert.Equal("Patched smali references Frida helper methods that are missing static definitions.", result.Error);
+        var output = await File.ReadAllTextAsync(file);
+
+        Assert.True(result.Success);
+        Assert.Contains("invoke-static {}, Lcom/app/damnvulnerablebank/SplashScreen;->loadFridaGadget()V", output, StringComparison.Ordinal);
+        Assert.Contains(".method private static loadFridaGadget()V", output, StringComparison.Ordinal);
     }
 
     [Fact]
