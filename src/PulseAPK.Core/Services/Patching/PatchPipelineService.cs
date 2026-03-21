@@ -241,7 +241,10 @@ public sealed class PatchPipelineService : IPatchPipelineService
             if (smaliInjectionApplied)
             {
                 var classDescriptor = ToClassDescriptor(activityName);
-                var methodReference = $"{classDescriptor}->loadFridaGadget()V";
+                var helperMethodName = request.UseDelayedLoad
+                    ? "loadFridaGadgetIfNeeded"
+                    : "loadFridaGadget";
+                var methodReference = $"{classDescriptor}->{helperMethodName}()V";
                 var foundInFinalDex = await _finalDexInspectionService.ContainsMethodReferenceAsync(finalArtifactPath, methodReference, cancellationToken);
                 if (!foundInFinalDex)
                 {

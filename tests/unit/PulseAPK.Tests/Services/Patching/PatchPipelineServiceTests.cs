@@ -403,6 +403,32 @@ public class PatchPipelineServiceTests
         Assert.Contains("loadFridaGadget()V", Assert.Single(result.Errors), StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task RunAsync_UsesDelayedLoadHelperForFinalDexVerification_WhenDelayedLoadIsEnabled()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+        var fakeFinalDexInspectionService = new FakeFinalDexInspectionService();
+
+        var pipeline = CreatePipeline(fakeFinalDexInspectionService: fakeFinalDexInspectionService);
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            SignOutput = true,
+            UseDelayedLoad = true
+        });
+
+        Assert.True(result.Success);
+        Assert.Equal(
+            "Lcom/example/MainActivity;->loadFridaGadgetIfNeeded()V",
+            fakeFinalDexInspectionService.LastMethodReference);
+        var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "dex-verification"));
+        Assert.Contains("loadFridaGadgetIfNeeded()V", stage.Message, StringComparison.Ordinal);
+    }
+
     private static void AssertStageSequence(PatchResult result, IReadOnlyList<string> expectedStages)
     {
         Assert.Equal(expectedStages, result.StageSummaries.Select(static summary => summary.Stage));
@@ -592,6 +618,7 @@ public class PatchPipelineServiceTests
     private sealed class FakeFinalDexInspectionService : IFinalDexInspectionService
     {
         private readonly bool _containsMethodReference;
+        public string? LastMethodReference { get; private set; }
 
         public FakeFinalDexInspectionService(bool containsMethodReference = true)
         {
@@ -599,6 +626,9 @@ public class PatchPipelineServiceTests
         }
 
         public Task<bool> ContainsMethodReferenceAsync(string apkPath, string methodReference, CancellationToken cancellationToken = default)
-            => Task.FromResult(_containsMethodReference);
+        {
+            LastMethodReference = methodReference;
+            return Task.FromResult(_containsMethodReference);
+        }
     }
 }
