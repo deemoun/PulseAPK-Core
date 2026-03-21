@@ -282,15 +282,14 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return content;
         }
 
-        var modifiers = match.Groups["modifiers"].Value;
-        if (Regex.IsMatch(modifiers, @"(^|\s)static(\s|$)"))
-        {
-            return content;
-        }
-
-        var normalizedModifiers = string.Join(" ", modifiers.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+        var modifiers = match.Groups["modifiers"].Value
+            .Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries)
+            .Where(token => !string.Equals(token, "static", StringComparison.Ordinal))
+            .ToList();
+        modifiers.Add("static");
+        var normalizedModifiers = string.Join(" ", modifiers);
         var indent = match.Groups["indent"].Value;
-        var updatedSignature = $"{indent}.method {normalizedModifiers} static {methodName}()V";
+        var updatedSignature = $"{indent}.method {normalizedModifiers} {methodName}()V";
         return content[..match.Index] + updatedSignature + content[(match.Index + match.Length)..];
     }
 

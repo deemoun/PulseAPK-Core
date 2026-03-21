@@ -350,6 +350,43 @@ public class SmaliPatchServiceTests
         Assert.DoesNotContain(".method private loadFridaGadget ()V", output, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task PatchAsync_NormalizesExistingStaticHelperSignature_WhenInvokeStaticIsUsedInOnCreate()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-static-helper-spaced-signature-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "zed", "rainxch", "githubstore");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "MainActivity.smali");
+        await File.WriteAllTextAsync(file, @".class public Lzed/rainxch/githubstore/MainActivity;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    invoke-static {}, Lzed/rainxch/githubstore/MainActivity;->loadFridaGadget()V
+    return-void
+.end method
+
+.method private static loadFridaGadget ()V
+    .locals 1
+    const-string v0, ""frida-gadget""
+    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+    return-void
+.end method
+
+.end class");
+
+        var service = new SmaliPatchService();
+        var result = await service.PatchAsync(root, "zed.rainxch.githubstore.MainActivity", useDelayedLoad: false);
+        var output = await File.ReadAllTextAsync(file);
+
+        Assert.True(result.Success);
+        Assert.Contains("invoke-static {}, Lzed/rainxch/githubstore/MainActivity;->loadFridaGadget()V", output, StringComparison.Ordinal);
+        Assert.Contains(".method private static loadFridaGadget()V", output, StringComparison.Ordinal);
+        Assert.DoesNotContain(".method private static loadFridaGadget ()V", output, StringComparison.Ordinal);
+    }
+
 
     [Fact]
     public async Task PatchAsync_AcceptsTabIndentedEndClassAndExistingStaticHelper()
