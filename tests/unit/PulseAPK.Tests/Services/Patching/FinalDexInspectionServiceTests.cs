@@ -21,7 +21,7 @@ public sealed class FinalDexInspectionServiceTests
 
         var service = new FinalDexInspectionService();
 
-        var found = await service.ContainsMethodReferenceAsync(
+        var (found, _) = await service.ContainsMethodReferenceAsync(
             apkPath,
             "Lzed/rainxch/githubstore/MainActivity;->loadFridaGadget()V");
 
@@ -56,7 +56,7 @@ public sealed class FinalDexInspectionServiceTests
 
         var service = new FinalDexInspectionService();
 
-        var found = await service.ContainsMethodReferenceAsync(
+        var (found, _) = await service.ContainsMethodReferenceAsync(
             apkPath,
             "Lzed/rainxch/githubstore/MainActivity;->loadFridaGadget()V");
 
@@ -79,7 +79,7 @@ public sealed class FinalDexInspectionServiceTests
 
         var service = new FinalDexInspectionService();
 
-        var found = await service.ContainsMethodReferenceAsync(
+        var (found, _) = await service.ContainsMethodReferenceAsync(
             apkPath,
             "Lzed/rainxch/githubstore/MainActivity;loadFridaGadget()V");
 
