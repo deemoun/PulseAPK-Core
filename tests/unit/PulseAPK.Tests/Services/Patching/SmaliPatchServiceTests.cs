@@ -445,4 +445,61 @@ public class SmaliPatchServiceTests
         Assert.Equal("Patched smali references Frida helper methods that are missing static definitions.", result.Error);
     }
 
+    [Fact]
+    public async Task PatchAsync_InsertsImmediateLoadCallImmediatelyAfterSuperOnCreate()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-deterministic-oncreate-anchor-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "com", "example");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "MainActivity.smali");
+        await File.WriteAllTextAsync(file, @".class public Lcom/example/MainActivity;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 1
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    const/4 v0, 0x0
+    invoke-virtual {p0, v0}, Lcom/example/MainActivity;->setRequestedOrientation(I)V
+    return-void
+.end method
+
+.end class");
+
+        var service = new SmaliPatchService();
+        var result = await service.PatchAsync(root, "com.example.MainActivity", useDelayedLoad: false);
+        var output = await File.ReadAllTextAsync(file);
+
+        Assert.True(result.Success);
+        Assert.Contains(
+            "invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V\n    invoke-static {}, Lcom/example/MainActivity;->loadFridaGadget()V\n    const/4 v0, 0x0",
+            output,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task PatchAsync_FailsWhenOnCreateHasNoSuperOnCreateAnchor()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-missing-oncreate-anchor-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "com", "example");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "MainActivity.smali");
+        await File.WriteAllTextAsync(file, @".class public Lcom/example/MainActivity;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    return-void
+.end method
+
+.end class");
+
+        var service = new SmaliPatchService();
+        var result = await service.PatchAsync(root, "com.example.MainActivity", useDelayedLoad: false);
+
+        Assert.False(result.Success);
+        Assert.Equal("Unable to find an injection point in activity smali file.", result.Error);
+    }
+
 }
