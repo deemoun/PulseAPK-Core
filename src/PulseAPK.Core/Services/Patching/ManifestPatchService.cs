@@ -7,6 +7,7 @@ namespace PulseAPK.Core.Services.Patching;
 public sealed class ManifestPatchService : IManifestPatchService
 {
     private const string AndroidNs = "http://schemas.android.com/apk/res/android";
+    private const string DefaultApplicationClassName = "PulseFridaApplication";
 
     public Task<(bool Success, string? Error)> PatchAsync(string manifestPath, PatchRequest request, CancellationToken cancellationToken = default)
     {
@@ -36,6 +37,8 @@ public sealed class ManifestPatchService : IManifestPatchService
         {
             EnsureExtractNativeLibs(document, manager);
         }
+
+        EnsureApplicationClassName(document, manager);
 
         document.Save(manifestPath);
         return Task.FromResult<(bool Success, string? Error)>((true, null));
@@ -74,6 +77,31 @@ public sealed class ManifestPatchService : IManifestPatchService
 
         var attr = document.CreateAttribute("android", "extractNativeLibs", AndroidNs);
         attr.Value = "true";
+        applicationNode.Attributes?.Append(attr);
+    }
+
+    private static void EnsureApplicationClassName(XmlDocument document, XmlNamespaceManager manager)
+    {
+        var applicationNode = document.SelectSingleNode("/manifest/application", manager);
+        if (applicationNode is null)
+        {
+            return;
+        }
+
+        var existing = applicationNode.Attributes?["name", AndroidNs];
+        if (existing is not null && !string.IsNullOrWhiteSpace(existing.Value))
+        {
+            return;
+        }
+
+        var manifestNode = document.SelectSingleNode("/manifest");
+        var packageName = manifestNode?.Attributes?["package"]?.Value;
+        var resolvedName = string.IsNullOrWhiteSpace(packageName)
+            ? DefaultApplicationClassName
+            : $"{packageName}.{DefaultApplicationClassName}";
+
+        var attr = document.CreateAttribute("android", "name", AndroidNs);
+        attr.Value = resolvedName;
         applicationNode.Attributes?.Append(attr);
     }
 }

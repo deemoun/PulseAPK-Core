@@ -18,5 +18,6 @@ public class ManifestPatchServiceTests
         Assert.True(result.Success);
         Assert.Contains("android.permission.INTERNET", content, StringComparison.Ordinal);
         Assert.Contains("extractNativeLibs=\"true\"", content, StringComparison.Ordinal);
+        Assert.Contains("android:name=\"PulseFridaApplication\"", content, StringComparison.Ordinal);
     }
 }

@@ -5,6 +5,44 @@ namespace PulseAPK.Tests.Services.Patching;
 public class SmaliPatchServiceTests
 {
     [Fact]
+    public async Task PatchAsync_CreatesAndPatchesApplicationClass_FromManifestAndroidName()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-app-{Guid.NewGuid():N}");
+        var activityPath = Path.Combine(root, "smali", "com", "example");
+        Directory.CreateDirectory(activityPath);
+
+        var manifestPath = Path.Combine(root, "AndroidManifest.xml");
+        await File.WriteAllTextAsync(
+            manifestPath,
+            "<manifest package='com.example.app' xmlns:android='http://schemas.android.com/apk/res/android'><application android:name='.CustomApp'><activity android:name='com.example.MainActivity' /></application></manifest>");
+
+        var activityFile = Path.Combine(activityPath, "MainActivity.smali");
+        await File.WriteAllTextAsync(activityFile, @".class public Lcom/example/MainActivity;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    return-void
+.end method
+
+.end class");
+
+        var service = new SmaliPatchService();
+        var result = await service.PatchAsync(root, "com.example.MainActivity", useDelayedLoad: false);
+
+        var appSmali = Path.Combine(root, "smali", "com", "example", "app", "CustomApp.smali");
+        var appContent = await File.ReadAllTextAsync(appSmali);
+
+        Assert.True(result.Success);
+        Assert.Contains(".field private static gadgetLoaded:Z", appContent, StringComparison.Ordinal);
+        Assert.Contains(".method protected attachBaseContext(Landroid/content/Context;)V", appContent, StringComparison.Ordinal);
+        Assert.Contains("invoke-static {}, Lcom/example/app/CustomApp;->loadFridaGadgetSafely()V", appContent, StringComparison.Ordinal);
+        Assert.Contains("Failed to load frida-gadget", appContent, StringComparison.Ordinal);
+        Assert.Contains("Loaded frida-gadget in attachBaseContext", appContent, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task PatchAsync_IsIdempotent_ForRepeatedPatches()
     {
         var root = Path.Combine(Path.GetTempPath(), $"smali-patch-{Guid.NewGuid():N}");
