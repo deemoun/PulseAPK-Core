@@ -5,6 +5,23 @@ namespace PulseAPK.Core.Utils
 {
     public static class PathUtils
     {
+        public static string GetWritableAppDataRoot()
+        {
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (!string.IsNullOrWhiteSpace(localAppData))
+            {
+                return Path.Combine(localAppData, "PulseAPK");
+            }
+
+            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            if (!string.IsNullOrWhiteSpace(userProfile))
+            {
+                return Path.Combine(userProfile, ".pulseapk");
+            }
+
+            return Path.Combine(Path.GetTempPath(), "PulseAPK");
+        }
+
         public static string GetDefaultDecompilePath()
         {
             var writableRoot = GetWritableAppDataRoot();
@@ -23,21 +40,10 @@ namespace PulseAPK.Core.Utils
             return Path.Combine(writableRoot, "reports");
         }
 
-        private static string GetWritableAppDataRoot()
+        public static string GetDefaultScriptsPath()
         {
-            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            if (!string.IsNullOrWhiteSpace(localAppData))
-            {
-                return Path.Combine(localAppData, "PulseAPK");
-            }
-
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            if (!string.IsNullOrWhiteSpace(userProfile))
-            {
-                return Path.Combine(userProfile, ".pulseapk");
-            }
-
-            return Path.Combine(Path.GetTempPath(), "PulseAPK");
+            var writableRoot = GetWritableAppDataRoot();
+            return Path.Combine(writableRoot, "scripts");
         }
     }
 }

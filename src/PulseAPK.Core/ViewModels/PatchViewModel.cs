@@ -100,6 +100,7 @@ public partial class PatchViewModel : ObservableObject
         SelectedScriptInjectionOption = ScriptInjectionOptions[0];
 
         OutputFolderPath = EnsureCompiledDirectory();
+        EnsureUserScriptTemplatesExist();
         OutputApkName = L("PatchOutputApkNamePlaceholder");
         UpdateOutputApkPath();
         UpdateCommandPreview();
@@ -359,7 +360,44 @@ public partial class PatchViewModel : ObservableObject
         ConsoleLog = builder.ToString();
     }
 
+    private static void EnsureUserScriptTemplatesExist()
+    {
+        EnsureUserScriptTemplateExists("script.js");
+        EnsureUserScriptTemplateExists("frida-gadget.config");
+    }
+
+    private static void EnsureUserScriptTemplateExists(string fileName)
+    {
+        var userScriptsDirectory = PathUtils.GetDefaultScriptsPath();
+        Directory.CreateDirectory(userScriptsDirectory);
+
+        var targetPath = Path.Combine(userScriptsDirectory, fileName);
+        if (File.Exists(targetPath))
+        {
+            return;
+        }
+
+        var sourcePath = GetBundledCustomScriptPath(fileName);
+        if (File.Exists(sourcePath))
+        {
+            File.Copy(sourcePath, targetPath, overwrite: false);
+        }
+    }
+
     private static string ResolveCustomScriptPath(string fileName)
+    {
+        EnsureUserScriptTemplateExists(fileName);
+
+        var userScriptPath = Path.Combine(PathUtils.GetDefaultScriptsPath(), fileName);
+        if (File.Exists(userScriptPath))
+        {
+            return userScriptPath;
+        }
+
+        return GetBundledCustomScriptPath(fileName);
+    }
+
+    private static string GetBundledCustomScriptPath(string fileName)
     {
         var fromCurrentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "scripts", fileName);
         if (File.Exists(fromCurrentDirectory))
