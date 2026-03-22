@@ -340,6 +340,9 @@
   <data name="PatchOutputLabel" xml:space="preserve">
     <value>Output</value>
   </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>Open folder</value>
+  </data>
   <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
     <value>patched.apk</value>
   </data>
@@ -372,6 +375,12 @@
   </data>
   <data name="PatchLogStartingPipeline" xml:space="preserve">
     <value>Starting patch pipeline...</value>
+  </data>
+  <data name="PatchLogScriptProfile" xml:space="preserve">
+    <value>[INFO] Script profile: {0}</value>
+  </data>
+  <data name="PatchLogRunSummary" xml:space="preserve">
+    <value>Patching '{0}' -&gt; '{1}' (sign={2}, decodeRes={3}, decodeSrc={4}, aapt2={5}, dexMode={6})</value>
   </data>
   <data name="PatchLogCreated" xml:space="preserve">
     <value>Patched APK created: {0}</value>

@@ -135,7 +135,7 @@ public partial class PatchViewModel : ObservableObject
     [RelayCommand]
     private async Task BrowseApk()
     {
-        var file = await _filePickerService.OpenFileAsync("APK Files (*.apk)|*.apk|All Files (*.*)|*.*");
+        var file = await _filePickerService.OpenFileAsync(Properties.Resources.FileFilter_Apk);
         if (file is null)
         {
             return;
@@ -144,7 +144,7 @@ public partial class PatchViewModel : ObservableObject
         var (isValid, message) = FileSanitizer.ValidateApk(file);
         if (!isValid)
         {
-            await _dialogService.ShowErrorAsync(message, "Invalid APK File");
+            await _dialogService.ShowErrorAsync(message, Properties.Resources.Error_InvalidApkFile);
             return;
         }
 
@@ -233,7 +233,7 @@ public partial class PatchViewModel : ObservableObject
             };
 
             AppendLog(BuildRunSummary(request));
-            AppendLog($"[INFO] Script profile: {SelectedScriptInjectionOption.Label}");
+            AppendLog(string.Format(L("PatchLogScriptProfile"), SelectedScriptInjectionOption.Label));
 
             var result = await _patchPipelineService.RunAsync(request);
 
@@ -352,8 +352,16 @@ public partial class PatchViewModel : ObservableObject
 
     private string L(string key) => _localizationService[key];
 
-    private static string BuildRunSummary(PatchRequest request)
+    private string BuildRunSummary(PatchRequest request)
     {
-        return $"Patching '{request.InputApkPath}' -> '{request.OutputApkPath}' (sign={request.SignOutput}, decodeRes={request.DecodeResources}, decodeSrc={request.DecodeSources}, aapt2={request.UseAapt2ForBuild}, dexMode={request.DexPreservationMode})";
+        return string.Format(
+            L("PatchLogRunSummary"),
+            request.InputApkPath,
+            request.OutputApkPath,
+            request.SignOutput,
+            request.DecodeResources,
+            request.DecodeSources,
+            request.UseAapt2ForBuild,
+            request.DexPreservationMode);
     }
 }
