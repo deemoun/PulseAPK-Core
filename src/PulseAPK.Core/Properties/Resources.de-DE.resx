@@ -349,4 +349,19 @@
   <data name="ThemeModeLight" xml:space="preserve">
     <value>Heller Modus</value>
   </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>Für alle Architekturen injizieren</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>Finale Dex-Prüfung überspringen</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>Ordner öffnen</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>Frida-Gadget injizieren (MainActivity + Gadget.loadLibrary)</value>
+  </data>
 </root>

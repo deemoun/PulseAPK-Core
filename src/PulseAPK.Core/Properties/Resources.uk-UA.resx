@@ -349,4 +349,19 @@
   <data name="ThemeModeLight" xml:space="preserve">
     <value>Світла тема</value>
   </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>Інжектувати для всіх архітектур</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>Пропустити фінальну перевірку Dex</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>Відкрити папку</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>Інжектувати Frida gadget (MainActivity + Gadget.loadLibrary)</value>
+  </data>
 </root>

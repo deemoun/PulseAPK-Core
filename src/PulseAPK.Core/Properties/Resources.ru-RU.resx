@@ -425,4 +425,25 @@
   <data name="ThemeModeLight" xml:space="preserve">
     <value>Светлая тема</value>
   </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>Инжектировать для всех архитектур</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>Пропустить финальную проверку Dex</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>Открыть папку</value>
+  </data>
+  <data name="PatchLogScriptProfile" xml:space="preserve">
+    <value>Профиль скрипта: {0}</value>
+  </data>
+  <data name="PatchLogRunSummary" xml:space="preserve">
+    <value>Патчинг '{0}' -> '{1}' (sign={2}, decodeRes={3}, decodeSrc={4}, aapt2={5}, dexMode={6})</value>
+  </data>
+  <data name="PatchPreviewInjectAllArchitectures" xml:space="preserve">
+    <value>- Инжектировать для всех архитектур: {0}</value>
+  </data>
+  <data name="PatchPreviewSkipDexValidation" xml:space="preserve">
+    <value>- Пропустить финальную проверку Dex: {0}</value>
+  </data>
 </root>
