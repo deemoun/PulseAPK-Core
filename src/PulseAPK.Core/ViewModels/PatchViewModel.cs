@@ -39,6 +39,9 @@ public partial class PatchViewModel : ObservableObject
     private bool _skipDexValidation;
 
     [ObservableProperty]
+    private bool _addCustomScript;
+
+    [ObservableProperty]
     private DexPreservationOption _selectedDexPreservationOption = new("Disabled (default)", DexPreservationMode.Disabled);
 
     [ObservableProperty]
@@ -129,6 +132,7 @@ public partial class PatchViewModel : ObservableObject
     partial void OnSignApkChanged(bool value) => UpdateCommandPreview();
     partial void OnInjectLibForAllArchitecturesChanged(bool value) => UpdateCommandPreview();
     partial void OnSkipDexValidationChanged(bool value) => UpdateCommandPreview();
+    partial void OnAddCustomScriptChanged(bool value) => UpdateCommandPreview();
     partial void OnSelectedDexPreservationOptionChanged(DexPreservationOption value) => UpdateCommandPreview();
     partial void OnSelectedScriptInjectionOptionChanged(ScriptInjectionOption value) => UpdateCommandPreview();
 
@@ -229,7 +233,9 @@ public partial class PatchViewModel : ObservableObject
                 DexPreservationMode = selectedDexMode,
                 ConfirmDangerousDexReplacement = confirmedDangerousDexMode,
                 InjectForAllArchitectures = InjectLibForAllArchitectures,
-                SkipDexValidation = SkipDexValidation
+                SkipDexValidation = SkipDexValidation,
+                ScriptFilePath = AddCustomScript ? ResolveCustomScriptPath("script.js") : null,
+                ConfigFilePath = AddCustomScript ? ResolveCustomScriptPath("frida-gadget.config") : null
             };
 
             AppendLog(BuildRunSummary(request));
@@ -344,11 +350,22 @@ public partial class PatchViewModel : ObservableObject
         builder.AppendLine(string.Format(L("PatchPreviewScriptProfile"), SelectedScriptInjectionOption.Label));
         builder.AppendLine(string.Format(L("PatchPreviewInjectAllArchitectures"), InjectLibForAllArchitectures));
         builder.AppendLine(string.Format(L("PatchPreviewSkipDexValidation"), SkipDexValidation));
+        builder.AppendLine($"Add custom script: {AddCustomScript}");
         builder.AppendLine(string.Format(L("PatchPreviewDexPreservation"), SelectedDexPreservationOption.Label));
         builder.Append(string.Format(L("PatchPreviewSignOutput"), SignApk));
         ConsoleLog = builder.ToString();
     }
 
+    private static string ResolveCustomScriptPath(string fileName)
+    {
+        var fromCurrentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "scripts", fileName);
+        if (File.Exists(fromCurrentDirectory))
+        {
+            return fromCurrentDirectory;
+        }
+
+        return Path.Combine(AppContext.BaseDirectory, "scripts", fileName);
+    }
 
     private string L(string key) => _localizationService[key];
 

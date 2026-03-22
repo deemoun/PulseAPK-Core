@@ -331,6 +331,9 @@
   <data name="PatchSkipDexValidation" xml:space="preserve">
     <value>Skip DEX validation</value>
   </data>
+  <data name="PatchAddCustomScript" xml:space="preserve">
+    <value>Add custom script</value>
+  </data>
   <data name="PatchScriptProfile" xml:space="preserve">
     <value>Script profile</value>
   </data>
