@@ -349,4 +349,19 @@
   <data name="ThemeModeLight" xml:space="preserve">
     <value>浅色模式</value>
   </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>为所有架构注入</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>跳过最终 Dex 校验</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>打开文件夹</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>注入 Frida Gadget（MainActivity + Gadget.loadLibrary）</value>
+  </data>
 </root>

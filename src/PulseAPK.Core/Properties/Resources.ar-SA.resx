@@ -349,4 +349,19 @@
   <data name="ThemeModeLight" xml:space="preserve">
     <value>الوضع الفاتح</value>
   </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>حقن لجميع البنى المعمارية</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>تخطي التحقق من Dex النهائي</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>فتح المجلد</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>حقن أداة Frida (MainActivity + Gadget.loadLibrary)</value>
+  </data>
 </root>

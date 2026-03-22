@@ -349,4 +349,19 @@
   <data name="ThemeModeLight" xml:space="preserve">
     <value>Mode clair</value>
   </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>Injecter pour toutes les architectures</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>Ignorer la validation Dex finale</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>Ouvrir le dossier</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>Injecter le gadget Frida (MainActivity + Gadget.loadLibrary)</value>
+  </data>
 </root>
