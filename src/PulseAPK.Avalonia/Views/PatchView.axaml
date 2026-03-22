@@ -1,0 +1,123 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
+             xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
+             x:Class="PulseAPK.Avalonia.Views.PatchView"
+             x:DataType="vm:PatchViewModel">
+    <Grid RowDefinitions="Auto,Auto,Auto,*"
+          RowSpacing="16"
+          Margin="20">
+        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchHeader]}"
+                   FontSize="24"
+                   FontWeight="SemiBold" />
+
+        <Border Grid.Row="1"
+                Background="{DynamicResource CardBackgroundBrush}"
+                BorderBrush="{DynamicResource CardBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectApk]}"
+                               FontWeight="SemiBold" />
+                    <TextBox Text="{Binding ApkPath}"
+                             Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ApkPathPlaceholder]}"
+                             IsReadOnly="True"
+                             IsTabStop="False"
+                             IsHitTestVisible="False" />
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[BrowseApkTip]}"
+                               FontSize="12"
+                               Opacity="0.7"
+                               IsVisible="{Binding IsHintVisible}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                            Command="{Binding BrowseApkCommand}"
+                            MinWidth="120"
+                            Height="38"
+                            FontSize="14"
+                            VerticalContentAlignment="Center"
+                            Padding="16,0" />
+                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Run]}"
+                            Command="{Binding RunPatchCommand}"
+                            MinWidth="120"
+                            Height="38"
+                            FontSize="14"
+                            VerticalContentAlignment="Center"
+                            Padding="16,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="16">
+            <StackPanel Spacing="8">
+                <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchSignOutputApk]}"
+                          IsChecked="{Binding SignApk}" />
+                <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchInjectForAllArchitectures]}"
+                          IsChecked="{Binding InjectLibForAllArchitectures}" />
+                <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchSkipDexValidation]}"
+                          IsChecked="{Binding SkipDexValidation}" />
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptProfile]}"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0" />
+                <ComboBox ItemsSource="{Binding ScriptInjectionOptions}"
+                          SelectedItem="{Binding SelectedScriptInjectionOption}"
+                          IsEnabled="False">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Label}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchDexPreservationMode]}"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0" />
+                <ComboBox ItemsSource="{Binding DexPreservationOptions}"
+                          SelectedItem="{Binding SelectedDexPreservationOption}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Label}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="8">
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchOutputLabel]}"
+                           FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBox Text="{Binding OutputFolderPath}" />
+                    <Button Grid.Column="1"
+                            Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                            Command="{Binding BrowseOutputFolderCommand}"
+                            Width="100" />
+                </Grid>
+                <TextBox Text="{Binding OutputApkName}"
+                         Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchOutputApkNamePlaceholder]}" />
+                <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchOpenFolder]}"
+                        Command="{Binding OpenOutputFolderCommand}"
+                        Width="100"
+                        HorizontalAlignment="Left" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="3"
+                Background="{DynamicResource MainBackgroundBrush}"
+                BorderBrush="{DynamicResource ConsoleBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12">
+            <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}"
+                           FontWeight="SemiBold" />
+                <TextBox Grid.Row="1"
+                         Text="{Binding ConsoleLog}"
+                         IsReadOnly="True"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         VerticalAlignment="Stretch" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

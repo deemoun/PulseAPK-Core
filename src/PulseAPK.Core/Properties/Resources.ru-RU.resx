@@ -316,6 +316,106 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>Подсказка: нажмите «Обзор», чтобы выбрать папку проекта.</value>
   </data>
+  <data name="MenuPatch" xml:space="preserve">
+    <value>Пропатчить APK</value>
+  </data>
+  <data name="PatchHeader" xml:space="preserve">
+    <value>Пропатчить APK</value>
+  </data>
+  <data name="PatchSignOutputApk" xml:space="preserve">
+    <value>Подписывать выходной APK (ubersigner)</value>
+  </data>
+  <data name="PatchScriptProfile" xml:space="preserve">
+    <value>Профиль скрипта</value>
+  </data>
+  <data name="PatchDexPreservationMode" xml:space="preserve">
+    <value>Режим сохранения DEX</value>
+  </data>
+  <data name="PatchOutputLabel" xml:space="preserve">
+    <value>Вывод</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>Внедрить frida-gadget</value>
+  </data>
+  <data name="PatchDexDisabledDefault" xml:space="preserve">
+    <value>Отключено (по умолчанию)</value>
+  </data>
+  <data name="PatchDexPreserveUnmodifiedSecondary" xml:space="preserve">
+    <value>Сохранять неизменённые secondary dex</value>
+  </data>
+  <data name="PatchDexReplaceAllDangerous" xml:space="preserve">
+    <value>Заменить все dex (опасно)</value>
+  </data>
+  <data name="PatchErrorSelectApk" xml:space="preserve">
+    <value>Пожалуйста, выберите APK-файл для патча.</value>
+  </data>
+  <data name="PatchErrorMissingApkTitle" xml:space="preserve">
+    <value>APK не выбран</value>
+  </data>
+  <data name="PatchDangerousDexConfirmation" xml:space="preserve">
+    <value>Режим замены всех dex может отбросить внедрённые smali-изменения. Продолжайте только если понимаете риск.</value>
+  </data>
+  <data name="PatchDangerousDexTitle" xml:space="preserve">
+    <value>Опасная замена dex</value>
+  </data>
+  <data name="PatchLogDangerousDexCancelled" xml:space="preserve">
+    <value>[WARN] Опасная замена dex отменена пользователем.</value>
+  </data>
+  <data name="PatchLogStartingPipeline" xml:space="preserve">
+    <value>Запуск конвейера патчинга...</value>
+  </data>
+  <data name="PatchLogCreated" xml:space="preserve">
+    <value>Создан патченный APK: {0}</value>
+  </data>
+  <data name="PatchInfoCompleteMessage" xml:space="preserve">
+    <value>Патчинг успешно завершён.
+Выходной файл: {0}</value>
+  </data>
+  <data name="PatchInfoCompleteTitle" xml:space="preserve">
+    <value>Патчинг завершён</value>
+  </data>
+  <data name="PatchErrorFailedMessage" xml:space="preserve">
+    <value>Патчинг не удался. Подробности смотрите в консоли.</value>
+  </data>
+  <data name="PatchErrorFailedTitle" xml:space="preserve">
+    <value>Сбой патчинга</value>
+  </data>
+  <data name="PatchPreviewHeader" xml:space="preserve">
+    <value>Предпросмотр патча:</value>
+  </data>
+  <data name="PatchPreviewInputApk" xml:space="preserve">
+    <value>Входной APK: {0}</value>
+  </data>
+  <data name="PatchPreviewSelectApk" xml:space="preserve">
+    <value>&lt;выберите apk&gt;</value>
+  </data>
+  <data name="PatchPreviewOutputApk" xml:space="preserve">
+    <value>Выходной APK: {0}</value>
+  </data>
+  <data name="PatchPreviewOutputApkPlaceholder" xml:space="preserve">
+    <value>&lt;выходной apk&gt;</value>
+  </data>
+  <data name="PatchPreviewDecodeResources" xml:space="preserve">
+    <value>Декодирование ресурсов: True (обязательно)</value>
+  </data>
+  <data name="PatchPreviewDecodeSources" xml:space="preserve">
+    <value>Декодирование исходников: True (обязательно)</value>
+  </data>
+  <data name="PatchPreviewUseAapt2" xml:space="preserve">
+    <value>Использование AAPT2: False (по умолчанию)</value>
+  </data>
+  <data name="PatchPreviewScriptProfile" xml:space="preserve">
+    <value>Профиль скрипта: {0}</value>
+  </data>
+  <data name="PatchPreviewDexPreservation" xml:space="preserve">
+    <value>Сохранение dex: {0}</value>
+  </data>
+  <data name="PatchPreviewSignOutput" xml:space="preserve">
+    <value>Подпись результата: {0}</value>
+  </data>
   <data name="ThemeLabel" xml:space="preserve">
     <value>Тема</value>
   </data>
@@ -324,5 +424,26 @@
   </data>
   <data name="ThemeModeLight" xml:space="preserve">
     <value>Светлая тема</value>
+  </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>Инжектировать для всех архитектур</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>Пропустить финальную проверку Dex</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>Открыть папку</value>
+  </data>
+  <data name="PatchLogScriptProfile" xml:space="preserve">
+    <value>Профиль скрипта: {0}</value>
+  </data>
+  <data name="PatchLogRunSummary" xml:space="preserve">
+    <value>Патчинг '{0}' -> '{1}' (sign={2}, decodeRes={3}, decodeSrc={4}, aapt2={5}, dexMode={6})</value>
+  </data>
+  <data name="PatchPreviewInjectAllArchitectures" xml:space="preserve">
+    <value>- Инжектировать для всех архитектур: {0}</value>
+  </data>
+  <data name="PatchPreviewSkipDexValidation" xml:space="preserve">
+    <value>- Пропустить финальную проверку Dex: {0}</value>
   </data>
 </root>

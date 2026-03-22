@@ -13,7 +13,7 @@ public partial class MainViewModel : ObservableObject
     private readonly LocalizationService _localizationService;
 
     [ObservableProperty]
-    private object _currentView;
+    private object _currentView = null!;
 
     [ObservableProperty]
     private string _windowTitle = Properties.Resources.AppTitle;
@@ -23,6 +23,7 @@ public partial class MainViewModel : ObservableObject
 
     public string MenuDecompileLabel => _localizationService["MenuDecompile"];
     public string MenuBuildLabel => _localizationService["MenuBuild"];
+    public string MenuPatchLabel => _localizationService["MenuPatch"];
     public string MenuAnalyserLabel => _localizationService["MenuAnalyser"];
     public string MenuSettingsLabel => _localizationService["MenuSettings"];
     public string MenuAboutLabel => _localizationService["MenuAbout"];
@@ -56,6 +57,13 @@ public partial class MainViewModel : ObservableObject
     {
         SetCurrentView(Resolve<BuildViewModel>());
         SelectedMenu = "Build";
+    }
+
+    [RelayCommand]
+    private void NavigateToPatch()
+    {
+        SetCurrentView(Resolve<PatchViewModel>());
+        SelectedMenu = "Patch";
     }
 
     [RelayCommand]
@@ -105,6 +113,7 @@ public partial class MainViewModel : ObservableObject
         WindowTitle = _localizationService["AppTitle"];
         OnPropertyChanged(nameof(MenuDecompileLabel));
         OnPropertyChanged(nameof(MenuBuildLabel));
+        OnPropertyChanged(nameof(MenuPatchLabel));
         OnPropertyChanged(nameof(MenuAnalyserLabel));
         OnPropertyChanged(nameof(MenuSettingsLabel));
         OnPropertyChanged(nameof(MenuAboutLabel));

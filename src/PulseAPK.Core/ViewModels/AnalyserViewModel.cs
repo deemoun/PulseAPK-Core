@@ -31,7 +31,7 @@ public partial class AnalyserViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsHintVisible))]
     [NotifyPropertyChangedFor(nameof(HasProject))]
-    private string _projectPath;
+    private string _projectPath = string.Empty;
 
     [ObservableProperty]
     private string _consoleLog = Properties.Resources.WaitingForCommand;

@@ -12,7 +12,7 @@ public partial class DecompileViewModel : ObservableObject
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsHintVisible))]
-    private string _apkPath;
+    private string _apkPath = string.Empty;
 
     [ObservableProperty]
     private bool _decodeResources = true;

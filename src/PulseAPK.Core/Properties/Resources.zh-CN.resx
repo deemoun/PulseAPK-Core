@@ -316,6 +316,30 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>提示：点击“浏览”以选择项目文件夹。</value>
   </data>
+  <data name="PatchHeader" xml:space="preserve">
+    <value>修补 APK</value>
+  </data>
+  <data name="PatchSignOutputApk" xml:space="preserve">
+    <value>签名输出 APK（ubersigner）</value>
+  </data>
+  <data name="PatchScriptProfile" xml:space="preserve">
+    <value>脚本配置</value>
+  </data>
+  <data name="PatchDexPreservationMode" xml:space="preserve">
+    <value>DEX 保留模式</value>
+  </data>
+  <data name="PatchOutputLabel" xml:space="preserve">
+    <value>输出</value>
+  </data>
+  <data name="PatchDexDisabledDefault" xml:space="preserve">
+    <value>禁用（默认）</value>
+  </data>
+  <data name="PatchDexPreserveUnmodifiedSecondary" xml:space="preserve">
+    <value>保留未修改的次要 DEX</value>
+  </data>
+  <data name="PatchDexReplaceAllDangerous" xml:space="preserve">
+    <value>替换所有 DEX（危险）</value>
+  </data>
   <data name="ThemeLabel" xml:space="preserve">
     <value>主题</value>
   </data>
@@ -324,5 +348,20 @@
   </data>
   <data name="ThemeModeLight" xml:space="preserve">
     <value>浅色模式</value>
+  </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>为所有架构注入</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>跳过最终 Dex 校验</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>打开文件夹</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>注入 Frida Gadget（MainActivity + Gadget.loadLibrary）</value>
   </data>
 </root>

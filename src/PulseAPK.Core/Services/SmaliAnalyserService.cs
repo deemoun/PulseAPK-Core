@@ -8,7 +8,7 @@ namespace PulseAPK.Core.Services
 {
     public class SmaliAnalyserService
     {
-        public async Task<AnalysisResult> AnalyseProjectAsync(string projectPath, Action<string> logCallback)
+        public async Task<AnalysisResult> AnalyseProjectAsync(string projectPath, Action<string>? logCallback)
         {
             var result = new AnalysisResult();
 
@@ -85,7 +85,7 @@ namespace PulseAPK.Core.Services
             return result;
         }
 
-        private string[] GetSmaliFiles(string projectPath, Action<string> logCallback)
+        private string[] GetSmaliFiles(string projectPath, Action<string>? logCallback)
         {
             try
             {
@@ -211,7 +211,7 @@ namespace PulseAPK.Core.Services
             return false;
         }
 
-        private Dictionary<string, List<Regex>> BuildRegexCache(AnalysisRuleSet rules, Action<string> logCallback)
+        private Dictionary<string, List<Regex>> BuildRegexCache(AnalysisRuleSet rules, Action<string>? logCallback)
         {
             var cache = new Dictionary<string, List<Regex>>(StringComparer.OrdinalIgnoreCase);
 

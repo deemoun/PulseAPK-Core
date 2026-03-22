@@ -30,7 +30,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private LanguageItem _selectedLanguage;
 
     [ObservableProperty]
-    private ThemeModeItem _selectedThemeMode;
+    private ThemeModeItem _selectedThemeMode = null!;
     
     public List<LanguageItem> AvailableLanguages => _localizationService.AvailableLanguages;
     private List<ThemeModeItem> _availableThemeModes = [];

@@ -316,6 +316,30 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>Tipp: Klicken Sie auf „Durchsuchen“, um einen Projektordner auszuwählen.</value>
   </data>
+  <data name="PatchHeader" xml:space="preserve">
+    <value>APK patchen</value>
+  </data>
+  <data name="PatchSignOutputApk" xml:space="preserve">
+    <value>Ausgabe-APK signieren (ubersigner)</value>
+  </data>
+  <data name="PatchScriptProfile" xml:space="preserve">
+    <value>Skriptprofil</value>
+  </data>
+  <data name="PatchDexPreservationMode" xml:space="preserve">
+    <value>DEX-Erhaltungsmodus</value>
+  </data>
+  <data name="PatchOutputLabel" xml:space="preserve">
+    <value>Ausgabe</value>
+  </data>
+  <data name="PatchDexDisabledDefault" xml:space="preserve">
+    <value>Deaktiviert (Standard)</value>
+  </data>
+  <data name="PatchDexPreserveUnmodifiedSecondary" xml:space="preserve">
+    <value>Unveränderte sekundäre DEX beibehalten</value>
+  </data>
+  <data name="PatchDexReplaceAllDangerous" xml:space="preserve">
+    <value>Alle DEX ersetzen (gefährlich)</value>
+  </data>
   <data name="ThemeLabel" xml:space="preserve">
     <value>Thema</value>
   </data>
@@ -324,5 +348,20 @@
   </data>
   <data name="ThemeModeLight" xml:space="preserve">
     <value>Heller Modus</value>
+  </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>Für alle Architekturen injizieren</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>Finale Dex-Prüfung überspringen</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>Ordner öffnen</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>Frida-Gadget injizieren (MainActivity + Gadget.loadLibrary)</value>
   </data>
 </root>

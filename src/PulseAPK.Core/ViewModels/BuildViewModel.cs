@@ -13,16 +13,16 @@ public partial class BuildViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsHintVisible))]
     [NotifyPropertyChangedFor(nameof(HasProject))]
-    private string _projectPath;
+    private string _projectPath = string.Empty;
 
     [ObservableProperty]
-    private string _outputApkPath;
+    private string _outputApkPath = string.Empty;
 
     [ObservableProperty]
-    private string _outputFolderPath;
+    private string _outputFolderPath = string.Empty;
 
     [ObservableProperty]
-    private string _outputApkName;
+    private string _outputApkName = string.Empty;
 
     [ObservableProperty]
     private bool _useAapt2;

@@ -316,6 +316,30 @@
   <data name="BrowseProjectFolderTip" xml:space="preserve">
     <value>Порада: натисніть «Огляд», щоб вибрати папку проєкту.</value>
   </data>
+  <data name="PatchHeader" xml:space="preserve">
+    <value>Патчити APK</value>
+  </data>
+  <data name="PatchSignOutputApk" xml:space="preserve">
+    <value>Підписувати вихідний APK (ubersigner)</value>
+  </data>
+  <data name="PatchScriptProfile" xml:space="preserve">
+    <value>Профіль скрипту</value>
+  </data>
+  <data name="PatchDexPreservationMode" xml:space="preserve">
+    <value>Режим збереження DEX</value>
+  </data>
+  <data name="PatchOutputLabel" xml:space="preserve">
+    <value>Вивід</value>
+  </data>
+  <data name="PatchDexDisabledDefault" xml:space="preserve">
+    <value>Вимкнено (типово)</value>
+  </data>
+  <data name="PatchDexPreserveUnmodifiedSecondary" xml:space="preserve">
+    <value>Зберігати незмінені secondary DEX</value>
+  </data>
+  <data name="PatchDexReplaceAllDangerous" xml:space="preserve">
+    <value>Замінити всі DEX (небезпечно)</value>
+  </data>
   <data name="ThemeLabel" xml:space="preserve">
     <value>Тема</value>
   </data>
@@ -324,5 +348,20 @@
   </data>
   <data name="ThemeModeLight" xml:space="preserve">
     <value>Світла тема</value>
+  </data>
+  <data name="PatchInjectForAllArchitectures" xml:space="preserve">
+    <value>Інжектувати для всіх архітектур</value>
+  </data>
+  <data name="PatchSkipDexValidation" xml:space="preserve">
+    <value>Пропустити фінальну перевірку Dex</value>
+  </data>
+  <data name="PatchOpenFolder" xml:space="preserve">
+    <value>Відкрити папку</value>
+  </data>
+  <data name="PatchOutputApkNamePlaceholder" xml:space="preserve">
+    <value>patched.apk</value>
+  </data>
+  <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
+    <value>Інжектувати Frida gadget (MainActivity + Gadget.loadLibrary)</value>
   </data>
 </root>

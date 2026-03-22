@@ -78,7 +78,7 @@ namespace PulseAPK.Core.Services
 
         private static bool TryLoadSettings(string settingsPath, out AppSettings settings)
         {
-            settings = null;
+            settings = null!;
             if (!File.Exists(settingsPath))
             {
                 return false;
@@ -87,8 +87,8 @@ namespace PulseAPK.Core.Services
             try
             {
                 var json = File.ReadAllText(settingsPath);
-                settings = JsonSerializer.Deserialize<AppSettings>(json);
-                return settings != null;
+                settings = JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                return true;
             }
             catch
             {

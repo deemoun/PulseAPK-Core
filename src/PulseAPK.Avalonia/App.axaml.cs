@@ -4,7 +4,9 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using PulseAPK.Avalonia.Services;
 using PulseAPK.Core.Abstractions;
+using PulseAPK.Core.Abstractions.Patching;
 using PulseAPK.Core.Services;
+using PulseAPK.Core.Services.Patching;
 using PulseAPK.Core.ViewModels;
 using System;
 
@@ -53,6 +55,21 @@ public partial class App : Application
         services.AddTransient<ReportService>();
         services.AddSingleton<ISystemService, PulseAPK.Core.Services.SystemService>();
 
+        // Patching services
+        services.AddTransient<PatchRequestValidatorService>();
+        services.AddTransient<IArchitectureDetectionService, ArchitectureDetectionService>();
+        services.AddHttpClient<IFridaArtifactService, FridaArtifactService>();
+        services.AddTransient<IApktoolService, ApktoolServiceAdapter>();
+        services.AddTransient<IActivityDetectionService, ActivityDetectionService>();
+        services.AddTransient<IManifestPatchService, ManifestPatchService>();
+        services.AddTransient<IGadgetInjectionService, GadgetInjectionService>();
+        services.AddTransient<ISmaliPatchService, SmaliPatchService>();
+        services.AddTransient<IDexMergeService, DexMergeService>();
+        services.AddTransient<ISigningService, SigningService>();
+        services.AddTransient<IDexMethodLookupService, DexMethodLookupService>();
+        services.AddTransient<IFinalDexInspectionService, FinalDexInspectionService>();
+        services.AddTransient<IPatchPipelineService, PatchPipelineService>();
+
         // Avalonia Services
         services.AddSingleton<IDialogService, AvaloniaDialogService>();
         services.AddSingleton<IDispatcherService, AvaloniaDispatcherService>();
@@ -63,6 +80,7 @@ public partial class App : Application
         services.AddSingleton<MainViewModel>();
         services.AddTransient<DecompileViewModel>();
         services.AddTransient<BuildViewModel>();
+        services.AddTransient<PatchViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<AnalyserViewModel>();
         services.AddTransient<AboutViewModel>();
