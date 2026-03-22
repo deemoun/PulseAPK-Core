@@ -370,9 +370,9 @@ public sealed class PatchPipelineService : IPatchPipelineService
         => $"L{activityName.Replace('.', '/')};";
 
     private static void AddOptionalAssetWarning(
-        PatchPipelineResult result,
+        PatchResult result,
         HashSet<string> warnings,
-        OptionalAssetStatus status,
+        OptionalAssetCopyResult status,
         string assetName)
     {
         var warning = $"Optional {assetName} status: {status.Status} - {status.Detail}";
