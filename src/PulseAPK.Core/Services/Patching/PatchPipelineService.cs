@@ -145,8 +145,17 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 {
                     result.Errors.Add(gadgetInject.Error ?? "Gadget injection failed.");
                     result.StageSummaries.Add(new PatchStageSummary("gadget-injection", false, result.Errors.Last()));
+                    result.Warnings.Add($"Optional script status: {gadgetInject.ScriptStatus.Status} - {gadgetInject.ScriptStatus.Detail}");
+                    result.Warnings.Add($"Optional config status: {gadgetInject.ConfigStatus.Status} - {gadgetInject.ConfigStatus.Detail}");
                     return result;
                 }
+
+                result.Warnings.Add($"Optional script status: {gadgetInject.ScriptStatus.Status} - {gadgetInject.ScriptStatus.Detail}");
+                result.Warnings.Add($"Optional config status: {gadgetInject.ConfigStatus.Status} - {gadgetInject.ConfigStatus.Detail}");
+                result.StageSummaries.Add(new PatchStageSummary(
+                    "gadget-assets",
+                    true,
+                    $"ABI '{targetArchitecture}' script={gadgetInject.ScriptStatus.Status}, config={gadgetInject.ConfigStatus.Status}."));
             }
 
             var injectionMessage = injectionArchitectures.Count == 1

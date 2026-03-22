@@ -240,6 +240,9 @@ public partial class PatchViewModel : ObservableObject
 
             AppendLog(BuildRunSummary(request));
             AppendLog(string.Format(L("PatchLogScriptProfile"), SelectedScriptInjectionOption.Label));
+            AppendLog($"AddCustomScript enabled: {AddCustomScript}");
+            AppendLog($"Resolved ScriptFilePath: {request.ScriptFilePath ?? "<none>"}");
+            AppendLog($"Resolved ConfigFilePath: {request.ConfigFilePath ?? "<none>"}");
 
             var result = await _patchPipelineService.RunAsync(request);
 
