@@ -5,6 +5,10 @@ namespace PulseAPK.Core.Services.Patching;
 
 public sealed class GadgetInjectionService : IGadgetInjectionService
 {
+    private const string GadgetFileName = "libfrida-gadget.so";
+    private const string ConfigFileName = "libfrida-gadget.config.so";
+    private const string ScriptFileName = "libfrida-gadget.script.so";
+
     public Task<GadgetInjectionResult> InjectAsync(string decompiledDirectory, PatchRequest request, string architecture, string gadgetSourcePath, CancellationToken cancellationToken = default)
     {
         if (!File.Exists(gadgetSourcePath))
@@ -20,7 +24,24 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
         {
             var libDirectory = Path.Combine(decompiledDirectory, "lib", architecture);
             Directory.CreateDirectory(libDirectory);
-            File.Copy(gadgetSourcePath, Path.Combine(libDirectory, "libfrida-gadget.so"), overwrite: true);
+
+            File.Copy(gadgetSourcePath, Path.Combine(libDirectory, GadgetFileName), overwrite: true);
+
+            var configStatus = EnsureRequiredAsset(request.ConfigFilePath, libDirectory, ConfigFileName, "config");
+            var scriptStatus = EnsureRequiredAsset(request.ScriptFilePath, libDirectory, ScriptFileName, "script");
+
+            var hasAssetCopyError = configStatus.Status == OptionalAssetCopyStatus.Error;
+            hasAssetCopyError |= scriptStatus.Status == OptionalAssetCopyStatus.Error;
+
+            var error = hasAssetCopyError
+                ? $"Required asset copy failed. Script: {scriptStatus.Detail}; Config: {configStatus.Detail}"
+                : null;
+
+            return Task.FromResult(new GadgetInjectionResult(
+                Success: !hasAssetCopyError,
+                Error: error,
+                ScriptStatus: scriptStatus,
+                ConfigStatus: configStatus));
         }
         catch (Exception ex)
         {
@@ -30,39 +51,23 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
                 ScriptStatus: new OptionalAssetCopyResult(OptionalAssetCopyStatus.Skipped, "Script copy skipped because gadget copy failed."),
                 ConfigStatus: new OptionalAssetCopyResult(OptionalAssetCopyStatus.Skipped, "Config copy skipped because gadget copy failed.")));
         }
-
-        var configStatus = EnsureOptionalAsset(request.ConfigFilePath, decompiledDirectory, "frida-gadget.config", "config");
-        var scriptStatus = EnsureOptionalAsset(request.ScriptFilePath, decompiledDirectory, "frida-script.js", "script");
-
-        var hasAssetCopyError = configStatus.Status == OptionalAssetCopyStatus.Error || scriptStatus.Status == OptionalAssetCopyStatus.Error;
-        var error = hasAssetCopyError
-            ? $"Optional asset copy failed. Script: {scriptStatus.Detail}; Config: {configStatus.Detail}"
-            : null;
-
-        return Task.FromResult(new GadgetInjectionResult(
-            Success: !hasAssetCopyError,
-            Error: error,
-            ScriptStatus: scriptStatus,
-            ConfigStatus: configStatus));
     }
 
-    private static OptionalAssetCopyResult EnsureOptionalAsset(string? sourceFile, string decompiledDirectory, string outputName, string assetLabel)
+    private static OptionalAssetCopyResult EnsureRequiredAsset(string? sourceFile, string abiDirectory, string outputName, string assetLabel)
     {
         if (string.IsNullOrWhiteSpace(sourceFile))
         {
-            return new OptionalAssetCopyResult(OptionalAssetCopyStatus.Skipped, $"{assetLabel} path not configured.");
+            return new OptionalAssetCopyResult(OptionalAssetCopyStatus.Error, $"{assetLabel} path not configured.");
         }
 
         if (!File.Exists(sourceFile))
         {
-            return new OptionalAssetCopyResult(OptionalAssetCopyStatus.Missing, $"{assetLabel} source '{sourceFile}' not found.");
+            return new OptionalAssetCopyResult(OptionalAssetCopyStatus.Error, $"{assetLabel} source '{sourceFile}' not found.");
         }
 
         try
         {
-            var assetsDirectory = Path.Combine(decompiledDirectory, "assets");
-            Directory.CreateDirectory(assetsDirectory);
-            var destination = Path.Combine(assetsDirectory, outputName);
+            var destination = Path.Combine(abiDirectory, outputName);
             File.Copy(sourceFile, destination, overwrite: true);
             return new OptionalAssetCopyResult(OptionalAssetCopyStatus.Copied, $"{assetLabel} copied to '{destination}'.");
         }
