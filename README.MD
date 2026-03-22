@@ -27,7 +27,7 @@
 
 [Watch the demo on YouTube](https://youtu.be/Mkdt0c-7Wwg)
 
-PulseAPK is organized into a single-window workflow with top navigation for each tool: **Decompile**, **Build**, **Analyser**, **Settings**, and **About**. Each section focuses on one stage of the APK lifecycle so you can move from decoding to analysis and signing without leaving the app.
+PulseAPK is organized into a single-window workflow with top navigation for each tool: **Decompile**, **Build**, **Patch APK**, **Analyser**, **Settings**, and **About**. Each section focuses on one stage of the APK lifecycle so you can move from decoding to analysis, patching, and signing without leaving the app.
 
 ## Key Features
 
@@ -52,6 +52,7 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
 ### APK Management
 - **Decompile**: Select an APK, choose decode options (resources, sources, manifest handling), and extract to an output folder or the APK’s own folder.
 - **Build**: Recompile from a project folder, set output name and location, toggle AAPT2, and optionally sign the APK in one step.
+- **Patch APK**: Use the dedicated patcher tab to automate APK patching workflows, including Frida setup with one-click **Inject frida-gadget** support.
 - **Analyser**: Point to a decompiled project folder, run the Smali analysis, and export the report when needed.
 
 ## Prerequisites
