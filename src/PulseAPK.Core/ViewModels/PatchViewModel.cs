@@ -56,6 +56,7 @@ public partial class PatchViewModel : ObservableObject
     private readonly IPatchPipelineService _patchPipelineService;
     private readonly IDialogService _dialogService;
     private readonly LocalizationService _localizationService;
+    private readonly ISystemService _systemService;
 
     public bool IsHintVisible => string.IsNullOrWhiteSpace(ApkPath);
 
@@ -68,13 +69,15 @@ public partial class PatchViewModel : ObservableObject
         ISettingsService settingsService,
         IPatchPipelineService patchPipelineService,
         IDialogService dialogService,
-        LocalizationService localizationService)
+        LocalizationService localizationService,
+        ISystemService systemService)
     {
         _filePickerService = filePickerService;
         _settingsService = settingsService;
         _patchPipelineService = patchPipelineService;
         _dialogService = dialogService;
         _localizationService = localizationService;
+        _systemService = systemService;
 
         DexPreservationOptions =
         [
@@ -156,6 +159,25 @@ public partial class PatchViewModel : ObservableObject
         {
             OutputFolderPath = folder;
         }
+    }
+
+    [RelayCommand]
+    private async Task OpenOutputFolder()
+    {
+        var folder = OutputFolderPath;
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            await _dialogService.ShowWarningAsync(Properties.Resources.Error_OutputFolderNotSet);
+            return;
+        }
+
+        if (!Directory.Exists(folder))
+        {
+            await _dialogService.ShowWarningAsync(string.Format(Properties.Resources.Error_FolderNotFound, folder));
+            return;
+        }
+
+        _systemService.OpenFolder(folder);
     }
 
     [RelayCommand(CanExecute = nameof(CanRunPatch))]
