@@ -94,6 +94,10 @@
                 </Grid>
                 <TextBox Text="{Binding OutputApkName}"
                          Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchOutputApkNamePlaceholder]}" />
+                <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Open]}"
+                        Command="{Binding OpenOutputFolderCommand}"
+                        Width="100"
+                        HorizontalAlignment="Left" />
             </StackPanel>
         </Grid>
 
