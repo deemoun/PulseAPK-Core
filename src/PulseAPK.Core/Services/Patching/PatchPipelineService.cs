@@ -125,6 +125,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
             result.StageSummaries.Add(new PatchStageSummary("manifest-patch", true, "Manifest patched."));
 
             var injectionArchitectures = ResolveInjectionArchitectures(decompiledDirectory, architecture, request.InjectForAllArchitectures);
+            var optionalAssetWarnings = new HashSet<string>(StringComparer.Ordinal);
             foreach (var targetArchitecture in injectionArchitectures)
             {
                 var gadgetResolution = await _fridaArtifactService.ResolveGadgetAsync(request, targetArchitecture, cancellationToken);
@@ -145,13 +146,13 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 {
                     result.Errors.Add(gadgetInject.Error ?? "Gadget injection failed.");
                     result.StageSummaries.Add(new PatchStageSummary("gadget-injection", false, result.Errors.Last()));
-                    result.Warnings.Add($"Optional script status: {gadgetInject.ScriptStatus.Status} - {gadgetInject.ScriptStatus.Detail}");
-                    result.Warnings.Add($"Optional config status: {gadgetInject.ConfigStatus.Status} - {gadgetInject.ConfigStatus.Detail}");
+                    AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ScriptStatus, "script");
+                    AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ConfigStatus, "config");
                     return result;
                 }
 
-                result.Warnings.Add($"Optional script status: {gadgetInject.ScriptStatus.Status} - {gadgetInject.ScriptStatus.Detail}");
-                result.Warnings.Add($"Optional config status: {gadgetInject.ConfigStatus.Status} - {gadgetInject.ConfigStatus.Detail}");
+                AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ScriptStatus, "script");
+                AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ConfigStatus, "config");
                 result.StageSummaries.Add(new PatchStageSummary(
                     "gadget-assets",
                     true,
@@ -367,6 +368,19 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
     private static string ToClassDescriptor(string activityName)
         => $"L{activityName.Replace('.', '/')};";
+
+    private static void AddOptionalAssetWarning(
+        PatchPipelineResult result,
+        HashSet<string> warnings,
+        OptionalAssetStatus status,
+        string assetName)
+    {
+        var warning = $"Optional {assetName} status: {status.Status} - {status.Detail}";
+        if (warnings.Add(warning))
+        {
+            result.Warnings.Add(warning);
+        }
+    }
 
     private static DexDiagnosticsSummary SummarizeDexDiagnostics(string diagnostics)
     {
