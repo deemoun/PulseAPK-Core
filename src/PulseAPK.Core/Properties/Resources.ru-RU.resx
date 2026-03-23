@@ -338,7 +338,7 @@
     <value>patched.apk</value>
   </data>
   <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
-    <value>Внедрить frida-gadget</value>
+    <value>Inject gadget and custom script</value>
   </data>
   <data name="PatchDexDisabledDefault" xml:space="preserve">
     <value>Отключено (по умолчанию)</value>

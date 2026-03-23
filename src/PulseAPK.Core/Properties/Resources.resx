@@ -350,7 +350,7 @@
     <value>patched.apk</value>
   </data>
   <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
-    <value>Inject frida-gadget</value>
+    <value>Inject gadget and custom script</value>
   </data>
   <data name="PatchScriptSampleInjection" xml:space="preserve">
     <value>Sample injection</value>

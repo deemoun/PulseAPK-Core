@@ -13,7 +13,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
         bool useDelayedLoad,
         CancellationToken cancellationToken = default)
     {
-        if (profile == ScriptInjectionProfile.FridaGadget)
+        if (profile != ScriptInjectionProfile.SampleInjection)
         {
             var applicationPatch = PatchApplicationSmali(decompiledDirectory);
             if (!applicationPatch.Success)

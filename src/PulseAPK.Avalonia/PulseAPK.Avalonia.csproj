@@ -39,6 +39,9 @@
     <Content Include="..\..\scripts\script.js" Link="scripts\script.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\scripts\frida-listener.js" Link="scripts\frida-listener.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\..\scripts\frida-gadget.config" Link="scripts\frida-gadget.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

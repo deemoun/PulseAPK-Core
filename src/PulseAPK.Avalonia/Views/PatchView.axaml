@@ -58,9 +58,6 @@
                           IsChecked="{Binding InjectLibForAllArchitectures}" />
                 <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchSkipDexValidation]}"
                           IsChecked="{Binding SkipDexValidation}" />
-                <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchAddCustomScript]}"
-                          IsChecked="{Binding AddCustomScript}"
-                          IsEnabled="{Binding CanAddCustomScript}" />
                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptProfile]}"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0" />

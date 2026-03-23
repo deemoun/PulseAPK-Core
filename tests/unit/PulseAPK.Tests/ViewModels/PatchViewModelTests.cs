@@ -14,12 +14,11 @@ namespace PulseAPK.Tests.ViewModels;
 public class PatchViewModelTests
 {
     [Fact]
-    public void Constructor_EnablesInjectAllArchitecturesAndCustomScriptByDefault()
+    public void Constructor_EnablesInjectAllArchitecturesByDefault()
     {
         var viewModel = CreateViewModel();
 
         Assert.True(viewModel.InjectLibForAllArchitectures);
-        Assert.True(viewModel.AddCustomScript);
     }
 
     [Fact]
@@ -32,16 +31,21 @@ public class PatchViewModelTests
     }
 
     [Fact]
-    public void SelectingSampleInjection_DisablesCustomScriptAndCanAddCustomScript()
+    public void SelectingSampleInjection_SetsSampleInjectionState()
     {
         var viewModel = CreateViewModel();
-        viewModel.AddCustomScript = true;
 
         viewModel.SelectedScriptInjectionOption = viewModel.ScriptInjectionOptions.Single(option => option.Profile == ScriptInjectionProfile.SampleInjection);
 
-        Assert.False(viewModel.CanAddCustomScript);
-        Assert.False(viewModel.AddCustomScript);
         Assert.True(viewModel.IsSampleInjectionProfileSelected);
+    }
+
+    [Fact]
+    public void ScriptInjectionOptions_IncludeFridaListenerProfile()
+    {
+        var viewModel = CreateViewModel();
+
+        Assert.Contains(viewModel.ScriptInjectionOptions, option => option.Profile == ScriptInjectionProfile.FridaListener && option.Label == "Inject gadget listener");
     }
 
     private static PatchViewModel CreateViewModel()

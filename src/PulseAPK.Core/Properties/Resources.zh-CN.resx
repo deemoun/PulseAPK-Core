@@ -362,6 +362,6 @@
     <value>patched.apk</value>
   </data>
   <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
-    <value>注入 Frida Gadget（MainActivity + Gadget.loadLibrary）</value>
+    <value>Inject gadget and custom script</value>
   </data>
 </root>

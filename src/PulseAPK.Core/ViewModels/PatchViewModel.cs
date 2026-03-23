@@ -39,15 +39,11 @@ public partial class PatchViewModel : ObservableObject
     private bool _skipDexValidation;
 
     [ObservableProperty]
-    private bool _addCustomScript = true;
-
-    [ObservableProperty]
     private DexPreservationOption _selectedDexPreservationOption = new("Disabled (default)", DexPreservationMode.Disabled);
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanAddCustomScript))]
     [NotifyPropertyChangedFor(nameof(IsSampleInjectionProfileSelected))]
-    private ScriptInjectionOption _selectedScriptInjectionOption = new("Inject frida-gadget", ScriptInjectionProfile.FridaGadget);
+    private ScriptInjectionOption _selectedScriptInjectionOption = new("Inject gadget and custom script", ScriptInjectionProfile.FridaGadget);
 
     [ObservableProperty]
     private string _consoleLog;
@@ -69,7 +65,6 @@ public partial class PatchViewModel : ObservableObject
 
     public IReadOnlyList<ScriptInjectionOption> ScriptInjectionOptions { get; }
     
-    public bool CanAddCustomScript => SelectedScriptInjectionOption.Profile == ScriptInjectionProfile.FridaGadget;
     public bool IsSampleInjectionProfileSelected => SelectedScriptInjectionOption.Profile == ScriptInjectionProfile.SampleInjection;
 
     public PatchViewModel(
@@ -97,6 +92,7 @@ public partial class PatchViewModel : ObservableObject
         ScriptInjectionOptions =
         [
             new(L("PatchScriptInjectFridaGadget"), ScriptInjectionProfile.FridaGadget),
+            new("Inject gadget listener", ScriptInjectionProfile.FridaListener),
             new(L("PatchScriptSampleInjection"), ScriptInjectionProfile.SampleInjection)
         ];
 
@@ -139,15 +135,9 @@ public partial class PatchViewModel : ObservableObject
     partial void OnSignApkChanged(bool value) => UpdateCommandPreview();
     partial void OnInjectLibForAllArchitecturesChanged(bool value) => UpdateCommandPreview();
     partial void OnSkipDexValidationChanged(bool value) => UpdateCommandPreview();
-    partial void OnAddCustomScriptChanged(bool value) => UpdateCommandPreview();
     partial void OnSelectedDexPreservationOptionChanged(DexPreservationOption value) => UpdateCommandPreview();
     partial void OnSelectedScriptInjectionOptionChanged(ScriptInjectionOption value)
     {
-        if (!CanAddCustomScript)
-        {
-            AddCustomScript = false;
-        }
-
         UpdateCommandPreview();
     }
 
@@ -226,7 +216,6 @@ public partial class PatchViewModel : ObservableObject
             {
                 AppendLog(L("PatchLogDangerousDexCancelled"));
                 return;
-            }
         }
 
         IsRunning = true;
@@ -250,13 +239,12 @@ public partial class PatchViewModel : ObservableObject
                 ConfirmDangerousDexReplacement = confirmedDangerousDexMode,
                 InjectForAllArchitectures = InjectLibForAllArchitectures,
                 SkipDexValidation = SkipDexValidation,
-                ScriptFilePath = AddCustomScript && SelectedScriptInjectionOption.Profile == ScriptInjectionProfile.FridaGadget ? ResolveCustomScriptPath("script.js") : null,
-                ConfigFilePath = AddCustomScript && SelectedScriptInjectionOption.Profile == ScriptInjectionProfile.FridaGadget ? ResolveCustomScriptPath("frida-gadget.config") : null
+                ScriptFilePath = ResolveScriptPathForProfile(SelectedScriptInjectionOption.Profile),
+                ConfigFilePath = ResolveConfigPathForProfile(SelectedScriptInjectionOption.Profile)
             };
 
             AppendLog(BuildRunSummary(request));
             AppendLog(string.Format(L("PatchLogScriptProfile"), SelectedScriptInjectionOption.Label));
-            AppendLog($"AddCustomScript enabled: {AddCustomScript}");
             AppendLog($"Resolved ScriptFilePath: {request.ScriptFilePath ?? "<none>"}");
             AppendLog($"Resolved ConfigFilePath: {request.ConfigFilePath ?? "<none>"}");
 
@@ -369,15 +357,33 @@ public partial class PatchViewModel : ObservableObject
         builder.AppendLine(string.Format(L("PatchPreviewScriptProfile"), SelectedScriptInjectionOption.Label));
         builder.AppendLine(string.Format(L("PatchPreviewInjectAllArchitectures"), InjectLibForAllArchitectures));
         builder.AppendLine(string.Format(L("PatchPreviewSkipDexValidation"), SkipDexValidation));
-        builder.AppendLine(string.Format(L("PatchPreviewAddCustomScript"), AddCustomScript));
         builder.AppendLine(string.Format(L("PatchPreviewDexPreservation"), SelectedDexPreservationOption.Label));
         builder.Append(string.Format(L("PatchPreviewSignOutput"), SignApk));
         ConsoleLog = builder.ToString();
     }
 
+
+    private static string? ResolveScriptPathForProfile(ScriptInjectionProfile profile)
+    {
+        return profile switch
+        {
+            ScriptInjectionProfile.FridaGadget => ResolveCustomScriptPath("script.js"),
+            ScriptInjectionProfile.FridaListener => ResolveCustomScriptPath("frida-listener.js"),
+            _ => null
+        };
+    }
+
+    private static string? ResolveConfigPathForProfile(ScriptInjectionProfile profile)
+    {
+        return profile is ScriptInjectionProfile.FridaGadget or ScriptInjectionProfile.FridaListener
+            ? ResolveCustomScriptPath("frida-gadget.config")
+            : null;
+    }
+
     private static void EnsureUserScriptTemplatesExist()
     {
         EnsureUserScriptTemplateExists("script.js");
+        EnsureUserScriptTemplateExists("frida-listener.js");
         EnsureUserScriptTemplateExists("frida-gadget.config");
     }
 
