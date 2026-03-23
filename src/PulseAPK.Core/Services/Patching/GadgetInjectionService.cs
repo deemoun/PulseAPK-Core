@@ -7,7 +7,8 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
 {
     private const string GadgetFileName = "libfrida-gadget.so";
     private const string ConfigFileName = "libfrida-gadget.config.so";
-    private const string ScriptFileName = "libfrida-gadget.script.so";
+    private const string ScriptTargetDirectory = "assets/frida-gadget";
+    private const string ScriptFileName = "script.js";
 
     public Task<GadgetInjectionResult> InjectAsync(string decompiledDirectory, PatchRequest request, string architecture, string gadgetSourcePath, CancellationToken cancellationToken = default)
     {
@@ -28,7 +29,8 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
             File.Copy(gadgetSourcePath, Path.Combine(libDirectory, GadgetFileName), overwrite: true);
 
             var configStatus = EnsureOptionalAsset(request.ConfigFilePath, libDirectory, ConfigFileName, "config");
-            var scriptStatus = EnsureOptionalAsset(request.ScriptFilePath, libDirectory, ScriptFileName, "script");
+            var scriptOutputPath = Path.Combine(decompiledDirectory, ScriptTargetDirectory, ScriptFileName);
+            var scriptStatus = EnsureOptionalAsset(request.ScriptFilePath, scriptOutputPath, "script");
 
             var hasAssetCopyError = configStatus.Status == OptionalAssetCopyStatus.Error;
             hasAssetCopyError |= scriptStatus.Status == OptionalAssetCopyStatus.Error;
@@ -55,6 +57,12 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
 
     private static OptionalAssetCopyResult EnsureOptionalAsset(string? sourceFile, string abiDirectory, string outputName, string assetLabel)
     {
+        var destinationPath = Path.Combine(abiDirectory, outputName);
+        return EnsureOptionalAsset(sourceFile, destinationPath, assetLabel);
+    }
+
+    private static OptionalAssetCopyResult EnsureOptionalAsset(string? sourceFile, string destination, string assetLabel)
+    {
         if (string.IsNullOrWhiteSpace(sourceFile))
         {
             return new OptionalAssetCopyResult(OptionalAssetCopyStatus.Skipped, $"{assetLabel} path not configured.");
@@ -67,7 +75,7 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
 
         try
         {
-            var destination = Path.Combine(abiDirectory, outputName);
+            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
             File.Copy(sourceFile, destination, overwrite: true);
             return new OptionalAssetCopyResult(OptionalAssetCopyStatus.Copied, $"{assetLabel} copied to '{destination}'.");
         }

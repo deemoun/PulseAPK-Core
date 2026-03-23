@@ -6,6 +6,8 @@ namespace PulseAPK.Core.Services.Patching;
 
 public sealed class PatchRequestValidatorService
 {
+    private const string ExpectedGadgetScriptPath = "../../assets/frida-gadget/script.js";
+
     public IReadOnlyList<string> Validate(PatchRequest request)
     {
         var errors = new List<string>();
@@ -76,14 +78,14 @@ public sealed class PatchRequestValidatorService
         {
             if (!document.RootElement.TryGetProperty("interaction", out var interaction))
             {
-                return [$"Config file '{configPath}' must contain interaction.path set to 'libfrida-gadget.script.so'."];
+                return [$"Config file '{configPath}' must contain interaction.path set to '{ExpectedGadgetScriptPath}'."];
             }
 
             if (!interaction.TryGetProperty("path", out var pathElement) ||
                 pathElement.ValueKind != JsonValueKind.String ||
-                !string.Equals(pathElement.GetString(), "libfrida-gadget.script.so", StringComparison.Ordinal))
+                !string.Equals(pathElement.GetString(), ExpectedGadgetScriptPath, StringComparison.Ordinal))
             {
-                return [$"Config file '{configPath}' must set interaction.path to 'libfrida-gadget.script.so'."];
+                return [$"Config file '{configPath}' must set interaction.path to '{ExpectedGadgetScriptPath}'."];
             }
         }
 
