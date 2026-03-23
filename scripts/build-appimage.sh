@@ -14,6 +14,7 @@ out_root="${repo_root}/artifacts/linux/${rid}"
 publish_dir="${out_root}/publish"
 appdir="${out_root}/AppDir"
 appimage_path="${out_root}/${app_name}-${rid}.AppImage"
+tmp_appimage_path="${out_root}/${app_name}-${rid}.AppImage.tmp"
 
 icon_src="${repo_root}/Resources/CyberUnpack.png"
 icon_relpath="Resources/CyberUnpack.png"
@@ -144,7 +145,11 @@ case "${arch}" in
 esac
 
 log "Building AppImage for architecture: ${appimage_arch}"
-ARCH="${appimage_arch}" appimagetool "${appdir}" "${appimage_path}"
+# Build to a temporary destination first to avoid "Text file busy" errors
+# when the previous AppImage is currently running or mounted.
+rm -f "${tmp_appimage_path}"
+ARCH="${appimage_arch}" appimagetool "${appdir}" "${tmp_appimage_path}"
+mv -f "${tmp_appimage_path}" "${appimage_path}"
 
 log "AppImage created: artifacts/linux/${rid}/${app_name}-${rid}.AppImage"
 debug_log "AppImage absolute path: ${appimage_path}"
