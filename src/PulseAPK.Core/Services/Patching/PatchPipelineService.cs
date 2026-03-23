@@ -83,6 +83,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
         var cleanupDirectory = !request.KeepIntermediateFiles ? decompiledDirectory : null;
 
         var smaliInjectionApplied = false;
+        var activitySmaliPatchApplied = false;
 
         try
         {
@@ -153,6 +154,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
                     result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Sample smali patch applied."));
                     smaliInjectionApplied = true;
+                    activitySmaliPatchApplied = true;
                 }
             }
             else
@@ -213,13 +215,26 @@ public sealed class PatchPipelineService : IPatchPipelineService
                         cancellationToken);
                     if (!smaliPatch.Success)
                     {
-                        result.Errors.Add(smaliPatch.Error ?? "Smali patch failed.");
-                        result.StageSummaries.Add(new PatchStageSummary("smali-patch", false, result.Errors.Last()));
-                        return result;
+                        if (IsRecoverableActivityPatchFailure(smaliPatch.Error))
+                        {
+                            var warningMessage = smaliPatch.Error!;
+                            result.Warnings.Add(warningMessage);
+                            result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, warningMessage));
+                            smaliInjectionApplied = true;
+                        }
+                        else
+                        {
+                            result.Errors.Add(smaliPatch.Error ?? "Smali patch failed.");
+                            result.StageSummaries.Add(new PatchStageSummary("smali-patch", false, result.Errors.Last()));
+                            return result;
+                        }
                     }
-
-                    result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Smali patched."));
-                    smaliInjectionApplied = true;
+                    else
+                    {
+                        result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Smali patched."));
+                        smaliInjectionApplied = true;
+                        activitySmaliPatchApplied = true;
+                    }
                 }
             }
 
@@ -297,12 +312,16 @@ public sealed class PatchPipelineService : IPatchPipelineService
             else if (smaliInjectionApplied)
             {
                 var classDescriptor = ToClassDescriptor(activityName);
-                var helperMethodName = request.ScriptInjectionProfile == ScriptInjectionProfile.SampleInjection
+                var methodReference = request.ScriptInjectionProfile != ScriptInjectionProfile.SampleInjection && !activitySmaliPatchApplied
+                    ? ResolveApplicationMethodReference(decompiledDirectory)
+                    : request.ScriptInjectionProfile == ScriptInjectionProfile.SampleInjection
                     ? "logSampleInjectionApplied"
                     : request.UseDelayedLoad
                         ? "loadFridaGadgetIfNeeded"
                         : "loadFridaGadget";
-                var methodReference = $"{classDescriptor}->{helperMethodName}()V";
+                methodReference = methodReference.Contains("->", StringComparison.Ordinal)
+                    ? methodReference
+                    : $"{classDescriptor}->{methodReference}()V";
                 var inspection = await _finalDexInspectionService.ContainsMethodReferenceAsync(finalArtifactPath, methodReference, cancellationToken);
                 var diagnosticSummary = SummarizeDexDiagnostics(inspection.Diagnostics);
                 result.Warnings.Add($"DEX verification target: '{methodReference}' in '{finalArtifactPath}'.");
@@ -454,4 +473,56 @@ public sealed class PatchPipelineService : IPatchPipelineService
     }
 
     private readonly record struct DexDiagnosticsSummary(int ParsedDexEntries = 0, int FailedDexEntries = 0, bool TupleSearchCompleted = false);
+
+    private static bool IsRecoverableActivityPatchFailure(string? error)
+        => !string.IsNullOrWhiteSpace(error) &&
+           error.Contains(SmaliPatchService.ActivityInjectionPointFailureWithApplicationPatchPrefix, StringComparison.Ordinal) &&
+           error.Contains("injection point", StringComparison.OrdinalIgnoreCase);
+
+    private static string ResolveApplicationMethodReference(string decompiledDirectory)
+    {
+        var manifestPath = Path.Combine(decompiledDirectory, "AndroidManifest.xml");
+        var packageName = "com.pulseapk.generated";
+        var applicationName = string.Empty;
+
+        if (File.Exists(manifestPath))
+        {
+            var manifestContent = File.ReadAllText(manifestPath);
+            var packageMatch = Regex.Match(manifestContent, @"\bpackage\s*=\s*['""](?<package>[^'""]+)['""]", RegexOptions.CultureInvariant);
+            if (packageMatch.Success)
+            {
+                packageName = packageMatch.Groups["package"].Value;
+            }
+
+            var applicationMatch = Regex.Match(manifestContent, @"<application\b[^>]*\bandroid:name\s*=\s*['""](?<name>[^'""]+)['""]", RegexOptions.CultureInvariant);
+            if (applicationMatch.Success)
+            {
+                applicationName = applicationMatch.Groups["name"].Value.Trim();
+            }
+        }
+
+        var applicationFqcn = ResolveApplicationFqcn(packageName, applicationName);
+        var descriptor = $"L{applicationFqcn.Replace('.', '/')};";
+        return $"{descriptor}->loadFridaGadgetSafely()V";
+    }
+
+    private static string ResolveApplicationFqcn(string packageName, string? applicationName)
+    {
+        if (string.IsNullOrWhiteSpace(applicationName))
+        {
+            return $"{packageName}.PulseFridaApplication";
+        }
+
+        if (applicationName.StartsWith(".", StringComparison.Ordinal))
+        {
+            return packageName + applicationName;
+        }
+
+        if (!applicationName.Contains(".", StringComparison.Ordinal))
+        {
+            return $"{packageName}.{applicationName}";
+        }
+
+        return applicationName;
+    }
 }
