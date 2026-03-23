@@ -446,4 +446,7 @@
   <data name="PatchPreviewSkipDexValidation" xml:space="preserve">
     <value>- Пропустить финальную проверку Dex: {0}</value>
   </data>
+  <data name="PatchPreviewAddCustomScript" xml:space="preserve">
+    <value>- Добавить пользовательский скрипт: {0}</value>
+  </data>
 </root>

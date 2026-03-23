@@ -434,6 +434,9 @@ Output: {0}</value>
   <data name="PatchPreviewSkipDexValidation" xml:space="preserve">
     <value>Skip DEX validation: {0}</value>
   </data>
+  <data name="PatchPreviewAddCustomScript" xml:space="preserve">
+    <value>Add custom script: {0}</value>
+  </data>
   <data name="PatchPreviewDexPreservation" xml:space="preserve">
     <value>Dex preservation: {0}</value>
   </data>

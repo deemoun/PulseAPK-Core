@@ -33,13 +33,13 @@ public partial class PatchViewModel : ObservableObject
     private bool _signApk = true;
 
     [ObservableProperty]
-    private bool _injectLibForAllArchitectures;
+    private bool _injectLibForAllArchitectures = true;
 
     [ObservableProperty]
     private bool _skipDexValidation;
 
     [ObservableProperty]
-    private bool _addCustomScript;
+    private bool _addCustomScript = true;
 
     [ObservableProperty]
     private DexPreservationOption _selectedDexPreservationOption = new("Disabled (default)", DexPreservationMode.Disabled);
@@ -356,7 +356,7 @@ public partial class PatchViewModel : ObservableObject
         builder.AppendLine(string.Format(L("PatchPreviewScriptProfile"), SelectedScriptInjectionOption.Label));
         builder.AppendLine(string.Format(L("PatchPreviewInjectAllArchitectures"), InjectLibForAllArchitectures));
         builder.AppendLine(string.Format(L("PatchPreviewSkipDexValidation"), SkipDexValidation));
-        builder.AppendLine($"Add custom script: {AddCustomScript}");
+        builder.AppendLine(string.Format(L("PatchPreviewAddCustomScript"), AddCustomScript));
         builder.AppendLine(string.Format(L("PatchPreviewDexPreservation"), SelectedDexPreservationOption.Label));
         builder.Append(string.Format(L("PatchPreviewSignOutput"), SignApk));
         ConsoleLog = builder.ToString();
