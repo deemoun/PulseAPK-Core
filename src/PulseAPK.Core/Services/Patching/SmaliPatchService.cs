@@ -6,6 +6,8 @@ namespace PulseAPK.Core.Services.Patching;
 
 public sealed class SmaliPatchService : ISmaliPatchService
 {
+    internal const string ActivityInjectionPointFailureWithApplicationPatchPrefix = "Application smali patch applied, but activity patch failed:";
+
     public Task<(bool Success, string? Error)> PatchAsync(
         string decompiledDirectory,
         string activityName,
@@ -69,6 +71,11 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
         if (ReferenceEquals(patched, originalContent) || patched == originalContent)
         {
+            if (profile != ScriptInjectionProfile.SampleInjection)
+            {
+                return Task.FromResult<(bool Success, string? Error)>((false, $"{ActivityInjectionPointFailureWithApplicationPatchPrefix} Unable to find an injection point in activity smali file."));
+            }
+
             return Task.FromResult<(bool Success, string? Error)>((false, "Unable to find an injection point in activity smali file."));
         }
 
