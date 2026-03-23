@@ -6,7 +6,7 @@ namespace PulseAPK.Core.Services.Patching;
 
 public sealed class PatchRequestValidatorService
 {
-    private const string ExpectedGadgetScriptPath = "../../assets/frida-gadget/script.js";
+    private const string ExpectedGadgetScriptPath = "./libfrida-gadget.script.so";
 
     public IReadOnlyList<string> Validate(PatchRequest request)
     {

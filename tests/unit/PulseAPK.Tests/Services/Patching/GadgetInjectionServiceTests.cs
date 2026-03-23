@@ -6,7 +6,7 @@ namespace PulseAPK.Tests.Services.Patching;
 public class GadgetInjectionServiceTests
 {
     [Fact]
-    public async Task InjectAsync_CopiesGadgetAndConfigToAbiFolder_AndScriptToAssetsDirectory()
+    public async Task InjectAsync_CopiesGadgetConfigAndScriptToAbiFolder()
     {
         var root = Path.Combine(Path.GetTempPath(), $"gadget-injection-{Guid.NewGuid():N}");
         var gadgetPath = Path.Combine(root, "libfrida-gadget.so");
@@ -34,7 +34,7 @@ public class GadgetInjectionServiceTests
         Assert.True(result.Success);
         Assert.True(File.Exists(Path.Combine(decompiled, "lib", "arm64-v8a", "libfrida-gadget.so")));
         Assert.True(File.Exists(Path.Combine(decompiled, "lib", "arm64-v8a", "libfrida-gadget.config.so")));
-        Assert.True(File.Exists(Path.Combine(decompiled, "assets", "frida-gadget", "script.js")));
+        Assert.True(File.Exists(Path.Combine(decompiled, "lib", "arm64-v8a", "libfrida-gadget.script.so")));
     }
 
     [Fact]
@@ -60,6 +60,6 @@ public class GadgetInjectionServiceTests
         Assert.Equal(OptionalAssetCopyStatus.Skipped, result.ConfigStatus.Status);
         Assert.True(File.Exists(Path.Combine(decompiled, "lib", "arm64-v8a", "libfrida-gadget.so")));
         Assert.False(File.Exists(Path.Combine(decompiled, "lib", "arm64-v8a", "libfrida-gadget.config.so")));
-        Assert.False(File.Exists(Path.Combine(decompiled, "assets", "frida-gadget", "script.js")));
+        Assert.False(File.Exists(Path.Combine(decompiled, "lib", "arm64-v8a", "libfrida-gadget.script.so")));
     }
 }

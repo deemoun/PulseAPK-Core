@@ -7,8 +7,7 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
 {
     private const string GadgetFileName = "libfrida-gadget.so";
     private const string ConfigFileName = "libfrida-gadget.config.so";
-    private const string ScriptTargetDirectory = "assets/frida-gadget";
-    private const string ScriptFileName = "script.js";
+    private const string ScriptFileName = "libfrida-gadget.script.so";
 
     public Task<GadgetInjectionResult> InjectAsync(string decompiledDirectory, PatchRequest request, string architecture, string gadgetSourcePath, CancellationToken cancellationToken = default)
     {
@@ -29,8 +28,7 @@ public sealed class GadgetInjectionService : IGadgetInjectionService
             File.Copy(gadgetSourcePath, Path.Combine(libDirectory, GadgetFileName), overwrite: true);
 
             var configStatus = EnsureOptionalAsset(request.ConfigFilePath, libDirectory, ConfigFileName, "config");
-            var scriptOutputPath = Path.Combine(decompiledDirectory, ScriptTargetDirectory, ScriptFileName);
-            var scriptStatus = EnsureOptionalAsset(request.ScriptFilePath, scriptOutputPath, "script");
+            var scriptStatus = EnsureOptionalAsset(request.ScriptFilePath, libDirectory, ScriptFileName, "script");
 
             var hasAssetCopyError = configStatus.Status == OptionalAssetCopyStatus.Error;
             hasAssetCopyError |= scriptStatus.Status == OptionalAssetCopyStatus.Error;

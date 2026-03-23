@@ -70,7 +70,7 @@ public class PatchRequestValidatorServiceTests
 
         var errors = service.Validate(request);
 
-        Assert.Contains(errors, static error => error.Contains("../../assets/frida-gadget/script.js", StringComparison.Ordinal));
+        Assert.Contains(errors, static error => error.Contains("./libfrida-gadget.script.so", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class PatchRequestValidatorServiceTests
         var outputApk = Path.Combine(root, "output.apk");
         var configPath = Path.Combine(root, "frida-gadget.config");
         File.WriteAllText(inputApk, "apk");
-        var config = "{ \"interaction\": { \"path\": \"../../assets/frida-gadget/script.js\" } }";
+        var config = "{ \"interaction\": { \"path\": \"./libfrida-gadget.script.so\" } }";
         File.WriteAllBytes(configPath, Encoding.Unicode.GetBytes(config));
 
         var service = new PatchRequestValidatorService();
