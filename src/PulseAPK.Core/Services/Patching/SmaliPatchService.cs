@@ -1,16 +1,25 @@
 using System.Text.RegularExpressions;
 using PulseAPK.Core.Abstractions.Patching;
+using PulseAPK.Core.Models;
 
 namespace PulseAPK.Core.Services.Patching;
 
 public sealed class SmaliPatchService : ISmaliPatchService
 {
-    public Task<(bool Success, string? Error)> PatchAsync(string decompiledDirectory, string activityName, bool useDelayedLoad, CancellationToken cancellationToken = default)
+    public Task<(bool Success, string? Error)> PatchAsync(
+        string decompiledDirectory,
+        string activityName,
+        ScriptInjectionProfile profile,
+        bool useDelayedLoad,
+        CancellationToken cancellationToken = default)
     {
-        var applicationPatch = PatchApplicationSmali(decompiledDirectory);
-        if (!applicationPatch.Success)
+        if (profile == ScriptInjectionProfile.FridaGadget)
         {
-            return Task.FromResult(applicationPatch);
+            var applicationPatch = PatchApplicationSmali(decompiledDirectory);
+            if (!applicationPatch.Success)
+            {
+                return Task.FromResult(applicationPatch);
+            }
         }
 
         var smaliFile = ResolveActivitySmaliFile(decompiledDirectory, activityName);
@@ -33,11 +42,15 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return Task.FromResult<(bool Success, string? Error)>((false, $"Unable to determine superclass descriptor from smali file '{smaliFile}'."));
         }
 
-        var lifecycleMethodName = useDelayedLoad ? "onResume" : "onCreate";
-        var lifecycleSignature = useDelayedLoad ? "()V" : "(Landroid/os/Bundle;)V";
+        var lifecycleMethodName = profile == ScriptInjectionProfile.SampleInjection || !useDelayedLoad ? "onCreate" : "onResume";
+        var lifecycleSignature = lifecycleMethodName == "onResume" ? "()V" : "(Landroid/os/Bundle;)V";
         var patched = originalContent;
 
-        if (useDelayedLoad)
+        if (profile == ScriptInjectionProfile.SampleInjection)
+        {
+            patched = EnsureSampleInjectionHelperMethod(patched);
+        }
+        else if (useDelayedLoad)
         {
             patched = EnsureDelayedLoadHelperMembers(patched, classDescriptor);
         }
@@ -46,7 +59,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
             patched = EnsureImmediateLoadHelperMethod(patched);
         }
 
-        patched = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor);
+        patched = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor, profile);
         patched = EnsureHelpersForReferencedCalls(patched, classDescriptor);
 
         if (HasMissingStaticHelperForReferencedCalls(patched, classDescriptor))
@@ -130,6 +143,23 @@ public sealed class SmaliPatchService : ISmaliPatchService
             "    move-result v1",
             string.Empty,
             "    :loaded",
+            "    return-void",
+            ".end method",
+            string.Empty
+        ];
+    }
+
+    private static IReadOnlyList<string> BuildSampleInjectionHelperMethods()
+    {
+        return
+        [
+            ".method private static logSampleInjectionApplied()V",
+            "    .locals 2",
+            string.Empty,
+            "    const-string v0, \"PulseAPK\"",
+            "    const-string v1, \"PulseAPK: The app sample patch was applied\"",
+            "    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I",
+            "    move-result v0",
             "    return-void",
             ".end method",
             string.Empty
@@ -284,6 +314,17 @@ public sealed class SmaliPatchService : ISmaliPatchService
         return InsertLinesBeforeEndClass(content, normalizedLines);
     }
 
+    private static string EnsureSampleInjectionHelperMethod(string content)
+    {
+        content = EnsureHelperMethodIsStatic(content, "logSampleInjectionApplied");
+        if (HasStaticHelperMethod(content, "logSampleInjectionApplied"))
+        {
+            return content;
+        }
+
+        return InsertLinesBeforeEndClass(content, BuildSampleInjectionHelperMethods());
+    }
+
     private static string EnsureHelpersForReferencedCalls(string content, string classDescriptor)
     {
         if (content.Contains($"{classDescriptor}->loadFridaGadget()V", StringComparison.Ordinal) &&
@@ -298,6 +339,12 @@ public sealed class SmaliPatchService : ISmaliPatchService
             content = EnsureDelayedLoadHelperMembers(content, classDescriptor);
         }
 
+        if (content.Contains($"{classDescriptor}->logSampleInjectionApplied()V", StringComparison.Ordinal) &&
+            !HasStaticHelperMethod(content, "logSampleInjectionApplied"))
+        {
+            content = EnsureSampleInjectionHelperMethod(content);
+        }
+
         return content;
     }
 
@@ -310,7 +357,13 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         var referencesDelayedHelper = content.Contains($"{classDescriptor}->loadFridaGadgetIfNeeded()V", StringComparison.Ordinal);
-        return referencesDelayedHelper && !HasStaticHelperMethod(content, "loadFridaGadgetIfNeeded");
+        if (referencesDelayedHelper && !HasStaticHelperMethod(content, "loadFridaGadgetIfNeeded"))
+        {
+            return true;
+        }
+
+        var referencesSampleHelper = content.Contains($"{classDescriptor}->logSampleInjectionApplied()V", StringComparison.Ordinal);
+        return referencesSampleHelper && !HasStaticHelperMethod(content, "logSampleInjectionApplied");
     }
 
     private static string EnsureHelperMethodIsStatic(string content, string methodName)
@@ -356,9 +409,17 @@ public sealed class SmaliPatchService : ISmaliPatchService
         return content.Insert(endClassMatch.Index, method);
     }
 
-    private static string InjectCallIntoLifecycleMethod(string content, string classDescriptor, string methodName, string methodSignature, string superClassDescriptor)
+    private static string InjectCallIntoLifecycleMethod(
+        string content,
+        string classDescriptor,
+        string methodName,
+        string methodSignature,
+        string superClassDescriptor,
+        ScriptInjectionProfile profile)
     {
-        var helperMethodName = methodName == "onResume" ? "loadFridaGadgetIfNeeded" : "loadFridaGadget";
+        var helperMethodName = profile == ScriptInjectionProfile.SampleInjection
+            ? "logSampleInjectionApplied"
+            : methodName == "onResume" ? "loadFridaGadgetIfNeeded" : "loadFridaGadget";
         var methodPattern = new Regex($@"(?ms)(\.method[^\n]* {methodName}{Regex.Escape(methodSignature)}\s+)(.*?)(\.end method)");
         var match = methodPattern.Match(content);
 
@@ -407,13 +468,13 @@ public sealed class SmaliPatchService : ISmaliPatchService
             ? $".method protected onResume()V{Environment.NewLine}" +
               "    .locals 0" + Environment.NewLine +
               $"    invoke-super {{p0}}, {superClassDescriptor}->onResume()V{Environment.NewLine}" +
-              $"    invoke-static {{}}, {classDescriptor}->loadFridaGadgetIfNeeded()V{Environment.NewLine}" +
+              $"    invoke-static {{}}, {classDescriptor}->{helperMethodName}()V{Environment.NewLine}" +
               "    return-void" + Environment.NewLine +
               ".end method" + Environment.NewLine + Environment.NewLine
             : $".method protected onCreate(Landroid/os/Bundle;)V{Environment.NewLine}" +
               "    .locals 0" + Environment.NewLine +
               $"    invoke-super {{p0, p1}}, {superClassDescriptor}->onCreate(Landroid/os/Bundle;)V{Environment.NewLine}" +
-              $"    invoke-static {{}}, {classDescriptor}->loadFridaGadget()V{Environment.NewLine}" +
+              $"    invoke-static {{}}, {classDescriptor}->{helperMethodName}()V{Environment.NewLine}" +
               "    return-void" + Environment.NewLine +
               ".end method" + Environment.NewLine + Environment.NewLine;
 

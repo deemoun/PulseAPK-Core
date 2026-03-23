@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using PulseAPK.Core.Abstractions;
@@ -27,7 +28,20 @@ public class PatchViewModelTests
         var viewModel = CreateViewModel();
 
         Assert.Same(viewModel.ScriptInjectionOptions[0], viewModel.SelectedScriptInjectionOption);
-        Assert.True(viewModel.SelectedScriptInjectionOption.InjectFridaGadget);
+        Assert.Equal(ScriptInjectionProfile.FridaGadget, viewModel.SelectedScriptInjectionOption.Profile);
+    }
+
+    [Fact]
+    public void SelectingSampleInjection_DisablesCustomScriptAndCanAddCustomScript()
+    {
+        var viewModel = CreateViewModel();
+        viewModel.AddCustomScript = true;
+
+        viewModel.SelectedScriptInjectionOption = viewModel.ScriptInjectionOptions.Single(option => option.Profile == ScriptInjectionProfile.SampleInjection);
+
+        Assert.False(viewModel.CanAddCustomScript);
+        Assert.False(viewModel.AddCustomScript);
+        Assert.True(viewModel.IsSampleInjectionProfileSelected);
     }
 
     private static PatchViewModel CreateViewModel()

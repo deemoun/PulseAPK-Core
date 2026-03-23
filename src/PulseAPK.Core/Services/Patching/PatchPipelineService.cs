@@ -124,12 +124,36 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
             result.StageSummaries.Add(new PatchStageSummary("manifest-patch", true, "Manifest patched."));
 
-            if (!request.InjectFridaGadget)
+            if (request.ScriptInjectionProfile == ScriptInjectionProfile.SampleInjection)
             {
-                const string injectionSkipMessage = "Frida gadget injection disabled by script profile; skipping gadget and smali stages.";
-                result.Warnings.Add(injectionSkipMessage);
-                result.StageSummaries.Add(new PatchStageSummary("gadget-injection", true, injectionSkipMessage));
-                result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Smali patch skipped because gadget injection is disabled."));
+                const string sampleInjectionMessage = "Sample injection profile selected; skipping Frida artifact resolution and gadget copy.";
+                result.Warnings.Add(sampleInjectionMessage);
+                result.StageSummaries.Add(new PatchStageSummary("sample-injection", true, sampleInjectionMessage));
+
+                if (!request.DecodeSources)
+                {
+                    const string sampleSmaliSkipMessage = "Sample smali patch skipped because source decoding is disabled.";
+                    result.Warnings.Add(sampleSmaliSkipMessage);
+                    result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, sampleSmaliSkipMessage));
+                }
+                else
+                {
+                    var smaliPatch = await _smaliPatchService.PatchAsync(
+                        decompiledDirectory,
+                        activityName,
+                        request.ScriptInjectionProfile,
+                        request.UseDelayedLoad,
+                        cancellationToken);
+                    if (!smaliPatch.Success)
+                    {
+                        result.Errors.Add(smaliPatch.Error ?? "Sample smali patch failed.");
+                        result.StageSummaries.Add(new PatchStageSummary("smali-patch", false, result.Errors.Last()));
+                        return result;
+                    }
+
+                    result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Sample smali patch applied."));
+                    smaliInjectionApplied = true;
+                }
             }
             else
             {
@@ -181,7 +205,12 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 }
                 else
                 {
-                    var smaliPatch = await _smaliPatchService.PatchAsync(decompiledDirectory, activityName, request.UseDelayedLoad, cancellationToken);
+                    var smaliPatch = await _smaliPatchService.PatchAsync(
+                        decompiledDirectory,
+                        activityName,
+                        request.ScriptInjectionProfile,
+                        request.UseDelayedLoad,
+                        cancellationToken);
                     if (!smaliPatch.Success)
                     {
                         result.Errors.Add(smaliPatch.Error ?? "Smali patch failed.");
@@ -268,9 +297,11 @@ public sealed class PatchPipelineService : IPatchPipelineService
             else if (smaliInjectionApplied)
             {
                 var classDescriptor = ToClassDescriptor(activityName);
-                var helperMethodName = request.UseDelayedLoad
-                    ? "loadFridaGadgetIfNeeded"
-                    : "loadFridaGadget";
+                var helperMethodName = request.ScriptInjectionProfile == ScriptInjectionProfile.SampleInjection
+                    ? "logSampleInjectionApplied"
+                    : request.UseDelayedLoad
+                        ? "loadFridaGadgetIfNeeded"
+                        : "loadFridaGadget";
                 var methodReference = $"{classDescriptor}->{helperMethodName}()V";
                 var inspection = await _finalDexInspectionService.ContainsMethodReferenceAsync(finalArtifactPath, methodReference, cancellationToken);
                 var diagnosticSummary = SummarizeDexDiagnostics(inspection.Diagnostics);

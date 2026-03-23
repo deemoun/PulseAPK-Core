@@ -14,6 +14,7 @@ public class PatchPipelineServiceTests
         "decompile",
         "activity-detection",
         "manifest-patch",
+        "gadget-assets",
         "gadget-injection",
         "smali-patch",
         "build",
@@ -26,6 +27,7 @@ public class PatchPipelineServiceTests
         "decompile",
         "activity-detection",
         "manifest-patch",
+        "gadget-assets",
         "gadget-injection",
         "smali-patch",
         "build",
@@ -235,7 +237,7 @@ public class PatchPipelineServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_SkipsGadgetAndSmaliStages_WhenGadgetInjectionDisabled()
+    public async Task RunAsync_UsesSampleInjectionStage_WhenSampleProfileSelected()
     {
         var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
         await File.WriteAllTextAsync(inputApk, "apk");
@@ -251,7 +253,7 @@ public class PatchPipelineServiceTests
         {
             InputApkPath = inputApk,
             OutputApkPath = outputApk,
-            InjectFridaGadget = false,
+            ScriptInjectionProfile = ScriptInjectionProfile.SampleInjection,
             SignOutput = false
         });
 
@@ -260,11 +262,11 @@ public class PatchPipelineServiceTests
         Assert.Empty(fakeGadgetInjectionService.InjectedArchitectures);
         Assert.DoesNotContain(result.StageSummaries, static stage => stage.Stage == "gadget-assets");
         Assert.Contains(result.StageSummaries, static stage =>
-            stage.Stage == "gadget-injection" &&
-            stage.Message.Contains("disabled", StringComparison.OrdinalIgnoreCase));
+            stage.Stage == "sample-injection" &&
+            stage.Message.Contains("sample injection", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(result.StageSummaries, static stage =>
             stage.Stage == "smali-patch" &&
-            stage.Message.Contains("skipped", StringComparison.OrdinalIgnoreCase));
+            stage.Message.Contains("sample", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -371,6 +373,7 @@ public class PatchPipelineServiceTests
             "decompile",
             "activity-detection",
             "manifest-patch",
+            "gadget-assets",
             "gadget-injection",
             "smali-patch",
             "build"
@@ -406,6 +409,7 @@ public class PatchPipelineServiceTests
             "decompile",
             "activity-detection",
             "manifest-patch",
+            "gadget-assets",
             "gadget-injection",
             "smali-patch",
             "build",
@@ -463,6 +467,32 @@ public class PatchPipelineServiceTests
             fakeFinalDexInspectionService.LastMethodReference);
         var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "dex-verification"));
         Assert.Contains("loadFridaGadgetIfNeeded()V", stage.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RunAsync_UsesSampleHelperForFinalDexVerification_WhenSampleProfileIsEnabled()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+        var fakeFinalDexInspectionService = new FakeFinalDexInspectionService();
+
+        var pipeline = CreatePipeline(fakeFinalDexInspectionService: fakeFinalDexInspectionService);
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            ScriptInjectionProfile = ScriptInjectionProfile.SampleInjection,
+            SignOutput = true
+        });
+
+        Assert.True(result.Success);
+        Assert.Equal(
+            "Lcom/example/MainActivity;->logSampleInjectionApplied()V",
+            fakeFinalDexInspectionService.LastMethodReference);
+        var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "dex-verification"));
+        Assert.Contains("logSampleInjectionApplied()V", stage.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -654,7 +684,12 @@ public class PatchPipelineServiceTests
 
     private sealed class FakeSmaliPatchService : ISmaliPatchService
     {
-        public Task<(bool Success, string? Error)> PatchAsync(string decompiledDirectory, string activityName, bool useDelayedLoad, CancellationToken cancellationToken = default)
+        public Task<(bool Success, string? Error)> PatchAsync(
+            string decompiledDirectory,
+            string activityName,
+            ScriptInjectionProfile profile,
+            bool useDelayedLoad,
+            CancellationToken cancellationToken = default)
             => Task.FromResult((true, (string?)null));
     }
 

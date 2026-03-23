@@ -72,6 +72,10 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptSampleInjectionInfo]}"
+                           FontSize="12"
+                           Opacity="0.7"
+                           IsVisible="{Binding IsSampleInjectionProfileSelected}" />
                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchDexPreservationMode]}"
                            FontWeight="SemiBold"
                            Margin="0,8,0,0" />

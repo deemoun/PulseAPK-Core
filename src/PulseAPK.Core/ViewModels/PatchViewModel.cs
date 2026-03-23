@@ -12,7 +12,7 @@ namespace PulseAPK.Core.ViewModels;
 
 
 public sealed record DexPreservationOption(string Label, DexPreservationMode Mode);
-public sealed record ScriptInjectionOption(string Label, bool InjectFridaGadget);
+public sealed record ScriptInjectionOption(string Label, ScriptInjectionProfile Profile);
 
 public partial class PatchViewModel : ObservableObject
 {
@@ -46,7 +46,8 @@ public partial class PatchViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanAddCustomScript))]
-    private ScriptInjectionOption _selectedScriptInjectionOption = new("Inject frida-gadget", true);
+    [NotifyPropertyChangedFor(nameof(IsSampleInjectionProfileSelected))]
+    private ScriptInjectionOption _selectedScriptInjectionOption = new("Inject frida-gadget", ScriptInjectionProfile.FridaGadget);
 
     [ObservableProperty]
     private string _consoleLog;
@@ -68,7 +69,8 @@ public partial class PatchViewModel : ObservableObject
 
     public IReadOnlyList<ScriptInjectionOption> ScriptInjectionOptions { get; }
     
-    public bool CanAddCustomScript => SelectedScriptInjectionOption.InjectFridaGadget;
+    public bool CanAddCustomScript => SelectedScriptInjectionOption.Profile == ScriptInjectionProfile.FridaGadget;
+    public bool IsSampleInjectionProfileSelected => SelectedScriptInjectionOption.Profile == ScriptInjectionProfile.SampleInjection;
 
     public PatchViewModel(
         IFilePickerService filePickerService,
@@ -94,8 +96,8 @@ public partial class PatchViewModel : ObservableObject
 
         ScriptInjectionOptions =
         [
-            new(L("PatchScriptInjectFridaGadget"), true),
-            new("Disabled", false)
+            new(L("PatchScriptInjectFridaGadget"), ScriptInjectionProfile.FridaGadget),
+            new(L("PatchScriptSampleInjection"), ScriptInjectionProfile.SampleInjection)
         ];
 
         _consoleLog = Properties.Resources.WaitingForCommand;
@@ -236,7 +238,7 @@ public partial class PatchViewModel : ObservableObject
             {
                 InputApkPath = ApkPath,
                 OutputApkPath = OutputApkPath,
-                InjectFridaGadget = SelectedScriptInjectionOption.InjectFridaGadget,
+                ScriptInjectionProfile = SelectedScriptInjectionOption.Profile,
                 SignOutput = SignApk,
                 DecodeResources = true,
                 DecodeSources = true,
@@ -248,8 +250,8 @@ public partial class PatchViewModel : ObservableObject
                 ConfirmDangerousDexReplacement = confirmedDangerousDexMode,
                 InjectForAllArchitectures = InjectLibForAllArchitectures,
                 SkipDexValidation = SkipDexValidation,
-                ScriptFilePath = AddCustomScript && SelectedScriptInjectionOption.InjectFridaGadget ? ResolveCustomScriptPath("script.js") : null,
-                ConfigFilePath = AddCustomScript && SelectedScriptInjectionOption.InjectFridaGadget ? ResolveCustomScriptPath("frida-gadget.config") : null
+                ScriptFilePath = AddCustomScript && SelectedScriptInjectionOption.Profile == ScriptInjectionProfile.FridaGadget ? ResolveCustomScriptPath("script.js") : null,
+                ConfigFilePath = AddCustomScript && SelectedScriptInjectionOption.Profile == ScriptInjectionProfile.FridaGadget ? ResolveCustomScriptPath("frida-gadget.config") : null
             };
 
             AppendLog(BuildRunSummary(request));

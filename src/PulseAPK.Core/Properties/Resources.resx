@@ -352,6 +352,12 @@
   <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
     <value>Inject frida-gadget</value>
   </data>
+  <data name="PatchScriptSampleInjection" xml:space="preserve">
+    <value>Sample injection</value>
+  </data>
+  <data name="PatchScriptSampleInjectionInfo" xml:space="preserve">
+    <value>Sample injection only adds a smali log helper; no native library is loaded.</value>
+  </data>
   <data name="PatchDexDisabledDefault" xml:space="preserve">
     <value>Disabled (default)</value>
   </data>
