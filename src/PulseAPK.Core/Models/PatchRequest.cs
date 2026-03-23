@@ -6,6 +6,7 @@ public sealed record PatchRequest
 {
     public string InputApkPath { get; init; } = string.Empty;
     public string OutputApkPath { get; init; } = string.Empty;
+    public bool InjectFridaGadget { get; init; } = true;
     public string? SelectedArchitecture { get; init; }
     public bool SignOutput { get; init; }
     public string? ConfigFilePath { get; init; }

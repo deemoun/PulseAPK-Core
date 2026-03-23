@@ -64,8 +64,7 @@
                            FontWeight="SemiBold"
                            Margin="0,8,0,0" />
                 <ComboBox ItemsSource="{Binding ScriptInjectionOptions}"
-                          SelectedItem="{Binding SelectedScriptInjectionOption}"
-                          IsEnabled="False">
+                          SelectedItem="{Binding SelectedScriptInjectionOption}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Label}" />

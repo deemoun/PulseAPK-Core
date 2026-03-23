@@ -12,7 +12,7 @@ namespace PulseAPK.Core.ViewModels;
 
 
 public sealed record DexPreservationOption(string Label, DexPreservationMode Mode);
-public sealed record ScriptInjectionOption(string Label, bool IsEnabledForSelection);
+public sealed record ScriptInjectionOption(string Label, bool InjectFridaGadget);
 
 public partial class PatchViewModel : ObservableObject
 {
@@ -45,7 +45,7 @@ public partial class PatchViewModel : ObservableObject
     private DexPreservationOption _selectedDexPreservationOption = new("Disabled (default)", DexPreservationMode.Disabled);
 
     [ObservableProperty]
-    private ScriptInjectionOption _selectedScriptInjectionOption = new("Inject frida-gadget", false);
+    private ScriptInjectionOption _selectedScriptInjectionOption = new("Inject frida-gadget", true);
 
     [ObservableProperty]
     private string _consoleLog;
@@ -91,7 +91,8 @@ public partial class PatchViewModel : ObservableObject
 
         ScriptInjectionOptions =
         [
-            new(L("PatchScriptInjectFridaGadget"), false)
+            new(L("PatchScriptInjectFridaGadget"), true),
+            new("Disabled", false)
         ];
 
         _consoleLog = Properties.Resources.WaitingForCommand;
@@ -224,6 +225,7 @@ public partial class PatchViewModel : ObservableObject
             {
                 InputApkPath = ApkPath,
                 OutputApkPath = OutputApkPath,
+                InjectFridaGadget = SelectedScriptInjectionOption.InjectFridaGadget,
                 SignOutput = SignApk,
                 DecodeResources = true,
                 DecodeSources = true,
@@ -235,8 +237,8 @@ public partial class PatchViewModel : ObservableObject
                 ConfirmDangerousDexReplacement = confirmedDangerousDexMode,
                 InjectForAllArchitectures = InjectLibForAllArchitectures,
                 SkipDexValidation = SkipDexValidation,
-                ScriptFilePath = AddCustomScript ? ResolveCustomScriptPath("script.js") : null,
-                ConfigFilePath = AddCustomScript ? ResolveCustomScriptPath("frida-gadget.config") : null
+                ScriptFilePath = AddCustomScript && SelectedScriptInjectionOption.InjectFridaGadget ? ResolveCustomScriptPath("script.js") : null,
+                ConfigFilePath = AddCustomScript && SelectedScriptInjectionOption.InjectFridaGadget ? ResolveCustomScriptPath("frida-gadget.config") : null
             };
 
             AppendLog(BuildRunSummary(request));

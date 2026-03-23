@@ -235,6 +235,39 @@ public class PatchPipelineServiceTests
     }
 
     [Fact]
+    public async Task RunAsync_SkipsGadgetAndSmaliStages_WhenGadgetInjectionDisabled()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var fakeArtifactService = new FakeArtifactService();
+        var fakeGadgetInjectionService = new FakeGadgetInjectionService();
+        var pipeline = CreatePipeline(
+            fakeArtifactService: fakeArtifactService,
+            fakeGadgetInjectionService: fakeGadgetInjectionService);
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            InjectFridaGadget = false,
+            SignOutput = false
+        });
+
+        Assert.True(result.Success);
+        Assert.Empty(fakeArtifactService.ResolvedArchitectures);
+        Assert.Empty(fakeGadgetInjectionService.InjectedArchitectures);
+        Assert.DoesNotContain(result.StageSummaries, static stage => stage.Stage == "gadget-assets");
+        Assert.Contains(result.StageSummaries, static stage =>
+            stage.Stage == "gadget-injection" &&
+            stage.Message.Contains("disabled", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.StageSummaries, static stage =>
+            stage.Stage == "smali-patch" &&
+            stage.Message.Contains("skipped", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task RunAsync_EmitsAliasFallbackWarning_WhenArchitectureResolverProvidesWarning()
     {
         var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
@@ -608,10 +641,14 @@ public class PatchPipelineServiceTests
     {
         public List<string> InjectedArchitectures { get; } = [];
 
-        public Task<(bool Success, string? Error)> InjectAsync(string decompiledDirectory, PatchRequest request, string architecture, string gadgetSourcePath, CancellationToken cancellationToken = default)
+        public Task<GadgetInjectionResult> InjectAsync(string decompiledDirectory, PatchRequest request, string architecture, string gadgetSourcePath, CancellationToken cancellationToken = default)
         {
             InjectedArchitectures.Add(architecture);
-            return Task.FromResult((true, (string?)null));
+            return Task.FromResult(new GadgetInjectionResult(
+                Success: true,
+                Error: null,
+                ScriptStatus: new OptionalAssetCopyResult(OptionalAssetCopyStatus.Skipped, "No script provided."),
+                ConfigStatus: new OptionalAssetCopyResult(OptionalAssetCopyStatus.Skipped, "No config provided.")));
         }
     }
 

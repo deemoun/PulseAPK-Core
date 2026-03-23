@@ -124,64 +124,74 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
             result.StageSummaries.Add(new PatchStageSummary("manifest-patch", true, "Manifest patched."));
 
-            var injectionArchitectures = ResolveInjectionArchitectures(decompiledDirectory, architecture, request.InjectForAllArchitectures);
-            var optionalAssetWarnings = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var targetArchitecture in injectionArchitectures)
+            if (!request.InjectFridaGadget)
             {
-                var gadgetResolution = await _fridaArtifactService.ResolveGadgetAsync(request, targetArchitecture, cancellationToken);
-                if (gadgetResolution.Error is not null || gadgetResolution.GadgetPath is null)
-                {
-                    result.Errors.Add(gadgetResolution.Error ?? "Unable to resolve Frida gadget artifact.");
-                    result.StageSummaries.Add(new PatchStageSummary("artifact-resolution", false, result.Errors.Last()));
-                    return result;
-                }
-
-                var gadgetInject = await _gadgetInjectionService.InjectAsync(
-                    decompiledDirectory,
-                    request,
-                    targetArchitecture,
-                    gadgetResolution.GadgetPath,
-                    cancellationToken);
-                if (!gadgetInject.Success)
-                {
-                    result.Errors.Add(gadgetInject.Error ?? "Gadget injection failed.");
-                    result.StageSummaries.Add(new PatchStageSummary("gadget-injection", false, result.Errors.Last()));
-                    AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ScriptStatus, "script");
-                    AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ConfigStatus, "config");
-                    return result;
-                }
-
-                AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ScriptStatus, "script");
-                AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ConfigStatus, "config");
-                result.StageSummaries.Add(new PatchStageSummary(
-                    "gadget-assets",
-                    true,
-                    $"ABI '{targetArchitecture}' script={gadgetInject.ScriptStatus.Status}, config={gadgetInject.ConfigStatus.Status}."));
-            }
-
-            var injectionMessage = injectionArchitectures.Count == 1
-                ? $"Frida gadget injected for ABI '{injectionArchitectures[0]}'."
-                : $"Frida gadget injected for ABIs: {string.Join(", ", injectionArchitectures)}.";
-            result.StageSummaries.Add(new PatchStageSummary("gadget-injection", true, injectionMessage));
-
-            if (!request.DecodeSources)
-            {
-                const string smaliSkipMessage = "Smali patch skipped because source decoding is disabled.";
-                result.Warnings.Add(smaliSkipMessage);
-                result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, smaliSkipMessage));
+                const string injectionSkipMessage = "Frida gadget injection disabled by script profile; skipping gadget and smali stages.";
+                result.Warnings.Add(injectionSkipMessage);
+                result.StageSummaries.Add(new PatchStageSummary("gadget-injection", true, injectionSkipMessage));
+                result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Smali patch skipped because gadget injection is disabled."));
             }
             else
             {
-                var smaliPatch = await _smaliPatchService.PatchAsync(decompiledDirectory, activityName, request.UseDelayedLoad, cancellationToken);
-                if (!smaliPatch.Success)
+                var injectionArchitectures = ResolveInjectionArchitectures(decompiledDirectory, architecture, request.InjectForAllArchitectures);
+                var optionalAssetWarnings = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var targetArchitecture in injectionArchitectures)
                 {
-                    result.Errors.Add(smaliPatch.Error ?? "Smali patch failed.");
-                    result.StageSummaries.Add(new PatchStageSummary("smali-patch", false, result.Errors.Last()));
-                    return result;
+                    var gadgetResolution = await _fridaArtifactService.ResolveGadgetAsync(request, targetArchitecture, cancellationToken);
+                    if (gadgetResolution.Error is not null || gadgetResolution.GadgetPath is null)
+                    {
+                        result.Errors.Add(gadgetResolution.Error ?? "Unable to resolve Frida gadget artifact.");
+                        result.StageSummaries.Add(new PatchStageSummary("artifact-resolution", false, result.Errors.Last()));
+                        return result;
+                    }
+
+                    var gadgetInject = await _gadgetInjectionService.InjectAsync(
+                        decompiledDirectory,
+                        request,
+                        targetArchitecture,
+                        gadgetResolution.GadgetPath,
+                        cancellationToken);
+                    if (!gadgetInject.Success)
+                    {
+                        result.Errors.Add(gadgetInject.Error ?? "Gadget injection failed.");
+                        result.StageSummaries.Add(new PatchStageSummary("gadget-injection", false, result.Errors.Last()));
+                        AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ScriptStatus, "script");
+                        AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ConfigStatus, "config");
+                        return result;
+                    }
+
+                    AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ScriptStatus, "script");
+                    AddOptionalAssetWarning(result, optionalAssetWarnings, gadgetInject.ConfigStatus, "config");
+                    result.StageSummaries.Add(new PatchStageSummary(
+                        "gadget-assets",
+                        true,
+                        $"ABI '{targetArchitecture}' script={gadgetInject.ScriptStatus.Status}, config={gadgetInject.ConfigStatus.Status}."));
                 }
 
-                result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Smali patched."));
-                smaliInjectionApplied = true;
+                var injectionMessage = injectionArchitectures.Count == 1
+                    ? $"Frida gadget injected for ABI '{injectionArchitectures[0]}'."
+                    : $"Frida gadget injected for ABIs: {string.Join(", ", injectionArchitectures)}.";
+                result.StageSummaries.Add(new PatchStageSummary("gadget-injection", true, injectionMessage));
+
+                if (!request.DecodeSources)
+                {
+                    const string smaliSkipMessage = "Smali patch skipped because source decoding is disabled.";
+                    result.Warnings.Add(smaliSkipMessage);
+                    result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, smaliSkipMessage));
+                }
+                else
+                {
+                    var smaliPatch = await _smaliPatchService.PatchAsync(decompiledDirectory, activityName, request.UseDelayedLoad, cancellationToken);
+                    if (!smaliPatch.Success)
+                    {
+                        result.Errors.Add(smaliPatch.Error ?? "Smali patch failed.");
+                        result.StageSummaries.Add(new PatchStageSummary("smali-patch", false, result.Errors.Last()));
+                        return result;
+                    }
+
+                    result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Smali patched."));
+                    smaliInjectionApplied = true;
+                }
             }
 
             var buildCode = await _apktoolService.BuildAsync(decompiledDirectory, request.OutputApkPath, request.UseAapt2ForBuild, cancellationToken);
