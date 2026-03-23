@@ -322,6 +322,9 @@
   <data name="PatchHeader" xml:space="preserve">
     <value>Patch APK</value>
   </data>
+  <data name="PatchBetaWarning" xml:space="preserve">
+    <value>Beta functionality. Use at your own risk</value>
+  </data>
   <data name="PatchSignOutputApk" xml:space="preserve">
     <value>Sign output APK (ubersigner)</value>
   </data>
