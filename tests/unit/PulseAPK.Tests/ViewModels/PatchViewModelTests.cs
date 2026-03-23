@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 using PulseAPK.Core.Abstractions;
 using PulseAPK.Core.Abstractions.Patching;
 using PulseAPK.Core.Models;
@@ -46,6 +47,55 @@ public class PatchViewModelTests
         var viewModel = CreateViewModel();
 
         Assert.Contains(viewModel.ScriptInjectionOptions, option => option.Profile == ScriptInjectionProfile.FridaListener && option.Label == "Inject gadget listener");
+    }
+
+    [Fact]
+    public void MigrateFridaGadgetConfigIfNeeded_UpdatesLegacyInteractionPath_AndPreservesOtherKeys()
+    {
+        var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        var configPath = Path.Combine(root, "frida-gadget.config");
+        File.WriteAllText(configPath, """
+{
+  "interaction": {
+    "type": "script",
+    "path": "../../assets/frida-gadget/script.js",
+    "on_load": "resume"
+  }
+}
+""");
+
+        var migrated = PatchViewModel.MigrateFridaGadgetConfigIfNeeded(configPath);
+
+        Assert.True(migrated);
+        var json = JsonDocument.Parse(File.ReadAllText(configPath));
+        var interaction = json.RootElement.GetProperty("interaction");
+        Assert.Equal(PatchViewModel.ExpectedFridaInteractionPath, interaction.GetProperty("path").GetString());
+        Assert.Equal("resume", interaction.GetProperty("on_load").GetString());
+        Assert.Equal("script", interaction.GetProperty("type").GetString());
+    }
+
+    [Fact]
+    public void MigrateFridaGadgetConfigIfNeeded_DoesNotRewrite_WhenPathAlreadyExpected()
+    {
+        var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        var configPath = Path.Combine(root, "frida-gadget.config");
+        var original = """
+{
+  "interaction": {
+    "type": "script",
+    "path": "./libfrida-gadget.script.so",
+    "on_load": "resume"
+  }
+}
+""";
+        File.WriteAllText(configPath, original);
+
+        var migrated = PatchViewModel.MigrateFridaGadgetConfigIfNeeded(configPath);
+
+        Assert.False(migrated);
+        Assert.Equal(original, File.ReadAllText(configPath));
     }
 
     private static PatchViewModel CreateViewModel()

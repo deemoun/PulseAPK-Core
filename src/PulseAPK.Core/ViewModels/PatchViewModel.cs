@@ -6,6 +6,8 @@ using PulseAPK.Core.Models;
 using PulseAPK.Core.Services;
 using PulseAPK.Core.Utils;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Properties = PulseAPK.Core.Properties;
 
 namespace PulseAPK.Core.ViewModels;
@@ -16,6 +18,8 @@ public sealed record ScriptInjectionOption(string Label, ScriptInjectionProfile 
 
 public partial class PatchViewModel : ObservableObject
 {
+    internal const string ExpectedFridaInteractionPath = "./libfrida-gadget.script.so";
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsHintVisible))]
     private string _apkPath = string.Empty;
@@ -248,6 +252,7 @@ public partial class PatchViewModel : ObservableObject
             AppendLog(string.Format(L("PatchLogScriptProfile"), SelectedScriptInjectionOption.Label));
             AppendLog($"Resolved ScriptFilePath: {request.ScriptFilePath ?? "<none>"}");
             AppendLog($"Resolved ConfigFilePath: {request.ConfigFilePath ?? "<none>"}");
+            AppendLog($"Effective config interaction.path: {GetEffectiveConfigInteractionPath(request.ConfigFilePath) ?? "<none>"}");
 
             var result = await _patchPipelineService.RunAsync(request);
 
@@ -396,6 +401,11 @@ public partial class PatchViewModel : ObservableObject
         var targetPath = Path.Combine(userScriptsDirectory, fileName);
         if (File.Exists(targetPath))
         {
+            if (string.Equals(fileName, "frida-gadget.config", StringComparison.OrdinalIgnoreCase))
+            {
+                MigrateFridaGadgetConfigIfNeeded(targetPath);
+            }
+
             return;
         }
 
@@ -403,6 +413,10 @@ public partial class PatchViewModel : ObservableObject
         if (File.Exists(sourcePath))
         {
             File.Copy(sourcePath, targetPath, overwrite: false);
+            if (string.Equals(fileName, "frida-gadget.config", StringComparison.OrdinalIgnoreCase))
+            {
+                MigrateFridaGadgetConfigIfNeeded(targetPath);
+            }
         }
     }
 
@@ -428,6 +442,90 @@ public partial class PatchViewModel : ObservableObject
         }
 
         return Path.Combine(AppContext.BaseDirectory, "scripts", fileName);
+    }
+
+    internal static string? ReadFridaInteractionPath(string configPath)
+    {
+        if (!File.Exists(configPath))
+        {
+            return null;
+        }
+
+        try
+        {
+            var configContent = File.ReadAllText(configPath);
+            if (!TryGetInteractionPath(configContent, out var interactionPath))
+            {
+                return null;
+            }
+
+            return interactionPath;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    internal static bool MigrateFridaGadgetConfigIfNeeded(string configPath)
+    {
+        if (!File.Exists(configPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            var configContent = File.ReadAllText(configPath);
+            var root = JsonNode.Parse(configContent) as JsonObject;
+            var interaction = root?["interaction"] as JsonObject;
+            if (interaction is null)
+            {
+                return false;
+            }
+
+            var currentPath = interaction["path"]?.GetValue<string>();
+            if (string.Equals(currentPath, ExpectedFridaInteractionPath, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            interaction["path"] = ExpectedFridaInteractionPath;
+            var migratedConfig = root!.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(configPath, migratedConfig);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    internal static bool TryGetInteractionPath(string configContent, out string? interactionPath)
+    {
+        interactionPath = null;
+
+        try
+        {
+            var root = JsonNode.Parse(configContent) as JsonObject;
+            var interaction = root?["interaction"] as JsonObject;
+            interactionPath = interaction?["path"]?.GetValue<string>();
+            return !string.IsNullOrWhiteSpace(interactionPath);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string? GetEffectiveConfigInteractionPath(string? configPath)
+    {
+        if (string.IsNullOrWhiteSpace(configPath))
+        {
+            return null;
+        }
+
+        return ReadFridaInteractionPath(configPath);
     }
 
     private string L(string key) => _localizationService[key];
