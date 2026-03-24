@@ -48,6 +48,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\..\scripts\script.js" LogicalName="PulseAPK.BundledScripts.script.js" />
+    <EmbeddedResource Include="..\..\scripts\frida-listener.js" LogicalName="PulseAPK.BundledScripts.frida-listener.js" />
+    <EmbeddedResource Include="..\..\scripts\frida-gadget.config" LogicalName="PulseAPK.BundledScripts.frida-gadget.config" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PulseAPK.Core\PulseAPK.Core.csproj" />
   </ItemGroup>
 </Project>
