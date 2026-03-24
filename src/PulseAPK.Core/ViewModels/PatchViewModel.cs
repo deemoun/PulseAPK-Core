@@ -5,6 +5,7 @@ using PulseAPK.Core.Abstractions.Patching;
 using PulseAPK.Core.Models;
 using PulseAPK.Core.Services;
 using PulseAPK.Core.Utils;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -419,6 +420,14 @@ public partial class PatchViewModel : ObservableObject
             {
                 MigrateFridaGadgetConfigIfNeeded(targetPath);
             }
+
+            return;
+        }
+
+        if (TryWriteBundledScriptFromResource(fileName, targetPath) &&
+            string.Equals(fileName, "frida-gadget.config", StringComparison.OrdinalIgnoreCase))
+        {
+            MigrateFridaGadgetConfigIfNeeded(targetPath);
         }
     }
 
@@ -444,6 +453,36 @@ public partial class PatchViewModel : ObservableObject
         }
 
         return Path.Combine(AppContext.BaseDirectory, "scripts", fileName);
+    }
+
+    private static bool TryWriteBundledScriptFromResource(string fileName, string targetPath)
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return false;
+        }
+
+        var resourceName = $"PulseAPK.BundledScripts.{fileName}";
+        var assemblies = new[] { Assembly.GetEntryAssembly(), Assembly.GetExecutingAssembly() };
+        foreach (var assembly in assemblies)
+        {
+            if (assembly is null)
+            {
+                continue;
+            }
+
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            if (stream is null)
+            {
+                continue;
+            }
+
+            using var fileStream = File.Create(targetPath);
+            stream.CopyTo(fileStream);
+            return true;
+        }
+
+        return false;
     }
 
     internal static string? ReadFridaInteractionPath(string configPath)
