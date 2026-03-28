@@ -85,6 +85,7 @@ public class PatchPipelineServiceTests
 
         Assert.True(result.Success);
         Assert.True(result.UsedSigning);
+        Assert.Equal(GetSignedPath(outputApk), result.OutputApkPath);
         AssertStageSequence(result, SuccessfulStagesWithSigning);
     }
 
@@ -403,6 +404,7 @@ public class PatchPipelineServiceTests
         Assert.Contains("Signing failed", stage.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(result.Errors, error => error.Contains("Signing failed", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(result.Warnings, warning => warning.Contains("Unsigned rebuilt APK", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(outputApk, result.OutputApkPath);
         AssertStageSequence(result,
         [
             "architecture",
@@ -441,6 +443,7 @@ public class PatchPipelineServiceTests
         Assert.Contains("regenerates classes.dex", stage.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("helper missing in final dex artifact", stage.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("loadFridaGadget()V", Assert.Single(result.Errors), StringComparison.Ordinal);
+        Assert.Equal(GetSignedPath(outputApk), result.OutputApkPath);
     }
 
     [Fact]
@@ -611,6 +614,14 @@ public class PatchPipelineServiceTests
     private static void AssertStageSequence(PatchResult result, IReadOnlyList<string> expectedStages)
     {
         Assert.Equal(expectedStages, result.StageSummaries.Select(static summary => summary.Stage));
+    }
+
+    private static string GetSignedPath(string outputApkPath)
+    {
+        var directory = Path.GetDirectoryName(outputApkPath) ?? Directory.GetCurrentDirectory();
+        var name = Path.GetFileNameWithoutExtension(outputApkPath);
+        var extension = Path.GetExtension(outputApkPath);
+        return Path.Combine(directory, $"{name}_signed{extension}");
     }
 
     private static PatchPipelineService CreatePipeline(

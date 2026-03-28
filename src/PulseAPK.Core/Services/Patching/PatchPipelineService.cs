@@ -80,7 +80,8 @@ public sealed class PatchPipelineService : IPatchPipelineService
         result.StageSummaries.Add(new PatchStageSummary("architecture", true, $"Using architecture '{architecture}'."));
 
         var decompiledDirectory = PrepareWorkingDirectory(request);
-        var cleanupDirectory = !request.KeepIntermediateFiles ? decompiledDirectory : null;
+        var jobDirectory = Directory.GetParent(decompiledDirectory)?.FullName ?? decompiledDirectory;
+        var cleanupDirectory = !request.KeepIntermediateFiles ? jobDirectory : null;
 
         var smaliInjectionApplied = false;
         var activitySmaliPatchApplied = false;
@@ -238,7 +239,8 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 }
             }
 
-            var buildCode = await _apktoolService.BuildAsync(decompiledDirectory, request.OutputApkPath, request.UseAapt2ForBuild, cancellationToken);
+            var rebuiltApkPath = Path.Combine(jobDirectory, "rebuilt.apk");
+            var buildCode = await _apktoolService.BuildAsync(decompiledDirectory, rebuiltApkPath, request.UseAapt2ForBuild, cancellationToken);
             if (buildCode != 0)
             {
                 result.Errors.Add($"Build failed with exit code {buildCode}.");
@@ -267,7 +269,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
                 var dexResult = await _dexMergeService.PreserveOriginalDexFilesAsync(
                     request.InputApkPath,
-                    request.OutputApkPath,
+                    rebuiltApkPath,
                     dexMode,
                     cancellationToken);
                 if (!dexResult.Success)
@@ -283,24 +285,27 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 result.StageSummaries.Add(new PatchStageSummary("dex-preservation", true, dexMessage));
             }
 
-            var finalArtifactPath = request.OutputApkPath;
+            var finalArtifactPath = rebuiltApkPath;
+            var finalOutputPath = request.OutputApkPath;
 
             if (request.SignOutput)
             {
-                var signedPath = GetSignedPath(request.OutputApkPath);
-                var signResult = await _signingService.SignAsync(request.OutputApkPath, signedPath, cancellationToken);
+                var signedPath = Path.Combine(jobDirectory, "signed.apk");
+                var signResult = await _signingService.SignAsync(rebuiltApkPath, signedPath, cancellationToken);
                 if (!signResult.Success)
                 {
+                    var publishedUnsignedPath = PublishArtifactWithRetry(rebuiltApkPath, request.OutputApkPath);
                     result.Errors.Add(signResult.Error ?? "Signing failed.");
                     result.Warnings.Add("Unsigned rebuilt APK was preserved.");
                     result.StageSummaries.Add(new PatchStageSummary("signing", false, result.Errors.Last()));
-                    result.OutputApkPath = request.OutputApkPath;
+                    result.OutputApkPath = publishedUnsignedPath;
                     result.SelectedArchitecture = architecture;
                     return result;
                 }
 
                 result.StageSummaries.Add(new PatchStageSummary("signing", true, "Signed APK created."));
                 finalArtifactPath = signResult.SignedApkPath!;
+                finalOutputPath = GetSignedPath(request.OutputApkPath);
             }
 
             if (smaliInjectionApplied && request.SkipDexValidation)
@@ -343,16 +348,16 @@ public sealed class PatchPipelineService : IPatchPipelineService
                     {
                         const string guidance = "Smali helper missing in final dex artifact. Ensure smali mutation runs after any transform that regenerates classes.dex, or disable that transform for patched classes.";
                         result.Errors.Add($"Final DEX verification failed: '{methodReference}' was not found. {inspection.Diagnostics} {guidance}");
-                        result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, $"{inspection.Diagnostics} {guidance}"));
-                    }
-                    else
-                    {
-                        result.Errors.Add(
+                    result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, $"{inspection.Diagnostics} {guidance}"));
+                }
+                else
+                {
+                    result.Errors.Add(
                             $"Final DEX verification failed before tuple search completed for '{methodReference}'. {inspection.Diagnostics}");
                         result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, inspection.Diagnostics));
-                    }
+                }
 
-                    result.OutputApkPath = finalArtifactPath;
+                    result.OutputApkPath = PublishArtifactWithRetry(finalArtifactPath, finalOutputPath);
                     result.SelectedArchitecture = architecture;
                     result.UsedSigning = request.SignOutput;
                     return result;
@@ -362,7 +367,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
             }
 
             result.Success = true;
-            result.OutputApkPath = finalArtifactPath;
+            result.OutputApkPath = PublishArtifactWithRetry(finalArtifactPath, finalOutputPath);
             result.SelectedArchitecture = architecture;
             result.UsedSigning = request.SignOutput;
             return result;
@@ -416,6 +421,46 @@ public sealed class PatchPipelineService : IPatchPipelineService
         }
 
         return architectures;
+    }
+
+    private static string PublishArtifactWithRetry(string sourcePath, string outputPath)
+    {
+        if (Path.GetFullPath(sourcePath).Equals(Path.GetFullPath(outputPath), StringComparison.OrdinalIgnoreCase))
+        {
+            return outputPath;
+        }
+
+        var destinationDirectory = Path.GetDirectoryName(outputPath);
+        if (!string.IsNullOrWhiteSpace(destinationDirectory))
+        {
+            Directory.CreateDirectory(destinationDirectory);
+        }
+
+        const int maxAttempts = 3;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                if (File.Exists(outputPath))
+                {
+                    File.Delete(outputPath);
+                }
+
+                File.Move(sourcePath, outputPath);
+                return outputPath;
+            }
+            catch (IOException) when (attempt < maxAttempts)
+            {
+                Thread.Sleep(TimeSpan.FromMilliseconds(150 * attempt));
+            }
+            catch (UnauthorizedAccessException) when (attempt < maxAttempts)
+            {
+                Thread.Sleep(TimeSpan.FromMilliseconds(150 * attempt));
+            }
+        }
+
+        File.Copy(sourcePath, outputPath, overwrite: true);
+        return outputPath;
     }
 
     private static string GetSignedPath(string outputApkPath)
