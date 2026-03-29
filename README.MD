@@ -25,7 +25,8 @@
 
 **PulseAPK** is a professional-grade, cross-platform GUI for Android reverse engineering and security analysis, built with Avalonia and .NET 8. It combines the raw power of `apktool` with advanced static analysis capabilities, wrapped in a high-performance, cyberpunk-inspired interface. PulseAPK streamlines the entire workflow from decompilation to analysis, rebuilding, and signing.
 
-[Watch the demo on YouTube](https://youtu.be/Mkdt0c-7Wwg)
+[Overview of PulseAPK functionality](https://youtu.be/Mkdt0c-7Wwg)
+[PulseAPK Patching functionality overview](https://youtu.be/iu-LOHj5QVM)
 
 PulseAPK is organized into a single-window workflow with top navigation for each tool: **Decompile**, **Build**, **Patch APK**, **Analyser**, **Settings**, and **About**. Each section focuses on one stage of the APK lifecycle so you can move from decoding to analysis, patching, and signing without leaving the app.
 
