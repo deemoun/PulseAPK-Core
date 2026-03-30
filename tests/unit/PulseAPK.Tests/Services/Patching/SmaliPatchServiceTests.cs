@@ -44,6 +44,57 @@ public class SmaliPatchServiceTests
     }
 
     [Fact]
+    public async Task PatchAsync_InsertsApplicationFieldBeforeMethods_WhenApplicationClassAlreadyExists()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-app-existing-{Guid.NewGuid():N}");
+        var appPath = Path.Combine(root, "smali", "com", "example", "app");
+        var activityPath = Path.Combine(root, "smali", "com", "example");
+        Directory.CreateDirectory(appPath);
+        Directory.CreateDirectory(activityPath);
+
+        await File.WriteAllTextAsync(
+            Path.Combine(root, "AndroidManifest.xml"),
+            "<manifest package='com.example.app' xmlns:android='http://schemas.android.com/apk/res/android'><application android:name='.CustomApp'><activity android:name='com.example.MainActivity' /></application></manifest>");
+
+        await File.WriteAllTextAsync(
+            Path.Combine(appPath, "CustomApp.smali"),
+            @".class public Lcom/example/app/CustomApp;
+.super Landroid/app/Application;
+
+.method public constructor <init>()V
+    .locals 0
+    invoke-direct {p0}, Landroid/app/Application;-><init>()V
+    return-void
+.end method
+
+.end class");
+
+        await File.WriteAllTextAsync(
+            Path.Combine(activityPath, "MainActivity.smali"),
+            @".class public Lcom/example/MainActivity;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 0
+    invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
+    return-void
+.end method
+
+.end class");
+
+        var service = new SmaliPatchService();
+        var result = await service.PatchAsync(root, "com.example.MainActivity", ScriptInjectionProfile.FridaGadget, useDelayedLoad: false);
+        var appContent = await File.ReadAllTextAsync(Path.Combine(appPath, "CustomApp.smali"));
+
+        Assert.True(result.Success);
+        var fieldIndex = appContent.IndexOf(".field private static gadgetLoaded:Z", StringComparison.Ordinal);
+        var constructorIndex = appContent.IndexOf(".method public constructor <init>()V", StringComparison.Ordinal);
+        Assert.True(fieldIndex >= 0);
+        Assert.True(constructorIndex >= 0);
+        Assert.True(fieldIndex < constructorIndex);
+    }
+
+    [Fact]
     public async Task PatchAsync_IsIdempotent_ForRepeatedPatches()
     {
         var root = Path.Combine(Path.GetTempPath(), $"smali-patch-{Guid.NewGuid():N}");
