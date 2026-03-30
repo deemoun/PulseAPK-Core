@@ -31,6 +31,28 @@
 
 PulseAPK is organized into a single-window workflow with top navigation for each tool: **Decompile**, **Build**, **Patch APK**, **Analyser**, **Settings**, and **About**. Each section focuses on one stage of the APK lifecycle so you can move from decoding to analysis, patching, and signing without leaving the app.
 
+## Screenshots
+
+### 1) Decompile workflow
+![PulseAPK decompile screen](images/pulse_apk_decompile.png)
+- Use this screen to pick an input APK and output folder, then run decompilation.
+- Simple flow: select APK -> set output path -> click decompile.
+
+### 2) Build workflow
+![PulseAPK build screen](images/pulse_apk_build.png)
+- Use this screen to rebuild a decompiled project into a new APK.
+- Simple flow: select project folder -> choose output name/path -> click build (and enable signing if needed).
+
+### 3) Patching workflow
+![PulseAPK patching screen](images/patching.png)
+- Use this screen to automate APK patching actions, including Frida gadget injection.
+- Simple flow: load APK/project -> choose patching options -> run patch -> verify output.
+
+### 4) Static analysis results
+![Apktool analysis output](images/pulse_apk_analysis.png)
+- This view shows security findings from Smali/static analysis.
+- Simple flow: decompile first -> open analysis tab/output -> review findings and export report.
+
 ## Key Features
 
 - **🛡️ Static Security Analysis**: Automatically scan Smali code for vulnerabilities, including root detection, emulator checks, hardcoded credentials, and insecure SQL/HTTP usage.
@@ -89,28 +111,6 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
     - Edit files in your project folder.
     - Use the **Build** tab to recompile into a new APK.
     - Toggle signing during the build step to sign the output APK.
-
-## Screenshots
-
-### 1) Decompile workflow
-![PulseAPK decompile screen](images/pulse_apk_decompile.png)
-- Use this screen to pick an input APK and output folder, then run decompilation.
-- Simple flow: select APK -> set output path -> click decompile.
-
-### 2) Build workflow
-![PulseAPK build screen](images/pulse_apk_build.png)
-- Use this screen to rebuild a decompiled project into a new APK.
-- Simple flow: select project folder -> choose output name/path -> click build (and enable signing if needed).
-
-### 3) Patching workflow
-![PulseAPK patching screen](images/patching.png)
-- Use this screen to automate APK patching actions, including Frida gadget injection.
-- Simple flow: load APK/project -> choose patching options -> run patch -> verify output.
-
-### 4) Static analysis results
-![Apktool analysis output](images/pulse_apk_analysis.png)
-- This view shows security findings from Smali/static analysis.
-- Simple flow: decompile first -> open analysis tab/output -> review findings and export report.
 
 ## Technical Architecture
 
