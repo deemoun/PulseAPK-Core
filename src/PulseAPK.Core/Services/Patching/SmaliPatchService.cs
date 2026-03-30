@@ -597,8 +597,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
             "    .locals 0" + Environment.NewLine + Environment.NewLine +
             "    invoke-direct {p0}, Landroid/app/Application;-><init>()V" + Environment.NewLine + Environment.NewLine +
             "    return-void" + Environment.NewLine +
-            ".end method" + Environment.NewLine + Environment.NewLine +
-            ".end class";
+            ".end method" + Environment.NewLine;
     }
 
     private static string EnsureApplicationGadgetMembers(string content, string classDescriptor)

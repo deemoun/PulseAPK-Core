@@ -41,6 +41,7 @@ public class SmaliPatchServiceTests
         Assert.Contains("invoke-static {}, Lcom/example/app/CustomApp;->loadFridaGadgetSafely()V", appContent, StringComparison.Ordinal);
         Assert.Contains("Failed to load frida-gadget", appContent, StringComparison.Ordinal);
         Assert.Contains("Frida gadget loaded in attachBaseContext; you can attach now.", appContent, StringComparison.Ordinal);
+        Assert.DoesNotContain(".end class", appContent, StringComparison.Ordinal);
     }
 
     [Fact]
