@@ -5,11 +5,12 @@
         xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
         xmlns:views="clr-namespace:PulseAPK.Avalonia.Views"
         xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
-        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="650"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
         x:Class="PulseAPK.Avalonia.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="{Binding WindowTitle}"
-        Icon="/Assets/CyberUnpack.ico">
+        Icon="/Assets/CyberUnpack.ico"
+        Height="700">
 
     <Window.DataTemplates>
         <DataTemplate DataType="{x:Type vm:DecompileViewModel}">
