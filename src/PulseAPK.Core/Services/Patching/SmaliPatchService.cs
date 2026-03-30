@@ -605,7 +605,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
     {
         if (!content.Contains(".field private static gadgetLoaded:Z", StringComparison.Ordinal))
         {
-            content = InsertLinesBeforeEndClass(content, [".field private static gadgetLoaded:Z", string.Empty]);
+            content = InsertFieldBeforeFirstMethod(content, ".field private static gadgetLoaded:Z");
         }
 
         if (!HasStaticHelperMethod(content, "loadFridaGadgetSafely"))
@@ -648,6 +648,18 @@ public sealed class SmaliPatchService : ISmaliPatchService
         }
 
         return content;
+    }
+
+    private static string InsertFieldBeforeFirstMethod(string content, string fieldLine)
+    {
+        var methodMatch = Regex.Match(content, @"(?m)^\s*\.method\b");
+        if (methodMatch.Success)
+        {
+            var fieldBlock = fieldLine + Environment.NewLine + Environment.NewLine;
+            return content.Insert(methodMatch.Index, fieldBlock);
+        }
+
+        return InsertLinesBeforeEndClass(content, [fieldLine, string.Empty]);
     }
 
     private static string EnsureAttachBaseContextLoadsGadget(string content, string classDescriptor, string superClassDescriptor)
