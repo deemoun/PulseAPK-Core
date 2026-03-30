@@ -240,15 +240,32 @@ public sealed class PatchPipelineService : IPatchPipelineService
             }
 
             var rebuiltApkPath = Path.Combine(jobDirectory, "rebuilt.apk");
-            var buildCode = await _apktoolService.BuildAsync(decompiledDirectory, rebuiltApkPath, request.UseAapt2ForBuild, cancellationToken);
-            if (buildCode != 0)
+            var initialBuildCode = await _apktoolService.BuildAsync(decompiledDirectory, rebuiltApkPath, request.UseAapt2ForBuild, cancellationToken);
+            if (initialBuildCode == 0)
             {
-                result.Errors.Add($"Build failed with exit code {buildCode}.");
+                result.StageSummaries.Add(new PatchStageSummary("build", true, $"Build attempt 1 succeeded (useAapt2={request.UseAapt2ForBuild})."));
+            }
+            else if (!request.UseAapt2ForBuild)
+            {
+                result.StageSummaries.Add(new PatchStageSummary("build", true, $"Build attempt 1 failed with exit code {initialBuildCode} (useAapt2=false)."));
+                result.StageSummaries.Add(new PatchStageSummary("build", true, "Build fallback attempt 2 started (useAapt2=true)."));
+
+                var fallbackBuildCode = await _apktoolService.BuildAsync(decompiledDirectory, rebuiltApkPath, useAapt2: true, cancellationToken);
+                if (fallbackBuildCode != 0)
+                {
+                    result.StageSummaries.Add(new PatchStageSummary("build", false, $"Build fallback attempt 2 failed with exit code {fallbackBuildCode} (useAapt2=true)."));
+                    result.Errors.Add($"Build failed with exit codes {initialBuildCode} (useAapt2=false) and {fallbackBuildCode} (useAapt2=true).");
+                    return result;
+                }
+
+                result.StageSummaries.Add(new PatchStageSummary("build", true, "Build fallback attempt 2 succeeded (useAapt2=true)."));
+            }
+            else
+            {
+                result.Errors.Add($"Build failed with exit code {initialBuildCode} (useAapt2=true).");
                 result.StageSummaries.Add(new PatchStageSummary("build", false, result.Errors.Last()));
                 return result;
             }
-
-            result.StageSummaries.Add(new PatchStageSummary("build", true, "APK rebuilt successfully."));
 
             var dexMode = request.DexPreservationMode;
             if (dexMode == DexPreservationMode.Disabled && request.PreserveOriginalDexFiles)

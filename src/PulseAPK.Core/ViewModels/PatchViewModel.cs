@@ -44,6 +44,15 @@ public partial class PatchViewModel : ObservableObject
     private bool _skipDexValidation;
 
     [ObservableProperty]
+    private bool _decodeResources = true;
+
+    [ObservableProperty]
+    private bool _decodeSources = true;
+
+    [ObservableProperty]
+    private bool _useAapt2ForBuild;
+
+    [ObservableProperty]
     private DexPreservationOption _selectedDexPreservationOption = new("Disabled (default)", DexPreservationMode.Disabled);
 
     [ObservableProperty]
@@ -141,6 +150,9 @@ public partial class PatchViewModel : ObservableObject
     partial void OnSignApkChanged(bool value) => UpdateCommandPreview();
     partial void OnInjectLibForAllArchitecturesChanged(bool value) => UpdateCommandPreview();
     partial void OnSkipDexValidationChanged(bool value) => UpdateCommandPreview();
+    partial void OnDecodeResourcesChanged(bool value) => UpdateCommandPreview();
+    partial void OnDecodeSourcesChanged(bool value) => UpdateCommandPreview();
+    partial void OnUseAapt2ForBuildChanged(bool value) => UpdateCommandPreview();
     partial void OnSelectedDexPreservationOptionChanged(DexPreservationOption value) => UpdateCommandPreview();
     partial void OnSelectedScriptInjectionOptionChanged(ScriptInjectionOption value)
     {
@@ -236,9 +248,9 @@ public partial class PatchViewModel : ObservableObject
                 OutputApkPath = OutputApkPath,
                 ScriptInjectionProfile = SelectedScriptInjectionOption.Profile,
                 SignOutput = SignApk,
-                DecodeResources = true,
-                DecodeSources = true,
-                UseAapt2ForBuild = false,
+                DecodeResources = DecodeResources,
+                DecodeSources = DecodeSources,
+                UseAapt2ForBuild = UseAapt2ForBuild,
                 WorkingDirectory = Path.Combine(Path.GetTempPath(), "pulseapk-patch-ui"),
                 KeepIntermediateFiles = false,
                 PreserveOriginalDexFiles = false,
@@ -359,9 +371,9 @@ public partial class PatchViewModel : ObservableObject
         builder.AppendLine(L("PatchPreviewHeader"));
         builder.AppendLine(string.Format(L("PatchPreviewInputApk"), string.IsNullOrWhiteSpace(ApkPath) ? L("PatchPreviewSelectApk") : ApkPath));
         builder.AppendLine(string.Format(L("PatchPreviewOutputApk"), string.IsNullOrWhiteSpace(OutputApkPath) ? L("PatchPreviewOutputApkPlaceholder") : OutputApkPath));
-        builder.AppendLine(L("PatchPreviewDecodeResources"));
-        builder.AppendLine(L("PatchPreviewDecodeSources"));
-        builder.AppendLine(L("PatchPreviewUseAapt2"));
+        builder.AppendLine(string.Format(L("PatchPreviewDecodeResources"), DecodeResources));
+        builder.AppendLine(string.Format(L("PatchPreviewDecodeSources"), DecodeSources));
+        builder.AppendLine(string.Format(L("PatchPreviewUseAapt2"), UseAapt2ForBuild));
         builder.AppendLine(string.Format(L("PatchPreviewScriptProfile"), SelectedScriptInjectionOption.Label));
         builder.AppendLine(string.Format(L("PatchPreviewInjectAllArchitectures"), InjectLibForAllArchitectures));
         builder.AppendLine(string.Format(L("PatchPreviewSkipDexValidation"), SkipDexValidation));
