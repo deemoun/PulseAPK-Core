@@ -111,6 +111,40 @@ public class PatchRequestValidatorServiceTests
     }
 
     [Fact]
+    public void Validate_AllowsLegacyLibInteractionPath_WhenSafeModeIsSelectedForNonElfScript()
+    {
+        var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        var inputApk = Path.Combine(root, "input.apk");
+        var outputApk = Path.Combine(root, "output.apk");
+        var configPath = Path.Combine(root, "frida-gadget.config");
+        var scriptPath = Path.Combine(root, "script.js");
+        File.WriteAllText(inputApk, "apk");
+        File.WriteAllText(scriptPath, "console.log('safe mode legacy path');");
+        File.WriteAllText(configPath, """
+{
+  "interaction": {
+    "type": "script",
+    "path": "./libfrida-gadget.script.so"
+  }
+}
+""");
+
+        var service = new PatchRequestValidatorService();
+        var request = new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            ConfigFilePath = configPath,
+            ScriptFilePath = scriptPath
+        };
+
+        var errors = service.Validate(request);
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
     public void Validate_ReturnsError_WhenConfigIsNotUtf8()
     {
         var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
