@@ -69,32 +69,38 @@
                           IsChecked="{Binding DecodeSources}" />
                 <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[UseAapt2]}"
                           IsChecked="{Binding UseAapt2ForBuild}" />
-                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptProfile]}"
-                           FontWeight="SemiBold"
-                           Margin="0,8,0,0" />
-                <ComboBox ItemsSource="{Binding ScriptInjectionOptions}"
-                          SelectedItem="{Binding SelectedScriptInjectionOption}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Label}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      Margin="0,8,0,0">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptProfile]}"
+                                   FontWeight="SemiBold" />
+                        <ComboBox ItemsSource="{Binding ScriptInjectionOptions}"
+                                  SelectedItem="{Binding SelectedScriptInjectionOption}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Label}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="4">
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchDexPreservationMode]}"
+                                   FontWeight="SemiBold" />
+                        <ComboBox ItemsSource="{Binding DexPreservationOptions}"
+                                  SelectedItem="{Binding SelectedDexPreservationOption}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Label}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptSampleInjectionInfo]}"
                            FontSize="12"
                            Opacity="0.7"
                            IsVisible="{Binding IsSampleInjectionProfileSelected}" />
-                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchDexPreservationMode]}"
-                           FontWeight="SemiBold"
-                           Margin="0,8,0,0" />
-                <ComboBox ItemsSource="{Binding DexPreservationOptions}"
-                          SelectedItem="{Binding SelectedDexPreservationOption}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Label}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="8">
                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchOutputLabel]}"
