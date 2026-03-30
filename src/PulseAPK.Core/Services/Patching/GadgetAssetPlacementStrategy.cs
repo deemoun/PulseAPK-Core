@@ -69,12 +69,7 @@ internal static class GadgetAssetPlacementStrategy
 
     public static IReadOnlyList<string> GetValidInteractionPaths(PatchRequest request)
     {
-        var plan = Resolve(request);
-        if (plan.ScriptDestination == GadgetScriptDestination.AssetsDirectory)
-        {
-            return [AssetScriptInteractionPath];
-        }
-
+        _ = Resolve(request);
         return [LibScriptInteractionPath, AssetScriptInteractionPath];
     }
 
