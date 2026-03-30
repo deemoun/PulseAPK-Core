@@ -271,6 +271,39 @@ public class PatchPipelineServiceTests
     }
 
     [Fact]
+    public async Task RunAsync_UsesRootBypassStage_WhenRootBypassProfileSelected()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var fakeArtifactService = new FakeArtifactService();
+        var fakeGadgetInjectionService = new FakeGadgetInjectionService();
+        var pipeline = CreatePipeline(
+            fakeArtifactService: fakeArtifactService,
+            fakeGadgetInjectionService: fakeGadgetInjectionService);
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            ScriptInjectionProfile = ScriptInjectionProfile.RootCheckPathBypass,
+            SignOutput = false
+        });
+
+        Assert.True(result.Success);
+        Assert.Empty(fakeArtifactService.ResolvedArchitectures);
+        Assert.Empty(fakeGadgetInjectionService.InjectedArchitectures);
+        Assert.DoesNotContain(result.StageSummaries, static stage => stage.Stage == "gadget-assets");
+        Assert.Contains(result.StageSummaries, static stage =>
+            stage.Stage == "root-check-bypass" &&
+            stage.Message.Contains("root check path bypass", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.StageSummaries, static stage =>
+            stage.Stage == "smali-patch" &&
+            stage.Message.Contains("root check path bypass", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task RunAsync_EmitsAliasFallbackWarning_WhenArchitectureResolverProvidesWarning()
     {
         var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");

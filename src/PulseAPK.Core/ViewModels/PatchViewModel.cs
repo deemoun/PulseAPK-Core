@@ -108,7 +108,8 @@ public partial class PatchViewModel : ObservableObject
             new(L("PatchScriptInjectFridaGadget"), ScriptInjectionProfile.FridaGadget),
             new("Inject gadget listener", ScriptInjectionProfile.FridaListener),
             new("Inject frida-gadget only", ScriptInjectionProfile.InjectFridaGadgetOnly),
-            new(L("PatchScriptSampleInjection"), ScriptInjectionProfile.SampleInjection)
+            new(L("PatchScriptSampleInjection"), ScriptInjectionProfile.SampleInjection),
+            new("Root check path bypass", ScriptInjectionProfile.RootCheckPathBypass)
         ];
 
         _consoleLog = Properties.Resources.WaitingForCommand;
