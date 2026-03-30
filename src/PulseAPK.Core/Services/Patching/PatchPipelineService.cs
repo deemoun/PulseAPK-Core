@@ -88,11 +88,12 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
         try
         {
-            var decompileCode = await _apktoolService.DecompileAsync(request.InputApkPath, decompiledDirectory, request.DecodeResources, request.DecodeSources, cancellationToken);
-            if (decompileCode != 0)
+            var decompileResult = await _apktoolService.DecompileAsync(request.InputApkPath, decompiledDirectory, request.DecodeResources, request.DecodeSources, cancellationToken);
+            if (decompileResult.ExitCode != 0)
             {
-                result.Errors.Add($"Decompile failed with exit code {decompileCode}.");
-                result.StageSummaries.Add(new PatchStageSummary("decompile", false, result.Errors.Last()));
+                var decompileSummary = BuildCompactFailureSummary("Decompile", decompileResult);
+                result.Errors.Add(decompileSummary);
+                result.StageSummaries.Add(new PatchStageSummary("decompile", false, BuildFailureStageMessage("Decompile", decompileResult)));
                 return result;
             }
 
@@ -240,21 +241,23 @@ public sealed class PatchPipelineService : IPatchPipelineService
             }
 
             var rebuiltApkPath = Path.Combine(jobDirectory, "rebuilt.apk");
-            var initialBuildCode = await _apktoolService.BuildAsync(decompiledDirectory, rebuiltApkPath, request.UseAapt2ForBuild, cancellationToken);
-            if (initialBuildCode == 0)
+            var initialBuildResult = await _apktoolService.BuildAsync(decompiledDirectory, rebuiltApkPath, request.UseAapt2ForBuild, cancellationToken);
+            if (initialBuildResult.ExitCode == 0)
             {
                 result.StageSummaries.Add(new PatchStageSummary("build", true, $"Build attempt 1 succeeded (useAapt2={request.UseAapt2ForBuild})."));
             }
             else if (!request.UseAapt2ForBuild)
             {
-                result.StageSummaries.Add(new PatchStageSummary("build", true, $"Build attempt 1 failed with exit code {initialBuildCode} (useAapt2=false)."));
+                result.StageSummaries.Add(new PatchStageSummary("build", true, BuildFailureStageMessage("Build attempt 1", initialBuildResult, useAapt2: false)));
                 result.StageSummaries.Add(new PatchStageSummary("build", true, "Build fallback attempt 2 started (useAapt2=true)."));
 
-                var fallbackBuildCode = await _apktoolService.BuildAsync(decompiledDirectory, rebuiltApkPath, useAapt2: true, cancellationToken);
-                if (fallbackBuildCode != 0)
+                var fallbackBuildResult = await _apktoolService.BuildAsync(decompiledDirectory, rebuiltApkPath, useAapt2: true, cancellationToken);
+                if (fallbackBuildResult.ExitCode != 0)
                 {
-                    result.StageSummaries.Add(new PatchStageSummary("build", false, $"Build fallback attempt 2 failed with exit code {fallbackBuildCode} (useAapt2=true)."));
-                    result.Errors.Add($"Build failed with exit codes {initialBuildCode} (useAapt2=false) and {fallbackBuildCode} (useAapt2=true).");
+                    result.StageSummaries.Add(new PatchStageSummary("build", false, BuildFailureStageMessage("Build fallback attempt 2", fallbackBuildResult, useAapt2: true)));
+                    var initialSummary = BuildCompactFailureSummary("Build attempt 1", initialBuildResult, useAapt2: false);
+                    var fallbackSummary = BuildCompactFailureSummary("Build fallback attempt 2", fallbackBuildResult, useAapt2: true);
+                    result.Errors.Add($"{initialSummary} {fallbackSummary}");
                     return result;
                 }
 
@@ -262,8 +265,8 @@ public sealed class PatchPipelineService : IPatchPipelineService
             }
             else
             {
-                result.Errors.Add($"Build failed with exit code {initialBuildCode} (useAapt2=true).");
-                result.StageSummaries.Add(new PatchStageSummary("build", false, result.Errors.Last()));
+                result.Errors.Add(BuildCompactFailureSummary("Build", initialBuildResult, useAapt2: true));
+                result.StageSummaries.Add(new PatchStageSummary("build", false, BuildFailureStageMessage("Build", initialBuildResult, useAapt2: true)));
                 return result;
             }
 
@@ -605,5 +608,51 @@ public sealed class PatchPipelineService : IPatchPipelineService
         }
 
         return applicationName;
+    }
+
+    private static string BuildCompactFailureSummary(string operation, ApktoolRunResult runResult, bool? useAapt2 = null)
+    {
+        var optionSuffix = useAapt2.HasValue ? $" (useAapt2={useAapt2.Value.ToString().ToLowerInvariant()})" : string.Empty;
+        var tail = GetRelevantTail(runResult, 4);
+        var detail = tail.Count == 0
+            ? "No stderr output captured."
+            : string.Join(" | ", tail.Select(CompactLine));
+        return $"{operation} failed with exit code {runResult.ExitCode}{optionSuffix}. {detail}";
+    }
+
+    private static string BuildFailureStageMessage(string operation, ApktoolRunResult runResult, bool? useAapt2 = null)
+    {
+        var optionSuffix = useAapt2.HasValue ? $" (useAapt2={useAapt2.Value.ToString().ToLowerInvariant()})" : string.Empty;
+        var tail = GetRelevantTail(runResult, 20);
+        if (tail.Count == 0)
+        {
+            return $"{operation} failed with exit code {runResult.ExitCode}{optionSuffix}. No stderr output captured.";
+        }
+
+        return $"{operation} failed with exit code {runResult.ExitCode}{optionSuffix}. Last relevant log lines:{Environment.NewLine}{string.Join(Environment.NewLine, tail)}";
+    }
+
+    private static List<string> GetRelevantTail(ApktoolRunResult runResult, int maxLines)
+    {
+        var preferred = runResult.Stderr
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .TakeLast(maxLines)
+            .ToList();
+        if (preferred.Count > 0)
+        {
+            return preferred;
+        }
+
+        return runResult.Stdout
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .TakeLast(maxLines)
+            .ToList();
+    }
+
+    private static string CompactLine(string line)
+    {
+        const int maxLength = 180;
+        var normalized = Regex.Replace(line, @"\s+", " ").Trim();
+        return normalized.Length <= maxLength ? normalized : $"{normalized[..maxLength]}...";
     }
 }
