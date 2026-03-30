@@ -323,6 +323,35 @@ public class PatchPipelineServiceTests
     }
 
     [Fact]
+    public async Task RunAsync_InjectsOnlySelectedAbi_WhenNoNativeLibrariesArePresent()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+
+        var fakeArtifactService = new FakeArtifactService();
+        var fakeGadgetInjectionService = new FakeGadgetInjectionService();
+        var pipeline = CreatePipeline(
+            fakeArtifactService: fakeArtifactService,
+            fakeGadgetInjectionService: fakeGadgetInjectionService);
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            SignOutput = false,
+            InjectForAllArchitectures = true
+        });
+
+        Assert.True(result.Success);
+        Assert.Equal(["arm64-v8a"], fakeArtifactService.ResolvedArchitectures);
+        Assert.Equal(["arm64-v8a"], fakeGadgetInjectionService.InjectedArchitectures);
+        Assert.Contains(result.StageSummaries, static stage =>
+            stage.Stage == "gadget-injection" &&
+            stage.Message.Contains("ABI 'arm64-v8a'", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task RunAsync_ReturnsFailedStageAndError_WhenDecompileFails()
     {
         var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
@@ -708,7 +737,9 @@ public class PatchPipelineServiceTests
             File.WriteAllText(Path.Combine(outputDirectory, "smali", "com", "example", "MainActivity.smali"), ".class public Lcom/example/MainActivity;\n.super Landroid/app/Activity;\n\n.end class");
             foreach (var abi in _libAbis)
             {
-                Directory.CreateDirectory(Path.Combine(outputDirectory, "lib", abi));
+                var abiDirectory = Path.Combine(outputDirectory, "lib", abi);
+                Directory.CreateDirectory(abiDirectory);
+                File.WriteAllBytes(Path.Combine(abiDirectory, "libdummy.so"), [0x7F, 0x45, 0x4C, 0x46]);
             }
 
             return Task.FromResult(0);
