@@ -519,6 +519,16 @@ public sealed class PatchPipelineService : IPatchPipelineService
         OptionalAssetCopyResult status,
         string assetName)
     {
+        if (status.Status == OptionalAssetCopyStatus.Copied)
+        {
+            return;
+        }
+
+        if (status.Status is not (OptionalAssetCopyStatus.Missing or OptionalAssetCopyStatus.Skipped or OptionalAssetCopyStatus.Error))
+        {
+            return;
+        }
+
         var warning = $"Optional {assetName} status: {status.Status} - {status.Detail}";
         if (warnings.Add(warning))
         {
