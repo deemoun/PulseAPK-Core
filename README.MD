@@ -102,7 +102,12 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
 - Use this screen to rebuild a decompiled project into a new APK.
 - Simple flow: select project folder -> choose output name/path -> click build (and enable signing if needed).
 
-### 3) Static analysis results
+### 3) Patching workflow
+![PulseAPK patching screen](images/patching.png)
+- Use this screen to automate APK patching actions, including Frida gadget injection.
+- Simple flow: load APK/project -> choose patching options -> run patch -> verify output.
+
+### 4) Static analysis results
 ![Apktool analysis output](images/pulse_apk_analysis.png)
 - This view shows security findings from Smali/static analysis.
 - Simple flow: decompile first -> open analysis tab/output -> review findings and export report.
