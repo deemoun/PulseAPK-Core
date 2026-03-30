@@ -408,6 +408,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 var abi = Path.GetFileName(abiPath);
                 if (!string.IsNullOrWhiteSpace(abi) &&
                     SupportedArchitectures.Contains(abi) &&
+                    AbiContainsNativeLibraries(abiPath) &&
                     !architectures.Contains(abi, StringComparer.OrdinalIgnoreCase))
                 {
                     architectures.Add(abi);
@@ -421,6 +422,24 @@ public sealed class PatchPipelineService : IPatchPipelineService
         }
 
         return architectures;
+    }
+
+    private static bool AbiContainsNativeLibraries(string abiPath)
+    {
+        try
+        {
+            return Directory
+                .EnumerateFiles(abiPath, "*.so", SearchOption.AllDirectories)
+                .Any();
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 
     private static string PublishArtifactWithRetry(string sourcePath, string outputPath)
