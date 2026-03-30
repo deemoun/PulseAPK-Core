@@ -221,7 +221,8 @@ public partial class DecompileViewModel : ObservableObject
 
         try
         {
-            var exitCode = await _apktoolRunner.RunDecompileAsync(ApkPath, normalizedOutputDir, DecodeResources, DecodeSources, KeepOriginalManifest, forceOverwrite);
+            var decompileResult = await _apktoolRunner.RunDecompileAsync(ApkPath, normalizedOutputDir, DecodeResources, DecodeSources, KeepOriginalManifest, forceOverwrite);
+            var exitCode = decompileResult.ExitCode;
 
             if (exitCode == 0)
             {

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Generic;
+using PulseAPK.Core.Models;
 
 namespace PulseAPK.Core.Services
 {
@@ -25,7 +26,7 @@ namespace PulseAPK.Core.Services
             _settingsService = settingsService;
         }
 
-        public async Task<int> RunDecompileAsync(string apkPath, string outputDir, bool decodeResources, bool decodeSources, bool keepOriginalManifest, bool forceOverwrite = false, CancellationToken cancellationToken = default)
+        public async Task<ApktoolRunResult> RunDecompileAsync(string apkPath, string outputDir, bool decodeResources, bool decodeSources, bool keepOriginalManifest, bool forceOverwrite = false, CancellationToken cancellationToken = default)
         {
             var sanitizedApkPath = SanitizePathArgument(apkPath);
             var sanitizedOutputDir = SanitizePathArgument(outputDir);
@@ -44,7 +45,7 @@ namespace PulseAPK.Core.Services
             return await RunProcessAsync(args, cancellationToken);
         }
 
-        public async Task<int> RunBuildAsync(string projectPath, string outputApk, bool useAapt2, CancellationToken cancellationToken = default)
+        public async Task<ApktoolRunResult> RunBuildAsync(string projectPath, string outputApk, bool useAapt2, CancellationToken cancellationToken = default)
         {
             var sanitizedProjectPath = SanitizePathArgument(projectPath);
             var sanitizedOutputApk = SanitizePathArgument(outputApk);
@@ -56,7 +57,7 @@ namespace PulseAPK.Core.Services
             return await RunProcessAsync(args, cancellationToken);
         }
 
-        private async Task<int> RunProcessAsync(IReadOnlyList<string> arguments, CancellationToken cancellationToken)
+        private async Task<ApktoolRunResult> RunProcessAsync(IReadOnlyList<string> arguments, CancellationToken cancellationToken)
         {
             var apktoolPath = SanitizePathArgument(_settingsService.Settings.ApktoolPath);
 
@@ -71,6 +72,9 @@ namespace PulseAPK.Core.Services
             }
 
             var startInfo = CreateStartInfo(apktoolPath, arguments);
+            var stdoutLines = new List<string>();
+            var stderrLines = new List<string>();
+            var lineSyncRoot = new object();
 
             using var process = new Process { StartInfo = startInfo };
 
@@ -78,6 +82,11 @@ namespace PulseAPK.Core.Services
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
+                    lock (lineSyncRoot)
+                    {
+                        stdoutLines.Add(e.Data);
+                    }
+
                     OutputDataReceived?.Invoke(e.Data);
                     Debug.WriteLine($"[INFO] {e.Data}");
                 }
@@ -87,6 +96,11 @@ namespace PulseAPK.Core.Services
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
+                    lock (lineSyncRoot)
+                    {
+                        stderrLines.Add(e.Data);
+                    }
+
                     OutputDataReceived?.Invoke(e.Data);
                     Debug.WriteLine($"[ERROR] {e.Data}");
                 }
@@ -98,7 +112,7 @@ namespace PulseAPK.Core.Services
 
             await process.WaitForExitAsync(cancellationToken);
 
-            return process.ExitCode;
+            return new ApktoolRunResult(process.ExitCode, stdoutLines.ToArray(), stderrLines.ToArray());
         }
 
         private static ProcessStartInfo CreateStartInfo(string apktoolPath, IReadOnlyList<string> arguments)

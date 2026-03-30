@@ -171,7 +171,8 @@ public partial class BuildViewModel : ObservableObject
 
         try
         {
-            var exitCode = await _apktoolRunner.RunBuildAsync(ProjectPath, OutputApkPath, UseAapt2);
+            var buildResult = await _apktoolRunner.RunBuildAsync(ProjectPath, OutputApkPath, UseAapt2);
+            var exitCode = buildResult.ExitCode;
 
             if (exitCode == 0)
             {
