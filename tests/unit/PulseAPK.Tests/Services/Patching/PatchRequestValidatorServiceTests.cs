@@ -50,7 +50,9 @@ public class PatchRequestValidatorServiceTests
         var inputApk = Path.Combine(root, "input.apk");
         var outputApk = Path.Combine(root, "output.apk");
         var configPath = Path.Combine(root, "frida-gadget.config");
+        var scriptPath = Path.Combine(root, "script.so");
         File.WriteAllText(inputApk, "apk");
+        File.WriteAllBytes(scriptPath, [0x7F, (byte)'E', (byte)'L', (byte)'F', 1, 1, 1, 1]);
         File.WriteAllText(configPath, """
 {
   "interaction": {
@@ -65,12 +67,47 @@ public class PatchRequestValidatorServiceTests
         {
             InputApkPath = inputApk,
             OutputApkPath = outputApk,
-            ConfigFilePath = configPath
+            ConfigFilePath = configPath,
+            ScriptFilePath = scriptPath
         };
 
         var errors = service.Validate(request);
 
         Assert.Contains(errors, static error => error.Contains("./libfrida-gadget.script.so", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Validate_AllowsAssetsInteractionPath_WhenSafeModeIsSelectedForNonElfScript()
+    {
+        var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        var inputApk = Path.Combine(root, "input.apk");
+        var outputApk = Path.Combine(root, "output.apk");
+        var configPath = Path.Combine(root, "frida-gadget.config");
+        var scriptPath = Path.Combine(root, "script.js");
+        File.WriteAllText(inputApk, "apk");
+        File.WriteAllText(scriptPath, "console.log('safe mode');");
+        File.WriteAllText(configPath, """
+{
+  "interaction": {
+    "type": "script",
+    "path": "./assets/frida/libfrida-gadget.script.so"
+  }
+}
+""");
+
+        var service = new PatchRequestValidatorService();
+        var request = new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            ConfigFilePath = configPath,
+            ScriptFilePath = scriptPath
+        };
+
+        var errors = service.Validate(request);
+
+        Assert.Empty(errors);
     }
 
     [Fact]

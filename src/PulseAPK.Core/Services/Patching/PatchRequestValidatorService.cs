@@ -6,8 +6,6 @@ namespace PulseAPK.Core.Services.Patching;
 
 public sealed class PatchRequestValidatorService
 {
-    private const string ExpectedGadgetScriptPath = "./libfrida-gadget.script.so";
-
     public IReadOnlyList<string> Validate(PatchRequest request)
     {
         var errors = new List<string>();
@@ -32,7 +30,8 @@ public sealed class PatchRequestValidatorService
         }
         else if (!string.IsNullOrWhiteSpace(request.ConfigFilePath))
         {
-            errors.AddRange(ValidateGadgetConfig(request.ConfigFilePath));
+            var validInteractionPaths = GadgetAssetPlacementStrategy.GetValidInteractionPaths(request);
+            errors.AddRange(ValidateGadgetConfig(request.ConfigFilePath, validInteractionPaths));
         }
 
         if (!string.IsNullOrWhiteSpace(request.ScriptFilePath) && !File.Exists(request.ScriptFilePath))
@@ -43,7 +42,7 @@ public sealed class PatchRequestValidatorService
         return errors;
     }
 
-    private static IEnumerable<string> ValidateGadgetConfig(string configPath)
+    private static IEnumerable<string> ValidateGadgetConfig(string configPath, IReadOnlyList<string> expectedInteractionPaths)
     {
         byte[] configBytes;
         try
@@ -78,14 +77,19 @@ public sealed class PatchRequestValidatorService
         {
             if (!document.RootElement.TryGetProperty("interaction", out var interaction))
             {
-                return [$"Config file '{configPath}' must contain interaction.path set to '{ExpectedGadgetScriptPath}'."];
+                return [$"Config file '{configPath}' must contain interaction.path set to one of: {string.Join(", ", expectedInteractionPaths.Select(p => $"'{p}'"))}."];
             }
 
             if (!interaction.TryGetProperty("path", out var pathElement) ||
-                pathElement.ValueKind != JsonValueKind.String ||
-                !string.Equals(pathElement.GetString(), ExpectedGadgetScriptPath, StringComparison.Ordinal))
+                pathElement.ValueKind != JsonValueKind.String)
             {
-                return [$"Config file '{configPath}' must set interaction.path to '{ExpectedGadgetScriptPath}'."];
+                return [$"Config file '{configPath}' must set interaction.path to one of: {string.Join(", ", expectedInteractionPaths.Select(p => $"'{p}'"))}."];
+            }
+
+            var configuredPath = pathElement.GetString();
+            if (!expectedInteractionPaths.Contains(configuredPath, StringComparer.Ordinal))
+            {
+                return [$"Config file '{configPath}' sets interaction.path='{configuredPath}', expected one of: {string.Join(", ", expectedInteractionPaths.Select(p => $"'{p}'"))}."];
             }
         }
 
