@@ -1,5 +1,7 @@
 using System.IO.Compression;
 using System.Text.RegularExpressions;
+using AlphaOmega.Debug;
+using AlphaOmega.Debug.Dex;
 using PulseAPK.Core.Abstractions.Patching;
 
 namespace PulseAPK.Core.Services.Patching;
@@ -91,6 +93,91 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
         return (false,
             $"Inspection failed for all {totalDexEntries} dex entries. " +
             $"Parse failures: {string.Join("; ", parseFailures)}");
+    }
+
+    public async Task<(bool Found, string Diagnostics)> ContainsStringMarkerAsync(string apkPath, string markerLiteral, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(apkPath) || !File.Exists(apkPath))
+        {
+            return (false, $"APK path is missing or file does not exist: '{apkPath}'.");
+        }
+
+        if (string.IsNullOrWhiteSpace(markerLiteral))
+        {
+            return (false, "Marker literal is required.");
+        }
+
+        using var stream = File.OpenRead(apkPath);
+        using var archive = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: false);
+
+        var dexEntries = archive.Entries
+            .Where(entry => entry.FullName.StartsWith("classes", StringComparison.OrdinalIgnoreCase) &&
+                            entry.FullName.EndsWith(".dex", StringComparison.OrdinalIgnoreCase));
+
+        var totalDexEntries = 0;
+        var successfulDexEntries = 0;
+        var parseFailures = new List<string>();
+        foreach (var dexEntry in dexEntries)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            totalDexEntries++;
+            await using var dexStream = dexEntry.Open();
+            using var buffer = new MemoryStream();
+            await dexStream.CopyToAsync(buffer, cancellationToken);
+
+            var dexData = buffer.ToArray();
+            try
+            {
+                var found = ContainsStringInDexStringPool(dexData, markerLiteral);
+                if (found)
+                {
+                    return (true, $"Marker literal '{markerLiteral}' found in '{dexEntry.FullName}' ({dexData.Length} bytes).");
+                }
+
+                successfulDexEntries++;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                parseFailures.Add($"warning '{dexEntry.FullName}': {ex.Message}");
+            }
+        }
+
+        if (totalDexEntries == 0)
+        {
+            return (false, "No classes*.dex entries were found in the APK.");
+        }
+
+        if (successfulDexEntries > 0)
+        {
+            if (parseFailures.Count == 0)
+            {
+                return (false, $"Marker literal '{markerLiteral}' not found in any of the {totalDexEntries} dex entries.");
+            }
+
+            return (false,
+                $"Marker literal '{markerLiteral}' not found in any of the {totalDexEntries} dex entries. " +
+                $"Non-fatal parse failures: {string.Join("; ", parseFailures)}");
+        }
+
+        return (false,
+            $"Marker inspection failed for all {totalDexEntries} dex entries. " +
+            $"Parse failures: {string.Join("; ", parseFailures)}");
+    }
+
+    private static bool ContainsStringInDexStringPool(byte[] dexData, string markerLiteral)
+    {
+        using var stream = new MemoryStream(dexData, writable: false);
+        using var streamLoader = new StreamLoader(stream);
+        using var dexFile = new DexFile(streamLoader);
+        var stringItems = dexFile.StringIdItems ?? throw new InvalidDataException("Dex string pool is missing.");
+        return stringItems.Any(item =>
+            item.StringData is not null &&
+            item.StringData.Contains(markerLiteral, StringComparison.Ordinal));
     }
 
     private static bool TryParseMethodReference(string methodReference, out string classDescriptor, out string methodName, out string signature)

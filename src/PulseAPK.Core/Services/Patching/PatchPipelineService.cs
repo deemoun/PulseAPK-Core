@@ -369,21 +369,26 @@ public sealed class PatchPipelineService : IPatchPipelineService
             else if (smaliInjectionApplied)
             {
                 var classDescriptor = ToClassDescriptor(activityName);
+                const string rootBypassMarkerLiteral = "/dev/pulseapk-fake-root-";
+                var isRootBypassVerification = request.ScriptInjectionProfile == ScriptInjectionProfile.RootCheckPathBypass;
                 var methodReference = request.ScriptInjectionProfile != ScriptInjectionProfile.SampleInjection && !activitySmaliPatchApplied
                     ? ResolveApplicationMethodReference(decompiledDirectory)
                     : request.ScriptInjectionProfile == ScriptInjectionProfile.SampleInjection
-                    ? "logSampleInjectionApplied"
-                    : request.ScriptInjectionProfile == ScriptInjectionProfile.RootCheckPathBypass
-                    ? $"{classDescriptor}->onCreate(Landroid/os/Bundle;)V"
-                    : request.UseDelayedLoad
-                        ? "loadFridaGadgetIfNeeded"
-                        : "loadFridaGadget";
+                        ? "logSampleInjectionApplied"
+                        : request.UseDelayedLoad
+                            ? "loadFridaGadgetIfNeeded"
+                            : "loadFridaGadget";
                 methodReference = methodReference.Contains("->", StringComparison.Ordinal)
                     ? methodReference
                     : $"{classDescriptor}->{methodReference}()V";
-                var inspection = await _finalDexInspectionService.ContainsMethodReferenceAsync(finalArtifactPath, methodReference, cancellationToken);
+
+                var verificationTarget = isRootBypassVerification ? rootBypassMarkerLiteral : methodReference;
+                var inspection = isRootBypassVerification
+                    ? await _finalDexInspectionService.ContainsStringMarkerAsync(finalArtifactPath, rootBypassMarkerLiteral, cancellationToken)
+                    : await _finalDexInspectionService.ContainsMethodReferenceAsync(finalArtifactPath, methodReference, cancellationToken);
                 var diagnosticSummary = SummarizeDexDiagnostics(inspection.Diagnostics);
-                result.Warnings.Add($"DEX verification target: '{methodReference}' in '{finalArtifactPath}'.");
+                var verificationTargetLabel = isRootBypassVerification ? "marker literal" : "method reference";
+                result.Warnings.Add($"DEX verification target ({verificationTargetLabel}): '{verificationTarget}' in '{finalArtifactPath}'.");
                 result.Warnings.Add(
                     $"DEX verification diagnostics: {inspection.Diagnostics} " +
                     $"(parsed dex entries: {diagnosticSummary.ParsedDexEntries}, failed dex entries: {diagnosticSummary.FailedDexEntries}).");
@@ -394,22 +399,24 @@ public sealed class PatchPipelineService : IPatchPipelineService
                     {
                         const string inconclusiveMessage = "Final DEX verification inconclusive due to dex parse errors.";
                         result.Errors.Add(
-                            $"{inconclusiveMessage} Unable to reliably verify '{methodReference}'. {inspection.Diagnostics}");
+                            $"{inconclusiveMessage} Unable to reliably verify '{verificationTarget}'. {inspection.Diagnostics}");
                         result.StageSummaries.Add(
                             new PatchStageSummary("dex-verification", false, $"{inconclusiveMessage} {inspection.Diagnostics}"));
                     }
-                    else if (diagnosticSummary.ParsedDexEntries > 0 && diagnosticSummary.TupleSearchCompleted)
+                    else if (diagnosticSummary.ParsedDexEntries > 0 && diagnosticSummary.SearchCompleted)
                     {
-                        const string guidance = "Smali helper missing in final dex artifact. Ensure smali mutation runs after any transform that regenerates classes.dex, or disable that transform for patched classes.";
-                        result.Errors.Add($"Final DEX verification failed: '{methodReference}' was not found. {inspection.Diagnostics} {guidance}");
-                    result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, $"{inspection.Diagnostics} {guidance}"));
-                }
-                else
-                {
-                    result.Errors.Add(
-                            $"Final DEX verification failed before tuple search completed for '{methodReference}'. {inspection.Diagnostics}");
+                        var guidance = isRootBypassVerification
+                            ? "Root check path marker missing in final dex artifact. Ensure root-path rewrite smali changes run after dex/regeneration transforms."
+                            : "Smali helper missing in final dex artifact. Ensure smali mutation runs after any transform that regenerates classes.dex, or disable that transform for patched classes.";
+                        result.Errors.Add($"Final DEX verification failed: '{verificationTarget}' was not found. {inspection.Diagnostics} {guidance}");
+                        result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, $"{inspection.Diagnostics} {guidance}"));
+                    }
+                    else
+                    {
+                        result.Errors.Add(
+                            $"Final DEX verification failed before search completed for '{verificationTarget}'. {inspection.Diagnostics}");
                         result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, inspection.Diagnostics));
-                }
+                    }
 
                     result.OutputApkPath = PublishArtifactWithRetry(finalArtifactPath, finalOutputPath);
                     result.SelectedArchitecture = architecture;
@@ -417,7 +424,10 @@ public sealed class PatchPipelineService : IPatchPipelineService
                     return result;
                 }
 
-                result.StageSummaries.Add(new PatchStageSummary("dex-verification", true, $"Confirmed '{methodReference}' in final APK dex. {inspection.Diagnostics}"));
+                var successMessage = isRootBypassVerification
+                    ? $"Confirmed marker literal '{verificationTarget}' in final APK dex. {inspection.Diagnostics}"
+                    : $"Confirmed '{verificationTarget}' in final APK dex. {inspection.Diagnostics}";
+                result.StageSummaries.Add(new PatchStageSummary("dex-verification", true, successMessage));
             }
 
             result.Success = true;
@@ -578,29 +588,48 @@ public sealed class PatchPipelineService : IPatchPipelineService
             return summary;
         }
 
-        var tupleSearchMatch = Regex.Match(diagnostics, @"Method tuple not found in any of the (\d+) dex entries\.", RegexOptions.CultureInvariant);
-        if (tupleSearchMatch.Success &&
-            int.TryParse(tupleSearchMatch.Groups[1].Value, out var tupleSearchTotalDexEntries))
+        var methodSearchMatch = Regex.Match(diagnostics, @"Method tuple not found in any of the (\d+) dex entries\.", RegexOptions.CultureInvariant);
+        if (methodSearchMatch.Success &&
+            int.TryParse(methodSearchMatch.Groups[1].Value, out var methodSearchTotalDexEntries))
         {
             var failedDexEntries = Regex.Matches(diagnostics, "warning '", RegexOptions.CultureInvariant).Count;
-            failedDexEntries = Math.Clamp(failedDexEntries, 0, tupleSearchTotalDexEntries);
+            failedDexEntries = Math.Clamp(failedDexEntries, 0, methodSearchTotalDexEntries);
             return new DexDiagnosticsSummary(
-                ParsedDexEntries: tupleSearchTotalDexEntries - failedDexEntries,
+                ParsedDexEntries: methodSearchTotalDexEntries - failedDexEntries,
                 FailedDexEntries: failedDexEntries,
-                TupleSearchCompleted: true);
+                SearchCompleted: true);
+        }
+
+        var markerSearchMatch = Regex.Match(diagnostics, @"Marker literal '.*' not found in any of the (\d+) dex entries\.", RegexOptions.CultureInvariant);
+        if (markerSearchMatch.Success &&
+            int.TryParse(markerSearchMatch.Groups[1].Value, out var markerSearchTotalDexEntries))
+        {
+            var failedDexEntries = Regex.Matches(diagnostics, "warning '", RegexOptions.CultureInvariant).Count;
+            failedDexEntries = Math.Clamp(failedDexEntries, 0, markerSearchTotalDexEntries);
+            return new DexDiagnosticsSummary(
+                ParsedDexEntries: markerSearchTotalDexEntries - failedDexEntries,
+                FailedDexEntries: failedDexEntries,
+                SearchCompleted: true);
         }
 
         var inspectionFailedMatch = Regex.Match(diagnostics, @"Inspection failed for all (\d+) dex entries\.", RegexOptions.CultureInvariant);
         if (inspectionFailedMatch.Success &&
             int.TryParse(inspectionFailedMatch.Groups[1].Value, out var failedAllDexEntries))
         {
-            return new DexDiagnosticsSummary(ParsedDexEntries: 0, FailedDexEntries: failedAllDexEntries, TupleSearchCompleted: false);
+            return new DexDiagnosticsSummary(ParsedDexEntries: 0, FailedDexEntries: failedAllDexEntries, SearchCompleted: false);
+        }
+
+        var markerInspectionFailedMatch = Regex.Match(diagnostics, @"Marker inspection failed for all (\d+) dex entries\.", RegexOptions.CultureInvariant);
+        if (markerInspectionFailedMatch.Success &&
+            int.TryParse(markerInspectionFailedMatch.Groups[1].Value, out var markerFailedAllDexEntries))
+        {
+            return new DexDiagnosticsSummary(ParsedDexEntries: 0, FailedDexEntries: markerFailedAllDexEntries, SearchCompleted: false);
         }
 
         return summary;
     }
 
-    private readonly record struct DexDiagnosticsSummary(int ParsedDexEntries = 0, int FailedDexEntries = 0, bool TupleSearchCompleted = false);
+    private readonly record struct DexDiagnosticsSummary(int ParsedDexEntries = 0, int FailedDexEntries = 0, bool SearchCompleted = false);
 
     private static bool IsRecoverableActivityPatchFailure(string? error)
         => !string.IsNullOrWhiteSpace(error) &&
