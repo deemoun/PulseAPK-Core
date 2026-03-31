@@ -144,6 +144,12 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
             }
             catch (Exception ex)
             {
+                if (ContainsStringInRawDexBytes(dexData, markerLiteral))
+                {
+                    return (true,
+                        $"Marker literal '{markerLiteral}' found in '{dexEntry.FullName}' ({dexData.Length} bytes) via raw byte scan fallback.");
+                }
+
                 parseFailures.Add($"warning '{dexEntry.FullName}': {ex.Message}");
             }
         }
@@ -181,6 +187,17 @@ public sealed class FinalDexInspectionService : IFinalDexInspectionService
         return stringItems.Any(item =>
             GetStringMember(item, "StringData", "Value", "Data", "Text") is { } stringData &&
             stringData.Contains(markerLiteral, StringComparison.Ordinal));
+    }
+
+    private static bool ContainsStringInRawDexBytes(byte[] dexData, string markerLiteral)
+    {
+        if (dexData.Length == 0 || string.IsNullOrEmpty(markerLiteral))
+        {
+            return false;
+        }
+
+        var markerBytes = System.Text.Encoding.UTF8.GetBytes(markerLiteral);
+        return markerBytes.Length > 0 && dexData.AsSpan().IndexOf(markerBytes) >= 0;
     }
 
     private static object[]? GetObjectArray(object source, string memberName)

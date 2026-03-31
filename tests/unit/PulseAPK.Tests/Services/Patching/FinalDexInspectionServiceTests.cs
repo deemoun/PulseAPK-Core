@@ -154,6 +154,22 @@ public sealed class FinalDexInspectionServiceTests
         Assert.Contains("warning 'classes2.dex'", diagnostics);
     }
 
+    [Fact]
+    public async Task ContainsStringMarkerAsync_ReturnsTrue_WhenParserFailsButRawDexContainsMarker()
+    {
+        var apkPath = CreateApkWithDexPayloads(new Dictionary<string, byte[]>
+        {
+            ["classes.dex"] = [0x00, 0x01, .. System.Text.Encoding.UTF8.GetBytes("/dev/pulseapk-fake-root-42"), 0x00]
+        });
+
+        var service = new FinalDexInspectionService(new FakeDexMethodLookupService(new Dictionary<string, LookupOutcome>()));
+
+        var (found, diagnostics) = await service.ContainsStringMarkerAsync(apkPath, "/dev/pulseapk-fake-root-");
+
+        Assert.True(found);
+        Assert.Contains("raw byte scan fallback", diagnostics);
+    }
+
     private static string CreateApkWithDexPayloads(IReadOnlyDictionary<string, byte[]> dexPayloads)
     {
         var apkPath = Path.Combine(Path.GetTempPath(), $"final-dex-inspection-{Guid.NewGuid():N}.apk");
