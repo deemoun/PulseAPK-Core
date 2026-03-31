@@ -561,6 +561,57 @@ public class PatchPipelineServiceTests
     }
 
     [Fact]
+    public async Task RunAsync_UsesRootMarkerForFinalDexVerification_WhenRootBypassProfileIsEnabled()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+        var fakeFinalDexInspectionService = new FakeFinalDexInspectionService();
+
+        var pipeline = CreatePipeline(fakeFinalDexInspectionService: fakeFinalDexInspectionService);
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            ScriptInjectionProfile = ScriptInjectionProfile.RootCheckPathBypass,
+            SignOutput = true
+        });
+
+        Assert.True(result.Success);
+        Assert.Null(fakeFinalDexInspectionService.LastMethodReference);
+        Assert.Equal("/dev/pulseapk-fake-root-", fakeFinalDexInspectionService.LastMarkerLiteral);
+        var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "dex-verification"));
+        Assert.Contains("marker literal", stage.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task RunAsync_UsesRootSpecificGuidance_WhenRootMarkerMissingAfterSearchCompletion()
+    {
+        var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
+        await File.WriteAllTextAsync(inputApk, "apk");
+        var outputApk = Path.Combine(Path.GetTempPath(), $"output-{Guid.NewGuid():N}.apk");
+        var diagnostics = "Marker literal '/dev/pulseapk-fake-root-' not found in any of the 2 dex entries.";
+        var pipeline = CreatePipeline(
+            fakeFinalDexInspectionService: new FakeFinalDexInspectionService(
+                containsMethodReference: true,
+                containsMarker: false,
+                markerDiagnostics: diagnostics));
+
+        var result = await pipeline.RunAsync(new PatchRequest
+        {
+            InputApkPath = inputApk,
+            OutputApkPath = outputApk,
+            ScriptInjectionProfile = ScriptInjectionProfile.RootCheckPathBypass
+        });
+
+        Assert.False(result.Success);
+        var error = Assert.Single(result.Errors);
+        Assert.Contains("Root check path marker missing", error, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Smali helper missing", error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task RunAsync_ReturnsInconclusiveVerification_WhenDexParsingFailsForSubsetOfEntries()
     {
         var inputApk = Path.Combine(Path.GetTempPath(), $"input-{Guid.NewGuid():N}.apk");
@@ -894,19 +945,34 @@ public class PatchPipelineServiceTests
     private sealed class FakeFinalDexInspectionService : IFinalDexInspectionService
     {
         private readonly bool _containsMethodReference;
-        private readonly string _diagnostics;
+        private readonly string _methodDiagnostics;
+        private readonly bool _containsMarker;
+        private readonly string _markerDiagnostics;
         public string? LastMethodReference { get; private set; }
+        public string? LastMarkerLiteral { get; private set; }
 
-        public FakeFinalDexInspectionService(bool containsMethodReference = true, string? diagnostics = null)
+        public FakeFinalDexInspectionService(
+            bool containsMethodReference = true,
+            string? diagnostics = null,
+            bool containsMarker = true,
+            string? markerDiagnostics = null)
         {
             _containsMethodReference = containsMethodReference;
-            _diagnostics = diagnostics ?? (_containsMethodReference ? "Found in fake dex." : "Missing in fake dex.");
+            _methodDiagnostics = diagnostics ?? (_containsMethodReference ? "Found in fake dex." : "Missing in fake dex.");
+            _containsMarker = containsMarker;
+            _markerDiagnostics = markerDiagnostics ?? (_containsMarker ? "Marker literal '/dev/pulseapk-fake-root-' found in fake dex." : "Marker literal '/dev/pulseapk-fake-root-' missing in fake dex.");
         }
 
         public Task<(bool Found, string Diagnostics)> ContainsMethodReferenceAsync(string apkPath, string methodReference, CancellationToken cancellationToken = default)
         {
             LastMethodReference = methodReference;
-            return Task.FromResult((_containsMethodReference, _diagnostics));
+            return Task.FromResult((_containsMethodReference, _methodDiagnostics));
+        }
+
+        public Task<(bool Found, string Diagnostics)> ContainsStringMarkerAsync(string apkPath, string markerLiteral, CancellationToken cancellationToken = default)
+        {
+            LastMarkerLiteral = markerLiteral;
+            return Task.FromResult((_containsMarker, _markerDiagnostics));
         }
     }
 }
