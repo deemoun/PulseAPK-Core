@@ -159,6 +159,38 @@ public sealed class PatchPipelineService : IPatchPipelineService
                     activitySmaliPatchApplied = true;
                 }
             }
+            else if (request.ScriptInjectionProfile == ScriptInjectionProfile.RootCheckPathBypass)
+            {
+                const string rootPathBypassMessage = "Root check path bypass profile selected; skipping Frida artifact resolution and gadget copy.";
+                result.Warnings.Add(rootPathBypassMessage);
+                result.StageSummaries.Add(new PatchStageSummary("root-check-bypass", true, rootPathBypassMessage));
+
+                if (!request.DecodeSources)
+                {
+                    const string rootBypassSmaliSkipMessage = "Root check path bypass skipped because source decoding is disabled.";
+                    result.Warnings.Add(rootBypassSmaliSkipMessage);
+                    result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, rootBypassSmaliSkipMessage));
+                }
+                else
+                {
+                    var smaliPatch = await _smaliPatchService.PatchAsync(
+                        decompiledDirectory,
+                        activityName,
+                        request.ScriptInjectionProfile,
+                        request.UseDelayedLoad,
+                        cancellationToken);
+                    if (!smaliPatch.Success)
+                    {
+                        result.Errors.Add(smaliPatch.Error ?? "Root check path bypass failed.");
+                        result.StageSummaries.Add(new PatchStageSummary("smali-patch", false, result.Errors.Last()));
+                        return result;
+                    }
+
+                    result.StageSummaries.Add(new PatchStageSummary("smali-patch", true, "Root check path bypass applied."));
+                    smaliInjectionApplied = true;
+                    activitySmaliPatchApplied = true;
+                }
+            }
             else
             {
                 var injectionArchitectures = ResolveInjectionArchitectures(decompiledDirectory, architecture, request.InjectForAllArchitectures);
@@ -341,6 +373,8 @@ public sealed class PatchPipelineService : IPatchPipelineService
                     ? ResolveApplicationMethodReference(decompiledDirectory)
                     : request.ScriptInjectionProfile == ScriptInjectionProfile.SampleInjection
                     ? "logSampleInjectionApplied"
+                    : request.ScriptInjectionProfile == ScriptInjectionProfile.RootCheckPathBypass
+                    ? $"{classDescriptor}->onCreate(Landroid/os/Bundle;)V"
                     : request.UseDelayedLoad
                         ? "loadFridaGadgetIfNeeded"
                         : "loadFridaGadget";

@@ -5,5 +5,6 @@ public enum ScriptInjectionProfile
     FridaGadget,
     FridaListener,
     InjectFridaGadgetOnly,
-    SampleInjection
+    SampleInjection,
+    RootCheckPathBypass
 }

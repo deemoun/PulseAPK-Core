@@ -60,6 +60,16 @@ public class PatchViewModelTests
     }
 
     [Fact]
+    public void ScriptInjectionOptions_IncludeRootCheckPathBypassProfile()
+    {
+        var viewModel = CreateViewModel();
+
+        Assert.Contains(viewModel.ScriptInjectionOptions, option =>
+            option.Profile == ScriptInjectionProfile.RootCheckPathBypass &&
+            option.Label == "Root check path bypass");
+    }
+
+    [Fact]
     public void MigrateFridaGadgetConfigIfNeeded_UpdatesLegacyInteractionPath_AndPreservesOtherKeys()
     {
         var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));

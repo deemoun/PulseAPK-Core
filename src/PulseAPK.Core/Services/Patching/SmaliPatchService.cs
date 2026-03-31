@@ -1,12 +1,17 @@
 using System.Text.RegularExpressions;
 using PulseAPK.Core.Abstractions.Patching;
 using PulseAPK.Core.Models;
+using PulseAPK.Core.Services;
 
 namespace PulseAPK.Core.Services.Patching;
 
 public sealed class SmaliPatchService : ISmaliPatchService
 {
     internal const string ActivityInjectionPointFailureWithApplicationPatchPrefix = "Application smali patch applied, but activity patch failed:";
+    private const string RootCategory = "root_check";
+    private static readonly Regex RootPathLiteralRegex = new(
+        "(?<quote>[\"'])(?<path>/(?:system|sbin|vendor|data|cache|product|odm)/[^\"']+)(?<endquote>[\"'])",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public Task<(bool Success, string? Error)> PatchAsync(
         string decompiledDirectory,
@@ -15,6 +20,11 @@ public sealed class SmaliPatchService : ISmaliPatchService
         bool useDelayedLoad,
         CancellationToken cancellationToken = default)
     {
+        if (profile == ScriptInjectionProfile.RootCheckPathBypass)
+        {
+            return PatchRootCheckPathsAsync(decompiledDirectory, cancellationToken);
+        }
+
         if (profile != ScriptInjectionProfile.SampleInjection)
         {
             var applicationPatch = PatchApplicationSmali(decompiledDirectory);
@@ -81,6 +91,101 @@ public sealed class SmaliPatchService : ISmaliPatchService
 
         File.WriteAllText(smaliFile, patched);
         return Task.FromResult<(bool Success, string? Error)>((true, null));
+    }
+
+    private static Task<(bool Success, string? Error)> PatchRootCheckPathsAsync(
+        string decompiledDirectory,
+        CancellationToken cancellationToken)
+    {
+        if (!Directory.Exists(decompiledDirectory))
+        {
+            return Task.FromResult<(bool Success, string? Error)>((false, $"Directory '{decompiledDirectory}' does not exist."));
+        }
+
+        var rootRulePatterns = LoadRootRulePatterns();
+        if (rootRulePatterns.Count == 0)
+        {
+            return Task.FromResult<(bool Success, string? Error)>((false, "No root_check rules were found in analysis rules."));
+        }
+
+        var smaliFiles = Directory
+            .EnumerateFiles(decompiledDirectory, "*.smali", SearchOption.AllDirectories)
+            .ToList();
+
+        foreach (var file in smaliFiles)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var original = File.ReadAllText(file);
+            var lines = original.Split(Environment.NewLine);
+            var changed = false;
+
+            for (var i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+                if (!line.Contains("const-string", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var matchedByRule = rootRulePatterns.Any(rule => rule.IsMatch(line));
+                if (!matchedByRule)
+                {
+                    continue;
+                }
+
+                var rewritten = RewriteRootCheckPathLiterals(line);
+                if (!string.Equals(rewritten, line, StringComparison.Ordinal))
+                {
+                    lines[i] = rewritten;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                File.WriteAllText(file, string.Join(Environment.NewLine, lines));
+            }
+        }
+
+        return Task.FromResult<(bool Success, string? Error)>((true, null));
+    }
+
+    private static List<Regex> LoadRootRulePatterns()
+    {
+        var rules = (AnalysisRuleSet)AnalysisRulesLoader.InitializeRules();
+        var rootRule = rules.Rules.FirstOrDefault(rule =>
+            string.Equals(rule.Category, RootCategory, StringComparison.OrdinalIgnoreCase));
+        if (rootRule is null)
+        {
+            return [];
+        }
+
+        var patterns = new List<Regex>();
+        foreach (var pattern in rootRule.RegexPatterns)
+        {
+            try
+            {
+                patterns.Add(new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase));
+            }
+            catch (ArgumentException)
+            {
+                // Ignore invalid user-defined regex entries.
+            }
+        }
+
+        return patterns;
+    }
+
+    private static string RewriteRootCheckPathLiterals(string line)
+    {
+        var replacementIndex = 0;
+        return RootPathLiteralRegex.Replace(line, match =>
+        {
+            var quote = match.Groups["quote"].Value;
+            var fakePath = $"/dev/pulseapk-fake-root-{replacementIndex++}";
+            return $"{quote}{fakePath}{quote}";
+        });
     }
 
     private static IReadOnlyList<string> BuildImmediateLoadHelperMethods()

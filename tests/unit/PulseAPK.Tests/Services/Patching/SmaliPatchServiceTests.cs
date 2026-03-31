@@ -664,4 +664,35 @@ public class SmaliPatchServiceTests
         Assert.Equal("Unable to find an injection point in activity smali file.", result.Error);
     }
 
+    [Fact]
+    public async Task PatchAsync_RootCheckPathBypass_RewritesMatchedRootPathsOnly()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"smali-patch-root-bypass-{Guid.NewGuid():N}");
+        var smaliPath = Path.Combine(root, "smali", "com", "example");
+        Directory.CreateDirectory(smaliPath);
+
+        var file = Path.Combine(smaliPath, "MainActivity.smali");
+        await File.WriteAllTextAsync(file, @".class public Lcom/example/MainActivity;
+.super Landroid/app/Activity;
+
+.method protected onCreate(Landroid/os/Bundle;)V
+    .locals 2
+    const-string v0, ""/system/xbin/su""
+    const-string v1, ""/data/local/tmp""
+    return-void
+.end method
+
+.end class");
+
+        var service = new SmaliPatchService();
+        var result = await service.PatchAsync(root, "com.example.MainActivity", ScriptInjectionProfile.RootCheckPathBypass, useDelayedLoad: false);
+        var output = await File.ReadAllTextAsync(file);
+
+        Assert.True(result.Success);
+        Assert.DoesNotContain("/system/xbin/su", output, StringComparison.Ordinal);
+        Assert.DoesNotContain("/data/local/tmp", output, StringComparison.Ordinal);
+        Assert.Contains("/dev/pulseapk-fake-root-0", output, StringComparison.Ordinal);
+        Assert.DoesNotContain("loadFridaGadget", output, StringComparison.Ordinal);
+    }
+
 }
