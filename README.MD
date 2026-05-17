@@ -1,11 +1,11 @@
 # PulseAPK
 
 <p align="center">
-  <a href="https://github.com/your-org/PulseAPK-Core/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/your-org/PulseAPK-Core?style=for-the-badge" /></a>
-  <a href="https://github.com/your-org/PulseAPK-Core/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/your-org/PulseAPK-Core?style=for-the-badge" /></a>
-  <a href="https://github.com/your-org/PulseAPK-Core/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/your-org/PulseAPK-Core?style=for-the-badge" /></a>
-  <a href="LICENSE.md"><img alt="License" src="https://img.shields.io/github/license/your-org/PulseAPK-Core?style=for-the-badge" /></a>
-  <a href="https://github.com/your-org/PulseAPK-Core/commits"><img alt="Last commit" src="https://img.shields.io/github/last-commit/your-org/PulseAPK-Core?style=for-the-badge" /></a>
+  <a href="https://github.com/deemoun/PulseAPK-Core/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/deemoun/PulseAPK-Core?style=for-the-badge" /></a>
+  <a href="https://github.com/deemoun/PulseAPK-Core/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/deemoun/PulseAPK-Core?style=for-the-badge" /></a>
+  <a href="https://github.com/deemoun/PulseAPK-Core/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/deemoun/PulseAPK-Core?style=for-the-badge" /></a>
+  <a href="LICENSE.md"><img alt="License" src="https://img.shields.io/github/license/deemoun/PulseAPK-Core?style=for-the-badge" /></a>
+  <a href="https://github.com/deemoun/PulseAPK-Core/commits"><img alt="Last commit" src="https://img.shields.io/github/last-commit/deemoun/PulseAPK-Core?style=for-the-badge" /></a>
 </p>
 <p align="center">
   🌍 <strong>Languages</strong><br>
