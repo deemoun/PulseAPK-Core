@@ -143,7 +143,7 @@ This project is open-source and available under the [Apache License 2.0](LICENSE
 
 If PulseAPK is useful for you, you can support its development by pressing the "Support" button at the top
 
-Starring the repository also helps a lot.
+Even a small tip helps a lot.
 
 ### Contributing
 
