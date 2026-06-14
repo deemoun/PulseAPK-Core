@@ -56,8 +56,17 @@
 
         <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="16">
             <StackPanel Spacing="8">
+                <TextBlock Text="SIGNING"
+                           Foreground="{DynamicResource CyberAccentBrush}"
+                           FontSize="11"
+                           FontWeight="SemiBold" />
                 <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchSignOutputApk]}"
                           IsChecked="{Binding SignApk}" />
+                <TextBlock Text="INJECTION"
+                           Foreground="{DynamicResource CyberHelperTextBrush}"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,0" />
                 <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchInjectForAllArchitectures]}"
                           IsChecked="{Binding InjectLibForAllArchitectures}" />
                 <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchSkipDexValidation]}"
@@ -101,6 +110,10 @@
                            IsVisible="{Binding IsSampleInjectionProfileSelected}" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="8">
+                <TextBlock Text="OUTPUT"
+                           Foreground="{DynamicResource CyberAccentBrush}"
+                           FontSize="11"
+                           FontWeight="SemiBold" />
                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchOutputLabel]}"
                            FontWeight="SemiBold" />
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">

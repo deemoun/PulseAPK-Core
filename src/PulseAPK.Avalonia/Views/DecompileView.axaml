@@ -54,6 +54,10 @@
 
         <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="16">
             <StackPanel Spacing="8">
+                <TextBlock Text="OPTIONS"
+                           Foreground="{DynamicResource CyberAccentBrush}"
+                           FontSize="11"
+                           FontWeight="SemiBold" />
                 <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DecodeResources]}"
                           IsChecked="{Binding DecodeResources}" />
                 <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DecodeSources]}"
@@ -64,6 +68,10 @@
                           IsChecked="{Binding ExtractToApkFolder}" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="8">
+                <TextBlock Text="OUTPUT"
+                           Foreground="{DynamicResource CyberAccentBrush}"
+                           FontSize="11"
+                           FontWeight="SemiBold" />
                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[OutputFolder]}"
                            FontWeight="SemiBold" />
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
