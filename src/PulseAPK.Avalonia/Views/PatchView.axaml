@@ -7,9 +7,14 @@
     <Grid RowDefinitions="Auto,Auto,Auto,*"
           RowSpacing="16"
           Margin="20">
-        <StackPanel Spacing="4">
+        <StackPanel Spacing="6">
             <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchHeader]}"
                        Classes="page-title" />
+            <Border Width="86"
+                    Height="3"
+                    HorizontalAlignment="Left"
+                    Background="{DynamicResource CyberAccentSecondaryBrush}"
+                    CornerRadius="2" />
             <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchBetaWarning]}"
                        Classes="helper-text" />
         </StackPanel>

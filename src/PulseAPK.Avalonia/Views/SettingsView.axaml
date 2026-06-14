@@ -6,8 +6,15 @@
              x:DataType="vm:SettingsViewModel">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Margin="20">
-            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SettingsHeader]}"
-                       Classes="page-title" />
+            <StackPanel Spacing="6">
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SettingsHeader]}"
+                           Classes="page-title" />
+                <Border Width="86"
+                        Height="3"
+                        HorizontalAlignment="Left"
+                        Background="{DynamicResource CyberAccentSecondaryBrush}"
+                        CornerRadius="2" />
+            </StackPanel>
 
             <Border Classes="card">
                 <StackPanel Spacing="12">
