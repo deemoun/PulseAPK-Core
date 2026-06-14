@@ -17,7 +17,7 @@
             <Setter Property="Foreground" Value="White" />
         </Style>
     </UserControl.Styles>
-    <Grid RowDefinitions="*,220" RowSpacing="16" Margin="20">
+    <Grid RowDefinitions="*,Auto" RowSpacing="16" Margin="20">
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="14">
                 <StackPanel Spacing="4">
@@ -225,23 +225,23 @@
                 BorderThickness="1"
                 CornerRadius="6"
                 Padding="12">
-            <Grid RowDefinitions="Auto,*" RowSpacing="8">
-                <Grid ColumnDefinitions="*,Auto">
-                    <TextBlock Text="Console log"
-                               FontWeight="SemiBold" />
-                    <Button Grid.Column="1"
-                            Content="Clear"
+            <Expander Header="Console log"
+                      IsExpanded="False">
+                <Grid RowDefinitions="Auto,*" RowSpacing="8" Margin="0,8,0,0">
+                    <Button Content="Clear"
                             Command="{Binding ClearConsoleCommand}"
-                            MinWidth="80" />
+                            MinWidth="80"
+                            HorizontalAlignment="Right" />
+                    <TextBox Grid.Row="1"
+                             Text="{Binding ConsoleLog}"
+                             IsReadOnly="True"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             MinHeight="160"
+                             MaxHeight="260" />
                 </Grid>
-                <TextBox Grid.Row="1"
-                         Text="{Binding ConsoleLog}"
-                         IsReadOnly="True"
-                         AcceptsReturn="True"
-                         TextWrapping="Wrap"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         VerticalAlignment="Stretch" />
-            </Grid>
+            </Expander>
         </Border>
     </Grid>
 </UserControl>
