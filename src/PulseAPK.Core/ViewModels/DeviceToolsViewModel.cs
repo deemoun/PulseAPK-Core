@@ -75,6 +75,8 @@ public partial class DeviceToolsViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasWorkingDevice))]
+    [NotifyPropertyChangedFor(nameof(CanShowNoDeviceHint))]
+    [NotifyPropertyChangedFor(nameof(CanShowPackageRequiredHint))]
     [NotifyCanExecuteChangedFor(nameof(InstallApkCommand))]
     [NotifyCanExecuteChangedFor(nameof(DetectPackageCommand))]
     [NotifyCanExecuteChangedFor(nameof(LaunchAppCommand))]
@@ -106,6 +108,7 @@ public partial class DeviceToolsViewModel : ObservableObject
     private string _selectedApkPath = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanShowPackageRequiredHint))]
     [NotifyCanExecuteChangedFor(nameof(LaunchAppCommand))]
     [NotifyCanExecuteChangedFor(nameof(LaunchActivityCommand))]
     [NotifyCanExecuteChangedFor(nameof(ForceStopCommand))]
@@ -140,6 +143,8 @@ public partial class DeviceToolsViewModel : ObservableObject
     private DeviceToolPreset? _selectedPreset;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanShowNoDeviceHint))]
+    [NotifyPropertyChangedFor(nameof(CanShowPackageRequiredHint))]
     [NotifyCanExecuteChangedFor(nameof(InstallApkCommand))]
     [NotifyCanExecuteChangedFor(nameof(DetectPackageCommand))]
     [NotifyCanExecuteChangedFor(nameof(LaunchAppCommand))]
@@ -206,6 +211,8 @@ public partial class DeviceToolsViewModel : ObservableObject
     public bool IsAppMaintenanceMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.AppMaintenance;
     public bool IsShellPresetsMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.ShellPresets;
     public bool HasWorkingDevice => SelectedDevice?.IsUsable == true;
+    public bool CanShowNoDeviceHint => !IsRunning && !HasWorkingDevice;
+    public bool CanShowPackageRequiredHint => !IsRunning && string.IsNullOrWhiteSpace(PackageName);
 
     public DeviceToolsViewModel(AdbService adbService, IFilePickerService filePickerService, IDialogService dialogService)
     {
