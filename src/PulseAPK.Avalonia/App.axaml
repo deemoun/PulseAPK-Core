@@ -106,9 +106,7 @@
 
         <Style Selector="TextBlock.helper-text">
             <Setter Property="Foreground" Value="{DynamicResource CyberHelperTextBrush}" />
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="FontWeight" Value="Medium" />
-            <Setter Property="Opacity" Value="1" />
+            <Setter Property="FontSize" Value="11" />
             <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
     </Application.Styles>
@@ -128,7 +126,7 @@
                     <SolidColorBrush x:Key="CyberConsoleForegroundBrush" Color="#39FF88" />
                     <SolidColorBrush x:Key="CyberAccentMutedBrush" Color="#102B3C" />
                     <SolidColorBrush x:Key="CyberAccentPressedBrush" Color="#2B1234" />
-                    <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#6EE7FF" />
+                    <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#8EA4C8" />
 
                     <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#0D1024" />
                     <SolidColorBrush x:Key="MainBackgroundBrush" Color="#090A18" />
@@ -148,7 +146,7 @@
                     <SolidColorBrush x:Key="CyberConsoleForegroundBrush" Color="#006E3A" />
                     <SolidColorBrush x:Key="CyberAccentMutedBrush" Color="#DDF8FF" />
                     <SolidColorBrush x:Key="CyberAccentPressedBrush" Color="#FCE0F6" />
-                    <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#005F70" />
+                    <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#52677A" />
 
                     <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#EEF4FF" />
                     <SolidColorBrush x:Key="MainBackgroundBrush" Color="#F7FAFF" />
