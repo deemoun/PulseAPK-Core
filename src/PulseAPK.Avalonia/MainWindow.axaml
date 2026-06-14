@@ -39,7 +39,10 @@
         <Style Selector="Button.nav-button.active">
             <Setter Property="Background" Value="{DynamicResource CyberSelectedBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberSelectedBorderBrush}" />
+            <Setter Property="BorderThickness" Value="8,2,2,2" />
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
 
         <Style Selector="TextBlock.nav-glyph">
