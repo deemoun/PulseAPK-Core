@@ -81,7 +81,8 @@
     <Grid ColumnDefinitions="240, *">
         <!-- Sidebar -->
         <Border Grid.Column="0" Background="{DynamicResource CyberSidebarBrush}" Padding="16">
-            <StackPanel Spacing="10">
+            <Grid RowDefinitions="Auto,*,Auto">
+            <StackPanel Grid.Row="0" Spacing="10">
                 <StackPanel Margin="0,0,0,8">
                     <TextBlock Text="PulseAPK"
                                FontSize="30"
@@ -166,6 +167,44 @@
                     </StackPanel>
                 </Button>
             </StackPanel>
+
+            <Border Grid.Row="2"
+                    IsVisible="{Binding IsSupportWorkVisible}"
+                    Background="#33141B2E"
+                    BorderBrush="{DynamicResource CyberAccentBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="10"
+                    Margin="0,16,0,0">
+                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
+                    <Button Grid.Row="0"
+                            Grid.Column="1"
+                            Command="{Binding DismissSupportWorkCommand}"
+                            Content="X"
+                            ToolTip.Tip="Close"
+                            Width="28"
+                            Height="28"
+                            Padding="0"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Background="Transparent"
+                            BorderBrush="{DynamicResource CyberAccentBrush}"
+                            Foreground="{DynamicResource CyberAccentBrush}"/>
+                    <Button Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            Command="{Binding OpenSupportWorkCommand}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Margin="0,8,0,0"
+                            Padding="10,8"
+                            Background="{DynamicResource CyberAccentMutedBrush}"
+                            BorderBrush="{DynamicResource CyberAccentSecondaryBrush}"
+                            Foreground="{DynamicResource CyberAccentSecondaryBrush}">
+                        <TextBlock Text="Support Work" FontWeight="SemiBold"/>
+                    </Button>
+                </Grid>
+            </Border>
+            </Grid>
         </Border>
 
         <!-- Content -->
