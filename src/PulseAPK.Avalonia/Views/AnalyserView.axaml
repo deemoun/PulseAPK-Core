@@ -52,10 +52,24 @@
 
         <Border Grid.Row="2"
                 Classes="console-card">
-            <Grid RowDefinitions="Auto,*" RowSpacing="8">
-                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}"
-                           FontWeight="SemiBold" />
-                <TextBox Grid.Row="1"
+            <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                    <Border Classes="console-header-dot"
+                            VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}"
+                               Classes="console-title"
+                               VerticalAlignment="Center" />
+                    <Border Grid.Column="2"
+                            Classes="live-log-pill"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="LIVE LOG"
+                                   Classes="live-log-pill-text" />
+                    </Border>
+                </Grid>
+                <Border Grid.Row="1"
+                        Classes="console-divider" />
+                <TextBox Grid.Row="2"
                          Text="{Binding ConsoleLog}"
                          IsReadOnly="True"
                          AcceptsReturn="True"

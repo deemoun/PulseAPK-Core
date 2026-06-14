@@ -372,25 +372,36 @@
 
         <Border Grid.Row="1"
                 Classes="console-card">
-            <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
-                    <TextBlock Text="TERMINAL OUTPUT"
+            <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="8">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                    <Border Classes="console-header-dot"
+                            VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Text="TERMINAL OUTPUT"
                                FontFamily="Consolas, Menlo, monospace"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource CyberAccentBrush}"
+                               Classes="console-title"
                                VerticalAlignment="Center" />
-                    <Button Grid.Column="1"
+                    <Border Grid.Column="2"
+                            Classes="live-log-pill"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="LIVE LOG"
+                                   Classes="live-log-pill-text" />
+                    </Border>
+                    <Button Grid.Column="3"
                             Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClear]}"
                             Command="{Binding ClearConsoleCommand}"
                             MinWidth="80"
                             HorizontalAlignment="Right" />
                 </Grid>
 
-                <TextBlock Grid.Row="1"
+                <Border Grid.Row="1"
+                        Classes="console-divider" />
+
+                <TextBlock Grid.Row="2"
                            Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommandOutputHelp]}"
                            Classes="helper-text" />
 
-                <TextBox Grid.Row="2"
+                <TextBox Grid.Row="3"
                          Text="{Binding ConsoleLog}"
                          IsReadOnly="True"
                          AcceptsReturn="True"
