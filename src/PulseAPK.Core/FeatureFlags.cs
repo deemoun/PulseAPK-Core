@@ -7,11 +7,11 @@ namespace PulseAPK.Core;
 /// </summary>
 public static class FeatureFlags
 {
-    public const bool Decompile = true;
-    public const bool BuildApk = true;
-    public const bool PatchApk = true;
-    public const bool ApkAnalyser = true;
-    public const bool DeviceTools = true;
-    public const bool Settings = true;
-    public const bool About = true;
+    public static readonly bool Decompile = true;
+    public static readonly bool BuildApk = true;
+    public static readonly bool PatchApk = true;
+    public static readonly bool ApkAnalyser = true;
+    public static readonly bool DeviceTools = true;
+    public static readonly bool Settings = true;
+    public static readonly bool About = true;
 }

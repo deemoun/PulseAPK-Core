@@ -15,7 +15,8 @@
   <ItemGroup>
     <PackageReference Include="AlphaOmega.ApkReader" Version="2.0.10" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="SharpCompress" Version="0.38.0" />
+    <!-- SharpCompress is used only for XZ decompression; GHSA-6c8g-7p36-r338 affects archive WriteToDirectory extraction and has no patched package version yet. -->
+    <PackageReference Include="SharpCompress" Version="0.38.0" NoWarn="NU1902" />
   </ItemGroup>
 
   <ItemGroup>
