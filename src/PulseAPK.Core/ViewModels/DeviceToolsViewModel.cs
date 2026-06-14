@@ -17,7 +17,24 @@ public enum DeviceToolMode
 }
 
 public sealed record DeviceToolModeOption(DeviceToolMode Mode, string DisplayName);
-public sealed record ShellPresetOption(string DisplayName, string CommandText);
+
+public enum DeviceToolPresetKind
+{
+    Model,
+    AndroidRelease,
+    Sdk,
+    CpuAbi,
+    ListPackages,
+    ThirdPartyPackages,
+    SearchPackage,
+    AppPath,
+    CurrentActivity,
+    Reboot,
+    AdbRoot,
+    AdbRemount
+}
+
+public sealed record DeviceToolPreset(string DisplayName, DeviceToolPresetKind Kind);
 
 public partial class DeviceToolsViewModel : ObservableObject
 {
@@ -56,6 +73,7 @@ public partial class DeviceToolsViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(RunRebootPresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbRootPresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbRemountPresetCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RunSelectedPresetCommand))]
     private AdbDevice? _selectedDevice;
 
     [ObservableProperty]
@@ -71,6 +89,7 @@ public partial class DeviceToolsViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(UninstallCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunSearchPackagePresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAppPathPresetCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RunSelectedPresetCommand))]
     private string _packageName = string.Empty;
 
     [ObservableProperty]
@@ -93,7 +112,8 @@ public partial class DeviceToolsViewModel : ObservableObject
     private DeviceToolModeOption? _selectedDeviceToolMode;
 
     [ObservableProperty]
-    private ShellPresetOption? _selectedShellPreset;
+    [NotifyCanExecuteChangedFor(nameof(RunSelectedPresetCommand))]
+    private DeviceToolPreset? _selectedPreset;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(InstallApkCommand))]
@@ -118,10 +138,26 @@ public partial class DeviceToolsViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(RunRebootPresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbRootPresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbRemountPresetCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RunSelectedPresetCommand))]
     private bool _isRunning;
 
     public ObservableCollection<AdbDevice> Devices { get; } = [];
     public ObservableCollection<string> Activities { get; } = [];
+    public ObservableCollection<DeviceToolPreset> Presets { get; } =
+    [
+        new("Model", DeviceToolPresetKind.Model),
+        new("Android Release", DeviceToolPresetKind.AndroidRelease),
+        new("SDK", DeviceToolPresetKind.Sdk),
+        new("CPU ABI", DeviceToolPresetKind.CpuAbi),
+        new("List Packages", DeviceToolPresetKind.ListPackages),
+        new("Third-Party Packages", DeviceToolPresetKind.ThirdPartyPackages),
+        new("Search Package", DeviceToolPresetKind.SearchPackage),
+        new("App Path", DeviceToolPresetKind.AppPath),
+        new("Current Activity", DeviceToolPresetKind.CurrentActivity),
+        new("Reboot", DeviceToolPresetKind.Reboot),
+        new("ADB Root", DeviceToolPresetKind.AdbRoot),
+        new("ADB Remount", DeviceToolPresetKind.AdbRemount)
+    ];
     public IReadOnlyList<DeviceToolModeOption> DeviceToolModes { get; } =
     [
         new(DeviceToolMode.InstallApk, "Install APK"),
@@ -129,20 +165,6 @@ public partial class DeviceToolsViewModel : ObservableObject
         new(DeviceToolMode.AppMaintenance, "Manage App"),
         new(DeviceToolMode.ShellPresets, "Shell")
     ];
-    public IReadOnlyList<ShellPresetOption> ShellPresets { get; } =
-    [
-        new("Model", "getprop ro.product.model"),
-        new("Android Release", "getprop ro.build.version.release"),
-        new("SDK", "getprop ro.build.version.sdk"),
-        new("CPU ABI", "getprop ro.product.cpu.abi"),
-        new("List Packages", "pm list packages"),
-        new("Third-Party Packages", "pm list packages -3"),
-        new("Current Activity", "dumpsys window | grep -E \"mCurrentFocus|mFocusedApp\""),
-        new("Reboot", "reboot"),
-        new("ADB Root", "root"),
-        new("ADB Remount", "remount")
-    ];
-
     public string AdbStatus => IsAdbFound ? "ADB: found" : "ADB: not found";
     public bool IsInstallApkMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.InstallApk;
     public bool IsLaunchAppMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.LaunchApp;
@@ -155,15 +177,7 @@ public partial class DeviceToolsViewModel : ObservableObject
         _adbService = adbService;
         _filePickerService = filePickerService;
         _selectedDeviceToolMode = DeviceToolModes[0];
-        _selectedShellPreset = ShellPresets[0];
-    }
-
-    partial void OnSelectedShellPresetChanged(ShellPresetOption? value)
-    {
-        if (value is not null)
-        {
-            CommandText = value.CommandText;
-        }
+        _selectedPreset = Presets[0];
     }
 
     [RelayCommand(AllowConcurrentExecutions = true)]
@@ -372,6 +386,56 @@ public partial class DeviceToolsViewModel : ObservableObject
         await RunPackageActionAsync(userArgs);
     }
 
+    [RelayCommand(CanExecute = nameof(CanRunSelectedPreset))]
+    private async Task RunSelectedPreset()
+    {
+        if (SelectedPreset is null)
+        {
+            AppendLog("Select a preset first.");
+            return;
+        }
+
+        switch (SelectedPreset.Kind)
+        {
+            case DeviceToolPresetKind.Model:
+                await RunModelPreset();
+                break;
+            case DeviceToolPresetKind.AndroidRelease:
+                await RunAndroidReleasePreset();
+                break;
+            case DeviceToolPresetKind.Sdk:
+                await RunSdkPreset();
+                break;
+            case DeviceToolPresetKind.CpuAbi:
+                await RunCpuAbiPreset();
+                break;
+            case DeviceToolPresetKind.ListPackages:
+                await RunListPackagesPreset();
+                break;
+            case DeviceToolPresetKind.ThirdPartyPackages:
+                await RunThirdPartyPackagesPreset();
+                break;
+            case DeviceToolPresetKind.SearchPackage:
+                await RunSearchPackagePreset();
+                break;
+            case DeviceToolPresetKind.AppPath:
+                await RunAppPathPreset();
+                break;
+            case DeviceToolPresetKind.CurrentActivity:
+                await RunCurrentActivityPreset();
+                break;
+            case DeviceToolPresetKind.Reboot:
+                await RunRebootPreset();
+                break;
+            case DeviceToolPresetKind.AdbRoot:
+                await RunAdbRootPreset();
+                break;
+            case DeviceToolPresetKind.AdbRemount:
+                await RunAdbRemountPreset();
+                break;
+        }
+    }
+
     [RelayCommand(CanExecute = nameof(CanRunDeviceAction))]
     private async Task RunModelPreset() => await RunPackageActionAsync(["shell", "getprop", "ro.product.model"]);
 
@@ -566,4 +630,14 @@ public partial class DeviceToolsViewModel : ObservableObject
     private bool CanRunPackageAction() => CanRunDeviceAction() && !string.IsNullOrWhiteSpace(PackageName);
     private bool CanLaunchActivity() => CanRunPackageAction() && !string.IsNullOrWhiteSpace(Activity);
     private bool CanRunUserCommand() => CanRunDeviceAction() && !string.IsNullOrWhiteSpace(CommandText);
+    private bool CanRunSelectedPreset()
+    {
+        if (SelectedPreset is null || !CanRunDeviceAction())
+        {
+            return false;
+        }
+
+        return SelectedPreset.Kind is not DeviceToolPresetKind.SearchPackage and not DeviceToolPresetKind.AppPath
+            || !string.IsNullOrWhiteSpace(PackageName);
+    }
 }
