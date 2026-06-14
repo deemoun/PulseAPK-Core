@@ -33,7 +33,7 @@
             <Setter Property="Background" Value="{DynamicResource CyberDisabledButtonBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberDisabledButtonBorderBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource CyberDisabledButtonForegroundBrush}" />
-            <Setter Property="Opacity" Value="0.78" />
+            <Setter Property="Opacity" Value="1" />
         </Style>
 
         <Style Selector="TextBox">
@@ -137,9 +137,9 @@
                     <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#3A0B4D" />
                     <SolidColorBrush x:Key="CyberSelectedBrush" Color="#3A0B4D" />
                     <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#FF2BD6" />
-                    <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#1B2142" />
-                    <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#284B6F" />
-                    <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#7387A8" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#071B2A" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#0E6A82" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#4FD8EA" />
                     <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#8EA4C8" />
 
                     <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#0D1024" />
@@ -163,9 +163,9 @@
                     <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#FFD7F7" />
                     <SolidColorBrush x:Key="CyberSelectedBrush" Color="#FFD7F7" />
                     <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#B0007C" />
-                    <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#E5F6FF" />
-                    <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#86CCE5" />
-                    <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#4E7A8C" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#E8FAFF" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#58BCD1" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#007C91" />
                     <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#52677A" />
 
                     <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#EEF4FF" />
