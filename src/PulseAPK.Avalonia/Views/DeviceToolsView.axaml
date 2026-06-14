@@ -17,22 +17,22 @@
             <Setter Property="Background" Value="#8C1D18" />
             <Setter Property="Foreground" Value="White" />
         </Style>
-        <Style Selector="Border.adb-status-pill">
+        <Style Selector="Border.connection-status-pill">
             <Setter Property="Background" Value="#ECEFF1" />
             <Setter Property="BorderBrush" Value="#B0BEC5" />
         </Style>
-        <Style Selector="Border.adb-status-pill.found">
-            <Setter Property="Background" Value="#0284C7" />
-            <Setter Property="BorderBrush" Value="#7DD3FC" />
+        <Style Selector="Border.connection-status-pill.online">
+            <Setter Property="Background" Value="#15803D" />
+            <Setter Property="BorderBrush" Value="#86EFAC" />
         </Style>
-        <Style Selector="Border.adb-status-pill.found TextBlock">
-            <Setter Property="Foreground" Value="#E0F7FF" />
+        <Style Selector="Border.connection-status-pill.online TextBlock">
+            <Setter Property="Foreground" Value="#ECFDF5" />
         </Style>
-        <Style Selector="Border.adb-status-pill.missing">
+        <Style Selector="Border.connection-status-pill.offline">
             <Setter Property="Background" Value="#B91C1C" />
             <Setter Property="BorderBrush" Value="#FCA5A5" />
         </Style>
-        <Style Selector="Border.adb-status-pill.missing TextBlock">
+        <Style Selector="Border.connection-status-pill.offline TextBlock">
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
     </UserControl.Styles>
@@ -58,9 +58,9 @@
                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnection]}"
                                            FontWeight="SemiBold" />
                                 <WrapPanel>
-                                    <Border Classes="adb-status-pill"
-                                            Classes.found="{Binding IsAdbFound}"
-                                            Classes.missing="{Binding IsAdbMissing}"
+                                    <Border Classes="connection-status-pill"
+                                            Classes.online="{Binding IsAdbFound}"
+                                            Classes.offline="{Binding IsAdbMissing}"
                                             BorderThickness="1"
                                             CornerRadius="12"
                                             Padding="10,4"
@@ -125,17 +125,32 @@
                         CornerRadius="6"
                         Padding="12">
                     <StackPanel Spacing="10">
-                        <StackPanel Spacing="10"
-                                    IsEnabled="{Binding HasWorkingDevice}">
+                        <StackPanel Spacing="10">
                             <StackPanel Spacing="4">
-                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsChooseWorkflow]}"
-                                           FontWeight="SemiBold" />
+                                <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsChooseWorkflow]}"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center" />
+                                    <Border Grid.Column="1"
+                                            Classes="connection-status-pill"
+                                            Classes.online="{Binding IsDeviceOnline}"
+                                            Classes.offline="{Binding IsDeviceOffline}"
+                                            BorderThickness="1"
+                                            CornerRadius="12"
+                                            Padding="10,4"
+                                            VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DeviceConnectionStatus}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="12" />
+                                    </Border>
+                                </Grid>
                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsWorkflowHelp]}"
                                            Opacity="0.75" />
                             </StackPanel>
 
                             <ListBox ItemsSource="{Binding DeviceToolModes}"
                                      SelectedItem="{Binding SelectedDeviceToolMode}"
+                                     IsEnabled="{Binding HasWorkingDevice}"
                                      HorizontalAlignment="Left">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
