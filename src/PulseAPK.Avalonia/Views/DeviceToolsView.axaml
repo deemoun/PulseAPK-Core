@@ -33,34 +33,47 @@
                         BorderThickness="1"
                         CornerRadius="6"
                         Padding="10">
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                        <Border Background="{DynamicResource MainBackgroundBrush}"
-                                BorderBrush="{DynamicResource ConsoleBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="12"
-                                Padding="10,4"
-                                VerticalAlignment="Center"
-                                ToolTip.Tip="{Binding DetectedAdbPath}">
-                            <TextBlock Text="{Binding AdbStatus}"
-                                       FontWeight="SemiBold" />
-                        </Border>
+                    <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Border Background="{DynamicResource MainBackgroundBrush}"
+                                    BorderBrush="{DynamicResource ConsoleBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="10,4"
+                                    VerticalAlignment="Center"
+                                    ToolTip.Tip="{Binding DetectedAdbPath}">
+                                <TextBlock Text="{Binding AdbStatus}"
+                                           FontWeight="SemiBold" />
+                            </Border>
 
-                        <ComboBox Grid.Column="1"
-                                  ItemsSource="{Binding Devices}"
-                                  SelectedItem="{Binding SelectedDevice}"
-                                  Watermark="Select device"
-                                  HorizontalAlignment="Stretch">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding DisplayName}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                            <Expander Grid.Column="1"
+                                      Header="Details"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Center">
+                                <TextBox Text="{Binding DetectedAdbPath}"
+                                         IsReadOnly="True"
+                                         MinWidth="360"
+                                         Margin="0,6,0,0" />
+                            </Expander>
+                        </Grid>
 
-                        <Button Grid.Column="2"
-                                Content="Refresh"
-                                Command="{Binding RefreshDevicesCommand}"
-                                MinWidth="100" />
+                        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <ComboBox ItemsSource="{Binding Devices}"
+                                      SelectedItem="{Binding SelectedDevice}"
+                                      Watermark="Select device"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <Button Grid.Column="1"
+                                    Content="Refresh Devices"
+                                    Command="{Binding RefreshDevicesCommand}"
+                                    MinWidth="120" />
+                        </Grid>
                     </Grid>
                 </Border>
 
