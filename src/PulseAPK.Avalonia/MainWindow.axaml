@@ -48,24 +48,31 @@
                            Margin="0,0,0,20"/>
                 
                 <Button Command="{Binding NavigateToDecompileCommand}"
+                        IsVisible="{Binding IsDecompileEnabled}"
                         Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuDecompile]}"
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToBuildCommand}"
+                        IsVisible="{Binding IsBuildEnabled}"
                         Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuBuild]}"
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToPatchCommand}"
+                        IsVisible="{Binding IsPatchEnabled}"
                         Content="{Binding MenuPatchLabel}"
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToAnalyserCommand}"
+                        IsVisible="{Binding IsAnalyserEnabled}"
                         Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAnalyser]}"
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToDeviceToolsCommand}"
+                        IsVisible="{Binding IsDeviceToolsEnabled}"
                         Content="{Binding MenuDeviceToolsLabel}"
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToSettingsCommand}"
+                        IsVisible="{Binding IsSettingsEnabled}"
                         Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuSettings]}"
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToAboutCommand}"
+                        IsVisible="{Binding IsAboutEnabled}"
                         Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAbout]}"
                         HorizontalAlignment="Stretch"/>
             </StackPanel>

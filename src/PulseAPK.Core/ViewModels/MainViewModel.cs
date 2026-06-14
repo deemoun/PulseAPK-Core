@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.ComponentModel;
 using PulseAPK.Core.Abstractions;
+using PulseAPK.Core;
 using PulseAPK.Core.Services;
 using Properties = PulseAPK.Core.Properties;
 
@@ -29,63 +30,122 @@ public partial class MainViewModel : ObservableObject
     public string MenuSettingsLabel => _localizationService["MenuSettings"];
     public string MenuAboutLabel => _localizationService["MenuAbout"];
 
+    public bool IsDecompileEnabled => FeatureFlags.Decompile;
+    public bool IsBuildEnabled => FeatureFlags.BuildApk;
+    public bool IsPatchEnabled => FeatureFlags.PatchApk;
+    public bool IsAnalyserEnabled => FeatureFlags.ApkAnalyser;
+    public bool IsDeviceToolsEnabled => FeatureFlags.DeviceTools;
+    public bool IsSettingsEnabled => FeatureFlags.Settings;
+    public bool IsAboutEnabled => FeatureFlags.About;
+
     public MainViewModel(IServiceProvider serviceProvider, LocalizationService localizationService)
     {
         _serviceProvider = serviceProvider;
         _localizationService = localizationService;
         WindowTitle = _localizationService["AppTitle"];
         _localizationService.PropertyChanged += HandleLocalizationChanged;
-        // Initial view
-        SetCurrentView(Resolve<DecompileViewModel>());
+        SetInitialView();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanNavigateToDecompile))]
     private void NavigateToDecompile()
     {
+        if (!CanNavigateToDecompile()) return;
         SetCurrentView(Resolve<DecompileViewModel>());
         SelectedMenu = "Decompile";
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanNavigateToSettings))]
     private void NavigateToSettings()
     {
+        if (!CanNavigateToSettings()) return;
         SetCurrentView(Resolve<SettingsViewModel>());
         SelectedMenu = "Settings";
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanNavigateToBuild))]
     private void NavigateToBuild()
     {
+        if (!CanNavigateToBuild()) return;
         SetCurrentView(Resolve<BuildViewModel>());
         SelectedMenu = "Build";
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanNavigateToPatch))]
     private void NavigateToPatch()
     {
+        if (!CanNavigateToPatch()) return;
         SetCurrentView(Resolve<PatchViewModel>());
         SelectedMenu = "Patch";
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanNavigateToAnalyser))]
     private void NavigateToAnalyser()
     {
+        if (!CanNavigateToAnalyser()) return;
         SetCurrentView(Resolve<AnalyserViewModel>());
         SelectedMenu = "Analyser";
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanNavigateToDeviceTools))]
     private void NavigateToDeviceTools()
     {
+        if (!CanNavigateToDeviceTools()) return;
         SetCurrentView(Resolve<DeviceToolsViewModel>());
         SelectedMenu = "DeviceTools";
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanNavigateToAbout))]
     private void NavigateToAbout()
     {
+        if (!CanNavigateToAbout()) return;
         SetCurrentView(Resolve<AboutViewModel>());
         SelectedMenu = "About";
+    }
+
+    private static bool CanNavigateToDecompile() => FeatureFlags.Decompile;
+    private static bool CanNavigateToBuild() => FeatureFlags.BuildApk;
+    private static bool CanNavigateToPatch() => FeatureFlags.PatchApk;
+    private static bool CanNavigateToAnalyser() => FeatureFlags.ApkAnalyser;
+    private static bool CanNavigateToDeviceTools() => FeatureFlags.DeviceTools;
+    private static bool CanNavigateToSettings() => FeatureFlags.Settings;
+    private static bool CanNavigateToAbout() => FeatureFlags.About;
+
+    private void SetInitialView()
+    {
+        if (FeatureFlags.Decompile)
+        {
+            NavigateToDecompile();
+        }
+        else if (FeatureFlags.BuildApk)
+        {
+            NavigateToBuild();
+        }
+        else if (FeatureFlags.PatchApk)
+        {
+            NavigateToPatch();
+        }
+        else if (FeatureFlags.ApkAnalyser)
+        {
+            NavigateToAnalyser();
+        }
+        else if (FeatureFlags.DeviceTools)
+        {
+            NavigateToDeviceTools();
+        }
+        else if (FeatureFlags.Settings)
+        {
+            NavigateToSettings();
+        }
+        else if (FeatureFlags.About)
+        {
+            NavigateToAbout();
+        }
+        else
+        {
+            CurrentView = "No features are enabled.";
+            SelectedMenu = string.Empty;
+        }
     }
 
     private void SetCurrentView(object nextView)
