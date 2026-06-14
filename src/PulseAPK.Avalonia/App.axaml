@@ -95,8 +95,9 @@
 
         <Style Selector="Border.card">
             <Setter Property="Background" Value="{DynamicResource CyberCardBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
             <Setter Property="BorderThickness" Value="1.25" />
+            <Setter Property="BoxShadow" Value="{DynamicResource CyberCardBoxShadow}" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="Padding" Value="20" />
         </Style>
@@ -108,7 +109,8 @@
         <Style Selector="Border.console-card">
             <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
-            <Setter Property="BorderThickness" Value="1.25" />
+            <Setter Property="BorderThickness" Value="1.5,2,1.5,1.5" />
+            <Setter Property="BoxShadow" Value="{DynamicResource CyberConsoleCardBoxShadow}" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="Padding" Value="16" />
         </Style>
@@ -151,8 +153,9 @@
 
         <Style Selector="Border.neon-pill">
             <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="1.25" />
+            <Setter Property="BoxShadow" Value="{DynamicResource CyberNeonPillBoxShadow}" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="Padding" Value="14,6" />
         </Style>
@@ -192,6 +195,9 @@
                     <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#0E6A82" />
                     <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#4FD8EA" />
                     <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#8EA4C8" />
+                    <BoxShadows x:Key="CyberCardBoxShadow">0 10 28 0 #6600E5FF</BoxShadows>
+                    <BoxShadows x:Key="CyberConsoleCardBoxShadow">0 12 32 0 #8000E5FF</BoxShadows>
+                    <BoxShadows x:Key="CyberNeonPillBoxShadow">0 0 18 0 #66FF2BD6</BoxShadows>
 
                     <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#0D1024" />
                     <SolidColorBrush x:Key="MainBackgroundBrush" Color="#090A18" />
@@ -218,6 +224,9 @@
                     <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#58BCD1" />
                     <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#007C91" />
                     <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#52677A" />
+                    <BoxShadows x:Key="CyberCardBoxShadow">0 8 22 0 #33007C91</BoxShadows>
+                    <BoxShadows x:Key="CyberConsoleCardBoxShadow">0 10 26 0 #44007C91</BoxShadows>
+                    <BoxShadows x:Key="CyberNeonPillBoxShadow">0 0 14 0 #33B0007C</BoxShadows>
 
                     <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#EEF4FF" />
                     <SolidColorBrush x:Key="MainBackgroundBrush" Color="#F7FAFF" />
