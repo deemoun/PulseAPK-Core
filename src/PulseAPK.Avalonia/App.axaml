@@ -32,20 +32,30 @@
         <Style Selector="Button.primary-action">
             <Setter Property="Background" Value="{DynamicResource CyberAccentBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberPrimaryButtonForegroundBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
 
         <Style Selector="Button.primary-action:pointerover">
             <Setter Property="Background" Value="{DynamicResource CyberAccentSecondaryBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberPrimaryButtonForegroundBrush}" />
         </Style>
 
         <Style Selector="Button.primary-action:pressed">
             <Setter Property="Background" Value="{DynamicResource CyberButtonPressedBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberPressedButtonForegroundBrush}" />
+        </Style>
+
+        <Style Selector="Button:focus">
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberFocusBorderBrush}" />
+            <Setter Property="BorderThickness" Value="2.5" />
+        </Style>
+
+        <Style Selector="Button.primary-action:focus">
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberFocusBorderBrush}" />
+            <Setter Property="BorderThickness" Value="2.5" />
         </Style>
 
         <Style Selector="Button:disabled">
@@ -191,6 +201,9 @@
                     <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#3A0B4D" />
                     <SolidColorBrush x:Key="CyberSelectedBrush" Color="#3A0B4D" />
                     <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#FF2BD6" />
+                    <SolidColorBrush x:Key="CyberPrimaryButtonForegroundBrush" Color="#03111A" />
+                    <SolidColorBrush x:Key="CyberPressedButtonForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CyberFocusBorderBrush" Color="#FFF27A" />
                     <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#071B2A" />
                     <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#0E6A82" />
                     <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#4FD8EA" />
@@ -220,6 +233,9 @@
                     <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#FFD7F7" />
                     <SolidColorBrush x:Key="CyberSelectedBrush" Color="#FFD7F7" />
                     <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#B0007C" />
+                    <SolidColorBrush x:Key="CyberPrimaryButtonForegroundBrush" Color="#001B22" />
+                    <SolidColorBrush x:Key="CyberPressedButtonForegroundBrush" Color="#101018" />
+                    <SolidColorBrush x:Key="CyberFocusBorderBrush" Color="#7A4D00" />
                     <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#E8FAFF" />
                     <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#58BCD1" />
                     <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#007C91" />
