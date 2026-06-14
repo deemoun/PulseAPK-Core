@@ -52,6 +52,7 @@
                          IsReadOnly="True"
                          AcceptsReturn="True"
                          TextWrapping="Wrap"
+                         Classes="terminal-output"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          VerticalAlignment="Stretch" />
             </Grid>

@@ -70,13 +70,6 @@
             <Setter Property="Background" Value="{DynamicResource CyberAccentPressedBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
         </Style>
-        <Style Selector="TextBox.terminal-output">
-            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource CyberConsoleBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1.25" />
-            <Setter Property="FontFamily" Value="Consolas, Menlo, monospace" />
-            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
-        </Style>
     </UserControl.Styles>
     <Grid RowDefinitions="*,Auto" RowSpacing="16" Margin="20">
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">

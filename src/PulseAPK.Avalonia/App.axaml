@@ -37,6 +37,19 @@
             <Setter Property="Padding" Value="10,7" />
         </Style>
 
+
+        <Style Selector="TextBox.terminal-output">
+            <Setter Property="Background" Value="#02060D" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="FontFamily" Value="Consolas, Menlo, Monaco, 'Courier New', monospace" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="SelectionBrush" Value="{DynamicResource CyberAccentMutedBrush}" />
+            <Setter Property="SelectionForegroundBrush" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
+
         <Style Selector="ComboBox">
             <Setter Property="Background" Value="{DynamicResource CyberCardBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberCardBorderBrush}" />
