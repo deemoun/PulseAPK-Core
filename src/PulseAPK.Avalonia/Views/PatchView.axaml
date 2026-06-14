@@ -39,6 +39,7 @@
                             Padding="16,0" />
                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Run]}"
                             Command="{Binding RunPatchCommand}"
+                            Classes="primary-action"
                             MinWidth="120"
                             Height="38"
                             FontSize="14"

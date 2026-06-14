@@ -35,6 +35,7 @@
                             Padding="16,0" />
                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Run]}"
                             Command="{Binding RunDecompileCommand}"
+                            Classes="primary-action"
                             MinWidth="120"
                             Height="38"
                             FontSize="14"
