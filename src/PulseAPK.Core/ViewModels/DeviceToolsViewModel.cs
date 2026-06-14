@@ -31,7 +31,8 @@ public enum DeviceToolPresetKind
     CurrentActivity,
     Reboot,
     AdbRoot,
-    AdbRemount
+    AdbRemount,
+    LogcatForPackage
 }
 
 public sealed record DeviceToolPreset(string DisplayName, DeviceToolPresetKind Kind);
@@ -84,7 +85,12 @@ public partial class DeviceToolsViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(ForceStopCommand))]
     [NotifyCanExecuteChangedFor(nameof(ClearDataCommand))]
     [NotifyCanExecuteChangedFor(nameof(UninstallCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenAppSettingsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CopyApkFromDeviceCommand))]
     [NotifyCanExecuteChangedFor(nameof(CurrentActivityCommand))]
+    [NotifyCanExecuteChangedFor(nameof(TakeScreenshotCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StartScreenRecordCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopScreenRecordCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunShellCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunModelPresetCommand))]
@@ -99,6 +105,7 @@ public partial class DeviceToolsViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(RunRebootPresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbRootPresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbRemountPresetCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RunLogcatForPackagePresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunSelectedPresetCommand))]
     private AdbDevice? _selectedDevice;
 
@@ -114,8 +121,11 @@ public partial class DeviceToolsViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(ForceStopCommand))]
     [NotifyCanExecuteChangedFor(nameof(ClearDataCommand))]
     [NotifyCanExecuteChangedFor(nameof(UninstallCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenAppSettingsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CopyApkFromDeviceCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunSearchPackagePresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAppPathPresetCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RunLogcatForPackagePresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunSelectedPresetCommand))]
     private string _packageName = string.Empty;
 
@@ -152,7 +162,12 @@ public partial class DeviceToolsViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(ForceStopCommand))]
     [NotifyCanExecuteChangedFor(nameof(ClearDataCommand))]
     [NotifyCanExecuteChangedFor(nameof(UninstallCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenAppSettingsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CopyApkFromDeviceCommand))]
     [NotifyCanExecuteChangedFor(nameof(CurrentActivityCommand))]
+    [NotifyCanExecuteChangedFor(nameof(TakeScreenshotCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StartScreenRecordCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopScreenRecordCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunShellCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunModelPresetCommand))]
@@ -167,8 +182,17 @@ public partial class DeviceToolsViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(RunRebootPresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbRootPresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunAdbRemountPresetCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RunLogcatForPackagePresetCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunSelectedPresetCommand))]
     private bool _isRunning;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StartScreenRecordCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopScreenRecordCommand))]
+    private bool _isScreenRecording;
+
+    private CancellationTokenSource? _screenRecordCancellation;
+    private Task? _screenRecordTask;
 
     public ObservableCollection<AdbDevice> Devices { get; } = [];
     public ObservableCollection<string> Activities { get; } = [];
@@ -185,7 +209,8 @@ public partial class DeviceToolsViewModel : ObservableObject
         new("Current Activity", DeviceToolPresetKind.CurrentActivity),
         new("Reboot", DeviceToolPresetKind.Reboot),
         new("ADB Root", DeviceToolPresetKind.AdbRoot),
-        new("ADB Remount", DeviceToolPresetKind.AdbRemount)
+        new("ADB Remount", DeviceToolPresetKind.AdbRemount),
+        new("Logcat for Package", DeviceToolPresetKind.LogcatForPackage)
     ];
     public IReadOnlyList<DeviceToolModeOption> DeviceToolModes { get; } =
     [
@@ -435,6 +460,153 @@ public partial class DeviceToolsViewModel : ObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(CanRunDeviceAction))]
+    private async Task TakeScreenshot()
+    {
+        var outputFolder = await _filePickerService.OpenFolderAsync(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures));
+        if (string.IsNullOrWhiteSpace(outputFolder))
+        {
+            AppendLog("Screenshot cancelled. Choose a folder to save the image.");
+            return;
+        }
+
+        var timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        var remotePath = $"/sdcard/PulseAPK-screenshot-{timestamp}.png";
+        var localPath = Path.Combine(outputFolder, $"PulseAPK-screenshot-{timestamp}.png");
+
+        await RunLongActionAsync(async () =>
+        {
+            var screencap = await RunForDeviceAndLogAsync(["shell", "screencap", "-p", remotePath]);
+            if (screencap.ExitCode != 0)
+            {
+                AppendLog("Screenshot failed; nothing was pulled from the device.");
+                return;
+            }
+
+            var pull = await RunForDeviceAndLogAsync(["pull", remotePath, localPath]);
+            await RunForDeviceAndLogAsync(["shell", "rm", "-f", remotePath]);
+            if (pull.ExitCode == 0)
+            {
+                AppendLog($"Screenshot saved to: {localPath}");
+            }
+        });
+    }
+
+    [RelayCommand(CanExecute = nameof(CanStartScreenRecord))]
+    private async Task StartScreenRecord()
+    {
+        if (!EnsureWorkingDevice())
+        {
+            return;
+        }
+
+        var outputFolder = await _filePickerService.OpenFolderAsync(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos));
+        if (string.IsNullOrWhiteSpace(outputFolder))
+        {
+            AppendLog("Screen record cancelled. Choose a folder to save the recording.");
+            return;
+        }
+
+        var timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        var remotePath = $"/sdcard/PulseAPK-recording-{timestamp}.mp4";
+        var localPath = Path.Combine(outputFolder, $"PulseAPK-recording-{timestamp}.mp4");
+        var serial = SelectedDevice?.Serial ?? string.Empty;
+        _screenRecordCancellation = new CancellationTokenSource();
+        IsScreenRecording = true;
+        AppendLog("Screen recording started. Use Stop Screen Record to finish and pull the MP4.");
+
+        _screenRecordTask = CompleteScreenRecordAsync(serial, remotePath, localPath, _screenRecordCancellation);
+    }
+
+    private async Task CompleteScreenRecordAsync(string serial, string remotePath, string localPath, CancellationTokenSource cancellation)
+    {
+        try
+        {
+            var recordResult = await RunAdbAndLogAsync(["-s", serial, "shell", "screenrecord", remotePath], TimeSpan.FromHours(3));
+            if (recordResult.ExitCode != 0 && !cancellation.IsCancellationRequested)
+            {
+                AppendLog("Screen recording ended with an error; attempting to pull any completed file.");
+            }
+
+            var pull = await RunAdbAndLogAsync(["-s", serial, "pull", remotePath, localPath], TimeSpan.FromMinutes(2));
+            await RunAdbAndLogAsync(["-s", serial, "shell", "rm", "-f", remotePath]);
+            if (pull.ExitCode == 0)
+            {
+                AppendLog($"Screen recording saved to: {localPath}");
+            }
+        }
+        finally
+        {
+            cancellation.Dispose();
+            if (ReferenceEquals(_screenRecordCancellation, cancellation))
+            {
+                _screenRecordCancellation = null;
+            }
+            IsScreenRecording = false;
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanStopScreenRecord))]
+    private async Task StopScreenRecord()
+    {
+        if (!IsScreenRecording || _screenRecordCancellation is null)
+        {
+            AppendLog("No active screen recording to stop.");
+            return;
+        }
+
+        AppendLog("Stopping screen recording and pulling the MP4...");
+        _screenRecordCancellation.Cancel();
+        await RunForDeviceAndLogAsync(["shell", "sh", "-c", "pkill -2 screenrecord || killall -2 screenrecord || pkill screenrecord || killall screenrecord"]);
+        if (_screenRecordTask is not null)
+        {
+            await _screenRecordTask;
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRunPackageAction))]
+    private async Task OpenAppSettings()
+    {
+        var package = PackageName.Trim();
+        await RunPackageActionAsync(["shell", "am", "start", "-a", "android.settings.APPLICATION_DETAILS_SETTINGS", "-d", $"package:{package}"]);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRunPackageAction))]
+    private async Task CopyApkFromDevice()
+    {
+        var outputFolder = await _filePickerService.OpenFolderAsync(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
+        if (string.IsNullOrWhiteSpace(outputFolder))
+        {
+            AppendLog("Copy APK cancelled. Choose a folder to save the APK.");
+            return;
+        }
+
+        await RunLongActionAsync(async () =>
+        {
+            var package = PackageName.Trim();
+            var pathResult = await RunForDeviceAndLogAsync(["shell", "pm", "path", package]);
+            var remotePath = pathResult.StandardOutput
+                .Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries)
+                .Select(line => line.StartsWith("package:", StringComparison.OrdinalIgnoreCase) ? line["package:".Length..].Trim() : line.Trim())
+                .FirstOrDefault(line => line.EndsWith(".apk", StringComparison.OrdinalIgnoreCase));
+
+            if (string.IsNullOrWhiteSpace(remotePath))
+            {
+                AppendLog($"Could not find an APK path for '{package}'.");
+                return;
+            }
+
+            var safePackage = string.Join("_", package.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries));
+            var fileName = Path.GetFileName(remotePath);
+            var localPath = Path.Combine(outputFolder, $"{safePackage}-{fileName}");
+            var pull = await RunForDeviceAndLogAsync(["pull", remotePath, localPath]);
+            if (pull.ExitCode == 0)
+            {
+                AppendLog($"APK copied to: {localPath}");
+            }
+        });
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRunDeviceAction))]
     private async Task CurrentActivity()
     {
         IsRunning = true;
@@ -535,6 +707,9 @@ public partial class DeviceToolsViewModel : ObservableObject
             case DeviceToolPresetKind.AdbRemount:
                 await RunAdbRemountPreset();
                 break;
+            case DeviceToolPresetKind.LogcatForPackage:
+                await RunLogcatForPackagePreset();
+                break;
         }
     }
 
@@ -562,6 +737,9 @@ public partial class DeviceToolsViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanRunPackageAction))]
     private async Task RunAppPathPreset() => await RunPackageActionAsync(["shell", "pm", "path", PackageName.Trim()]);
 
+    [RelayCommand(CanExecute = nameof(CanRunPackageAction))]
+    private async Task RunLogcatForPackagePreset() => await RunLongActionAsync(LogcatForPackageAsync);
+
     [RelayCommand(CanExecute = nameof(CanRunDeviceAction))]
     private async Task RunCurrentActivityPreset() => await CurrentActivity();
 
@@ -573,6 +751,24 @@ public partial class DeviceToolsViewModel : ObservableObject
 
     [RelayCommand(CanExecute = nameof(CanRunDeviceAction))]
     private async Task RunAdbRemountPreset() => await RunPackageActionAsync(["remount"]);
+
+    private async Task LogcatForPackageAsync()
+    {
+        var package = PackageName.Trim();
+        var pidResult = await RunForDeviceAndLogAsync(["shell", "pidof", package]);
+        var pid = pidResult.StandardOutput
+            .Split([' ', '\r', '\n', '\t'], StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault(value => value.All(char.IsDigit));
+
+        if (!string.IsNullOrWhiteSpace(pid))
+        {
+            await RunForDeviceAndLogAsync(["logcat", "-d", "--pid", pid]);
+            return;
+        }
+
+        AppendLog($"No running PID found for '{package}'. Falling back to package text filtering.");
+        await RunForDeviceAndLogAsync(["shell", "sh", "-c", $"logcat -d | grep {QuoteForDeviceShell(package)}"]);
+    }
 
     private async Task SearchPackageAsync()
     {
@@ -641,14 +837,14 @@ public partial class DeviceToolsViewModel : ObservableObject
         return await RunAdbAndLogAsync(["-s", serial, .. arguments]);
     }
 
-    private async Task<AdbCommandResult> RunAdbAndLogAsync(IReadOnlyList<string> arguments)
+    private async Task<AdbCommandResult> RunAdbAndLogAsync(IReadOnlyList<string> arguments, TimeSpan? timeout = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(DetectedAdbPath))
         {
             await CheckAdbAsync();
         }
 
-        var result = await _adbService.RunAdbAsync(DetectedAdbPath, arguments);
+        var result = await _adbService.RunAdbAsync(DetectedAdbPath, arguments, timeout, cancellationToken);
         AppendLog(CommandLogFormatter.FormatCommandResult(result));
         return result;
     }
@@ -726,6 +922,8 @@ public partial class DeviceToolsViewModel : ObservableObject
     }
 
     private bool CanRunDeviceAction() => !IsRunning && HasWorkingDevice;
+    private bool CanStartScreenRecord() => !IsRunning && !IsScreenRecording && HasWorkingDevice;
+    private bool CanStopScreenRecord() => IsScreenRecording;
     private bool CanInstallApk() => CanRunDeviceAction() && File.Exists(SelectedApkPath);
     private bool CanDetectPackage() => !IsRunning && File.Exists(SelectedApkPath);
     private bool CanRunPackageAction() => CanRunDeviceAction() && !string.IsNullOrWhiteSpace(PackageName);
@@ -738,7 +936,9 @@ public partial class DeviceToolsViewModel : ObservableObject
             return false;
         }
 
-        return SelectedPreset.Kind is not DeviceToolPresetKind.SearchPackage and not DeviceToolPresetKind.AppPath
+        return SelectedPreset.Kind is not DeviceToolPresetKind.SearchPackage
+                and not DeviceToolPresetKind.AppPath
+                and not DeviceToolPresetKind.LogcatForPackage
             || !string.IsNullOrWhiteSpace(PackageName);
     }
 }

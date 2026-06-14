@@ -239,6 +239,22 @@
                                             <Button Content="App Path" Command="{Binding RunAppPathPresetCommand}" Margin="0,0,8,4" />
                                             <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,4" />
                                         </WrapPanel>
+                                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                                BorderBrush="{DynamicResource CardBorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="6"
+                                                Padding="10"
+                                                Margin="0,4,0,0">
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="Utilities" FontWeight="SemiBold" />
+                                                <TextBlock Text="Non-destructive shortcuts for the selected device and package." Opacity="0.75" TextWrapping="Wrap" />
+                                                <WrapPanel>
+                                                    <Button Content="Open App Settings" Command="{Binding OpenAppSettingsCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="Copy APK from Device" Command="{Binding CopyApkFromDeviceCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="Logcat for Package" Command="{Binding RunLogcatForPackagePresetCommand}" Margin="0,0,8,4" />
+                                                </WrapPanel>
+                                            </StackPanel>
+                                        </Border>
                                         <StackPanel Spacing="2">
                                             <TextBlock Text="Connect a usable Android device to enable these actions."
                                                        IsVisible="{Binding CanShowNoDeviceHint}"
@@ -287,6 +303,26 @@
                                                     MinWidth="100"
                                                     Margin="0,0,8,4" />
                                         </WrapPanel>
+                                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                                BorderBrush="{DynamicResource CardBorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="6"
+                                                Padding="10"
+                                                Margin="0,4,0,0">
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="Utilities" FontWeight="SemiBold" />
+                                                <TextBlock Text="Capture the screen or record a short MP4 without modifying app data." Opacity="0.75" TextWrapping="Wrap" />
+                                                <WrapPanel>
+                                                    <Button Content="Screenshot" Command="{Binding TakeScreenshotCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="Start Screen Record" Command="{Binding StartScreenRecordCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="Stop Screen Record" Command="{Binding StopScreenRecordCommand}" Margin="0,0,8,4" />
+                                                </WrapPanel>
+                                                <TextBlock Text="After starting a screen recording, use Stop Screen Record to finish and pull the MP4."
+                                                           IsVisible="{Binding IsScreenRecording}"
+                                                           Opacity="0.75"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </Border>
                                         <TextBlock Text="Connect a usable Android device to enable these actions."
                                                    IsVisible="{Binding CanShowNoDeviceHint}"
                                                    Opacity="0.75"
