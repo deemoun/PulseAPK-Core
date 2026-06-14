@@ -55,101 +55,110 @@
                         BorderThickness="1"
                         CornerRadius="6"
                         Padding="12">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Primary Task" FontWeight="SemiBold" />
-                        <ComboBox ItemsSource="{Binding DeviceToolModes}"
-                                  SelectedItem="{Binding SelectedDeviceToolMode}"
-                                  HorizontalAlignment="Stretch">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate x:DataType="vm:DeviceToolModeOption">
-                                    <TextBlock Text="{Binding DisplayName}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-                </Border>
+                    <Grid ColumnDefinitions="180,*" ColumnSpacing="16">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Workflow" FontWeight="SemiBold" />
+                            <ListBox ItemsSource="{Binding DeviceToolModes}"
+                                     SelectedItem="{Binding SelectedDeviceToolMode}"
+                                     HorizontalAlignment="Stretch">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:DeviceToolModeOption">
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
 
-                <Border Background="{DynamicResource CardBackgroundBrush}"
-                        BorderBrush="{DynamicResource CardBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="12">
-                    <Grid>
-                        <StackPanel Spacing="8" IsVisible="{Binding IsInstallApkMode}">
-                            <TextBlock Text="Install APK" FontWeight="SemiBold" />
-                            <TextBlock Text="Choose an APK, install it to the selected device, and optionally detect its package metadata." Opacity="0.8" />
-                            <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+                        <Grid Grid.Column="1">
+                            <StackPanel Spacing="10" IsVisible="{Binding IsInstallApkMode}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Install APK" FontWeight="SemiBold" />
+                                    <TextBlock Text="Choose an APK, install it, then detect package metadata when needed." Opacity="0.8" />
+                                </StackPanel>
                                 <TextBox Text="{Binding SelectedApkPath}" Watermark="/path/to/app.apk" />
-                                <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseApkCommand}" MinWidth="90" />
-                                <Button Grid.Column="2" Content="Install APK" Command="{Binding InstallApkCommand}" MinWidth="100" />
-                                <Button Grid.Column="3" Content="Detect Package" Command="{Binding DetectPackageCommand}" MinWidth="120" />
-                            </Grid>
-                            <Button Content="Clear APK Selection"
-                                    Command="{Binding ClearApkCommand}"
-                                    HorizontalAlignment="Left" />
-                        </StackPanel>
+                                <WrapPanel>
+                                    <Button Content="Browse" Command="{Binding BrowseApkCommand}" MinWidth="90" Margin="0,0,8,8" />
+                                    <Button Content="Install APK" Command="{Binding InstallApkCommand}" MinWidth="100" Margin="0,0,8,8" />
+                                    <Button Content="Detect Package" Command="{Binding DetectPackageCommand}" MinWidth="120" Margin="0,0,8,8" />
+                                </WrapPanel>
+                                <Button Content="Clear APK Selection"
+                                        Command="{Binding ClearApkCommand}"
+                                        HorizontalAlignment="Left" />
+                            </StackPanel>
 
-                        <StackPanel Spacing="8" IsVisible="{Binding IsLaunchAppMode}">
-                            <TextBlock Text="Launch App" FontWeight="SemiBold" />
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackPanel Spacing="10" IsVisible="{Binding IsLaunchAppMode}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Launch" FontWeight="SemiBold" />
+                                    <TextBlock Text="Enter a package and optionally choose or type a specific activity." Opacity="0.8" />
+                                </StackPanel>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="Package name" Opacity="0.8" />
+                                        <TextBox Text="{Binding PackageName}" Watermark="com.example.app" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="Activity" Opacity="0.8" />
+                                        <TextBox Text="{Binding Activity}" Watermark=".MainActivity or full class name" />
+                                        <ComboBox ItemsSource="{Binding Activities}"
+                                                  SelectedItem="{Binding Activity}"
+                                                  Watermark="Detected activities"
+                                                  HorizontalAlignment="Stretch" />
+                                    </StackPanel>
+                                </Grid>
+                                <WrapPanel>
+                                    <Button Content="Launch App" Command="{Binding LaunchAppCommand}" Margin="0,0,8,8" />
+                                    <Button Content="Launch Activity" Command="{Binding LaunchActivityCommand}" Margin="0,0,8,8" />
+                                    <Button Content="Current Activity" Command="{Binding CurrentActivityCommand}" Margin="0,0,8,8" />
+                                    <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,8" />
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <StackPanel Spacing="10" IsVisible="{Binding IsAppMaintenanceMode}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Manage App" FontWeight="SemiBold" />
+                                    <TextBlock Text="Target an installed package, then stop it, reset data, or uninstall it." Opacity="0.8" />
+                                </StackPanel>
+                                <TextBlock Text="Package selector / textbox" Opacity="0.8" />
+                                <TextBox Text="{Binding PackageName}" Watermark="com.example.app" />
+                                <WrapPanel>
+                                    <Button Content="Force Stop" Command="{Binding ForceStopCommand}" Margin="0,0,8,8" />
+                                    <Button Content="Clear Data" Command="{Binding ClearDataCommand}" Margin="0,0,8,8" />
+                                    <Button Content="Uninstall" Command="{Binding UninstallCommand}" Margin="0,0,8,8" />
+                                    <Button Content="Search Package" Command="{Binding RunSearchPackagePresetCommand}" Margin="0,0,8,8" />
+                                    <Button Content="App Path" Command="{Binding RunAppPathPresetCommand}" Margin="0,0,8,8" />
+                                    <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,8" />
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <StackPanel Spacing="10" IsVisible="{Binding IsShellPresetsMode}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Shell" FontWeight="SemiBold" />
+                                    <TextBlock Text="Pick a preset to fill the command, or type shell/raw ADB arguments manually." Opacity="0.8" />
+                                </StackPanel>
                                 <StackPanel Spacing="6">
-                                    <TextBlock Text="Package name" Opacity="0.8" />
-                                    <TextBox Text="{Binding PackageName}" Watermark="com.example.app" />
+                                    <TextBlock Text="Preset" Opacity="0.8" />
+                                    <ComboBox ItemsSource="{Binding ShellPresets}"
+                                              SelectedItem="{Binding SelectedShellPreset}"
+                                              Watermark="Select preset"
+                                              HorizontalAlignment="Stretch">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:ShellPresetOption">
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
                                 </StackPanel>
-                                <StackPanel Grid.Column="1" Spacing="6">
-                                    <TextBlock Text="Activity" Opacity="0.8" />
-                                    <TextBox Text="{Binding Activity}" Watermark=".MainActivity or full class name" />
-                                    <ComboBox ItemsSource="{Binding Activities}"
-                                              SelectedItem="{Binding Activity}"
-                                              HorizontalAlignment="Stretch" />
-                                </StackPanel>
-                            </Grid>
-                            <WrapPanel>
-                                <Button Content="Launch App" Command="{Binding LaunchAppCommand}" Margin="0,0,8,8" />
-                                <Button Content="Launch Activity" Command="{Binding LaunchActivityCommand}" Margin="0,0,8,8" />
-                                <Button Content="Current Activity" Command="{Binding CurrentActivityCommand}" Margin="0,0,8,8" />
-                                <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,8" />
-                            </WrapPanel>
-                        </StackPanel>
-
-                        <StackPanel Spacing="8" IsVisible="{Binding IsAppMaintenanceMode}">
-                            <TextBlock Text="App Maintenance" FontWeight="SemiBold" />
-                            <TextBlock Text="Manage the package installed on the selected device." Opacity="0.8" />
-                            <TextBox Text="{Binding PackageName}" Watermark="com.example.app" />
-                            <WrapPanel>
-                                <Button Content="Force Stop" Command="{Binding ForceStopCommand}" Margin="0,0,8,8" />
-                                <Button Content="Clear Data" Command="{Binding ClearDataCommand}" Margin="0,0,8,8" />
-                                <Button Content="Uninstall" Command="{Binding UninstallCommand}" Margin="0,0,8,8" />
-                                <Button Content="Search Package" Command="{Binding RunSearchPackagePresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="App Path" Command="{Binding RunAppPathPresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,8" />
-                            </WrapPanel>
-                        </StackPanel>
-
-                        <StackPanel Spacing="8" IsVisible="{Binding IsShellPresetsMode}">
-                            <TextBlock Text="Shell / Presets" FontWeight="SemiBold" />
-                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
                                 <TextBox Text="{Binding CommandText}" Watermark="getprop ro.product.model" />
-                                <Button Grid.Column="1" Content="Run Shell" Command="{Binding RunShellCommand}" MinWidth="110" />
-                                <Button Grid.Column="2"
-                                        Content="Run ADB Args"
-                                        ToolTip.Tip="Runs the text as raw adb arguments after the selected device (-s &lt;serial&gt;). Example: devices -l or shell getprop ro.product.model."
-                                        Command="{Binding RunAdbCommand}"
-                                        MinWidth="100" />
-                            </Grid>
-                            <WrapPanel>
-                                <Button Content="Model" Command="{Binding RunModelPresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="Android Release" Command="{Binding RunAndroidReleasePresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="SDK" Command="{Binding RunSdkPresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="CPU ABI" Command="{Binding RunCpuAbiPresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="List Packages" Command="{Binding RunListPackagesPresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="Third-Party Packages" Command="{Binding RunThirdPartyPackagesPresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="Current Activity" Command="{Binding RunCurrentActivityPresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="Reboot" Command="{Binding RunRebootPresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="ADB Root" Command="{Binding RunAdbRootPresetCommand}" Margin="0,0,8,8" />
-                                <Button Content="ADB Remount" Command="{Binding RunAdbRemountPresetCommand}" Margin="0,0,8,8" />
-                            </WrapPanel>
-                        </StackPanel>
+                                <WrapPanel>
+                                    <Button Content="Run Shell" Command="{Binding RunShellCommand}" MinWidth="110" Margin="0,0,8,8" />
+                                    <Button Content="Run ADB Args"
+                                            ToolTip.Tip="Runs the text as raw adb arguments after the selected device (-s &lt;serial&gt;). Example: devices -l or shell getprop ro.product.model."
+                                            Command="{Binding RunAdbCommand}"
+                                            MinWidth="100"
+                                            Margin="0,0,8,8" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
                 </Border>
             </StackPanel>

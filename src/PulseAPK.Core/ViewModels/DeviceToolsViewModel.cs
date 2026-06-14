@@ -17,6 +17,7 @@ public enum DeviceToolMode
 }
 
 public sealed record DeviceToolModeOption(DeviceToolMode Mode, string DisplayName);
+public sealed record ShellPresetOption(string DisplayName, string CommandText);
 
 public partial class DeviceToolsViewModel : ObservableObject
 {
@@ -92,6 +93,9 @@ public partial class DeviceToolsViewModel : ObservableObject
     private DeviceToolModeOption? _selectedDeviceToolMode;
 
     [ObservableProperty]
+    private ShellPresetOption? _selectedShellPreset;
+
+    [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(InstallApkCommand))]
     [NotifyCanExecuteChangedFor(nameof(DetectPackageCommand))]
     [NotifyCanExecuteChangedFor(nameof(LaunchAppCommand))]
@@ -121,9 +125,22 @@ public partial class DeviceToolsViewModel : ObservableObject
     public IReadOnlyList<DeviceToolModeOption> DeviceToolModes { get; } =
     [
         new(DeviceToolMode.InstallApk, "Install APK"),
-        new(DeviceToolMode.LaunchApp, "Launch App"),
-        new(DeviceToolMode.AppMaintenance, "App Maintenance"),
-        new(DeviceToolMode.ShellPresets, "Shell / Presets")
+        new(DeviceToolMode.LaunchApp, "Launch"),
+        new(DeviceToolMode.AppMaintenance, "Manage App"),
+        new(DeviceToolMode.ShellPresets, "Shell")
+    ];
+    public IReadOnlyList<ShellPresetOption> ShellPresets { get; } =
+    [
+        new("Model", "getprop ro.product.model"),
+        new("Android Release", "getprop ro.build.version.release"),
+        new("SDK", "getprop ro.build.version.sdk"),
+        new("CPU ABI", "getprop ro.product.cpu.abi"),
+        new("List Packages", "pm list packages"),
+        new("Third-Party Packages", "pm list packages -3"),
+        new("Current Activity", "dumpsys window | grep -E \"mCurrentFocus|mFocusedApp\""),
+        new("Reboot", "reboot"),
+        new("ADB Root", "root"),
+        new("ADB Remount", "remount")
     ];
 
     public string AdbStatus => IsAdbFound ? "ADB: found" : "ADB: not found";
@@ -138,6 +155,15 @@ public partial class DeviceToolsViewModel : ObservableObject
         _adbService = adbService;
         _filePickerService = filePickerService;
         _selectedDeviceToolMode = DeviceToolModes[0];
+        _selectedShellPreset = ShellPresets[0];
+    }
+
+    partial void OnSelectedShellPresetChanged(ShellPresetOption? value)
+    {
+        if (value is not null)
+        {
+            CommandText = value.CommandText;
+        }
     }
 
     [RelayCommand(AllowConcurrentExecutions = true)]
