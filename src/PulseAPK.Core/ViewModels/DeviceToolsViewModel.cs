@@ -40,6 +40,7 @@ public partial class DeviceToolsViewModel : ObservableObject
 {
     private readonly AdbService _adbService;
     private readonly IFilePickerService _filePickerService;
+    private readonly IDialogService _dialogService;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AdbStatus))]
@@ -172,10 +173,11 @@ public partial class DeviceToolsViewModel : ObservableObject
     public bool IsShellPresetsMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.ShellPresets;
     public bool HasWorkingDevice => SelectedDevice?.IsUsable == true;
 
-    public DeviceToolsViewModel(AdbService adbService, IFilePickerService filePickerService)
+    public DeviceToolsViewModel(AdbService adbService, IFilePickerService filePickerService, IDialogService dialogService)
     {
         _adbService = adbService;
         _filePickerService = filePickerService;
+        _dialogService = dialogService;
         _selectedDeviceToolMode = DeviceToolModes[0];
         _selectedPreset = Presets[0];
     }
@@ -323,13 +325,35 @@ public partial class DeviceToolsViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanRunPackageAction))]
     private async Task ClearData()
     {
-        await RunPackageActionAsync(["shell", "pm", "clear", PackageName.Trim()]);
+        var package = PackageName.Trim();
+        var confirmed = await _dialogService.ShowQuestionAsync(
+            $"Clear all app data for '{package}'? This removes app storage and cannot be undone.",
+            "Confirm clear app data");
+
+        if (!confirmed)
+        {
+            AppendLog($"Clear data cancelled for '{package}'.");
+            return;
+        }
+
+        await RunPackageActionAsync(["shell", "pm", "clear", package]);
     }
 
     [RelayCommand(CanExecute = nameof(CanRunPackageAction))]
     private async Task Uninstall()
     {
-        await RunPackageActionAsync(["uninstall", PackageName.Trim()]);
+        var package = PackageName.Trim();
+        var confirmed = await _dialogService.ShowQuestionAsync(
+            $"Uninstall '{package}' from the selected device? This removes the app and its data.",
+            "Confirm uninstall app");
+
+        if (!confirmed)
+        {
+            AppendLog($"Uninstall cancelled for '{package}'.");
+            return;
+        }
+
+        await RunPackageActionAsync(["uninstall", package]);
     }
 
     [RelayCommand(CanExecute = nameof(CanRunDeviceAction))]

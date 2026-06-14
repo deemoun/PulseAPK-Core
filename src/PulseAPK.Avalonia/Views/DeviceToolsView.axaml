@@ -3,6 +3,20 @@
              xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
              x:Class="PulseAPK.Avalonia.Views.DeviceToolsView"
              x:DataType="vm:DeviceToolsViewModel">
+    <UserControl.Styles>
+        <Style Selector="Button.destructive">
+            <Setter Property="Background" Value="#B3261E" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.destructive:pointerover">
+            <Setter Property="Background" Value="#C93A32" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.destructive:pressed">
+            <Setter Property="Background" Value="#8C1D18" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+    </UserControl.Styles>
     <Grid RowDefinitions="*,220" RowSpacing="16" Margin="20">
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="14">
@@ -88,7 +102,7 @@
 
                             <StackPanel Spacing="10" IsVisible="{Binding IsLaunchAppMode}">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Launch" FontWeight="SemiBold" />
+                                    <TextBlock Text="Launch App" FontWeight="SemiBold" />
                                     <TextBlock Text="Enter a package and optionally choose or type a specific activity." Opacity="0.8" />
                                 </StackPanel>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
@@ -105,12 +119,18 @@
                                                   HorizontalAlignment="Stretch" />
                                     </StackPanel>
                                 </Grid>
-                                <WrapPanel>
-                                    <Button Content="Launch App" Command="{Binding LaunchAppCommand}" Margin="0,0,8,8" />
-                                    <Button Content="Launch Activity" Command="{Binding LaunchActivityCommand}" Margin="0,0,8,8" />
-                                    <Button Content="Current Activity" Command="{Binding CurrentActivityCommand}" Margin="0,0,8,8" />
-                                    <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,8" />
-                                </WrapPanel>
+                                <StackPanel Spacing="8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Launch" FontWeight="SemiBold" />
+                                        <TextBlock Text="Start the app, open a specific activity, or inspect the foreground activity." Opacity="0.75" />
+                                    </StackPanel>
+                                    <WrapPanel>
+                                        <Button Content="Launch App" Command="{Binding LaunchAppCommand}" Margin="0,0,8,8" />
+                                        <Button Content="Launch Activity" Command="{Binding LaunchActivityCommand}" Margin="0,0,8,8" />
+                                        <Button Content="Current Activity" Command="{Binding CurrentActivityCommand}" Margin="0,0,8,8" />
+                                        <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,8" />
+                                    </WrapPanel>
+                                </StackPanel>
                             </StackPanel>
 
                             <StackPanel Spacing="10" IsVisible="{Binding IsAppMaintenanceMode}">
@@ -120,14 +140,29 @@
                                 </StackPanel>
                                 <TextBlock Text="Package selector / textbox" Opacity="0.8" />
                                 <TextBox Text="{Binding PackageName}" Watermark="com.example.app" />
-                                <WrapPanel>
-                                    <Button Content="Force Stop" Command="{Binding ForceStopCommand}" Margin="0,0,8,8" />
-                                    <Button Content="Clear Data" Command="{Binding ClearDataCommand}" Margin="0,0,8,8" />
-                                    <Button Content="Uninstall" Command="{Binding UninstallCommand}" Margin="0,0,8,8" />
-                                    <Button Content="Search Package" Command="{Binding RunSearchPackagePresetCommand}" Margin="0,0,8,8" />
-                                    <Button Content="App Path" Command="{Binding RunAppPathPresetCommand}" Margin="0,0,8,8" />
-                                    <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,8" />
-                                </WrapPanel>
+                                <StackPanel Spacing="8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Destructive Commands" FontWeight="SemiBold" />
+                                        <TextBlock Text="Stop, reset, or remove the selected package. Clear Data and Uninstall require confirmation." Opacity="0.75" />
+                                    </StackPanel>
+                                    <WrapPanel>
+                                        <Button Content="Force Stop" Classes="destructive" Command="{Binding ForceStopCommand}" Margin="0,0,8,8" />
+                                        <Button Content="Clear Data" Classes="destructive" Command="{Binding ClearDataCommand}" Margin="0,0,8,8" />
+                                        <Button Content="Uninstall" Classes="destructive" Command="{Binding UninstallCommand}" Margin="0,0,8,8" />
+                                    </WrapPanel>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Package Tools" FontWeight="SemiBold" />
+                                        <TextBlock Text="Search for packages or inspect the installed app path without changing the app." Opacity="0.75" />
+                                    </StackPanel>
+                                    <WrapPanel>
+                                        <Button Content="Search Package" Command="{Binding RunSearchPackagePresetCommand}" Margin="0,0,8,8" />
+                                        <Button Content="App Path" Command="{Binding RunAppPathPresetCommand}" Margin="0,0,8,8" />
+                                        <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,8" />
+                                    </WrapPanel>
+                                </StackPanel>
                             </StackPanel>
 
                             <StackPanel Spacing="10" IsVisible="{Binding IsShellPresetsMode}">
