@@ -75,7 +75,6 @@ public partial class DeviceToolsViewModel : ObservableObject
     private string _consoleLog = Properties.Resources.WaitingForCommand;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(RefreshDevicesCommand))]
     [NotifyCanExecuteChangedFor(nameof(InstallApkCommand))]
     [NotifyCanExecuteChangedFor(nameof(DetectPackageCommand))]
     [NotifyCanExecuteChangedFor(nameof(LaunchAppCommand))]
@@ -112,39 +111,31 @@ public partial class DeviceToolsViewModel : ObservableObject
         _filePickerService = filePickerService;
     }
 
-    [RelayCommand(CanExecute = nameof(CanRefreshDevices))]
+    [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task RefreshDevices()
     {
-        IsRunning = true;
-        try
+        var resolvedPath = await _adbService.ResolveAdbPathAsync();
+        IsAdbFound = !string.IsNullOrWhiteSpace(resolvedPath);
+        DetectedAdbPath = resolvedPath ?? string.Empty;
+
+        if (!IsAdbFound)
         {
-            var resolvedPath = await _adbService.ResolveAdbPathAsync();
-            IsAdbFound = !string.IsNullOrWhiteSpace(resolvedPath);
-            DetectedAdbPath = resolvedPath ?? string.Empty;
-
-            if (!IsAdbFound)
-            {
-                AppendLog("ADB was not found. Configure ADB Path in Settings or install Android platform-tools.");
-                Devices.Clear();
-                SelectedDevice = null;
-                return;
-            }
-
-            var result = await RunAdbAndLogAsync(["devices", "-l"]);
-            var devices = AdbService.ParseDevices(result.StandardOutput);
-
+            AppendLog("ADB was not found. Configure ADB Path in Settings or install Android platform-tools.");
             Devices.Clear();
-            foreach (var device in devices)
-            {
-                Devices.Add(device);
-            }
+            SelectedDevice = null;
+            return;
+        }
 
-            SelectedDevice = Devices.FirstOrDefault(device => device.IsUsable) ?? Devices.FirstOrDefault();
-        }
-        finally
+        var result = await RunAdbAndLogAsync(["devices", "-l"]);
+        var devices = AdbService.ParseDevices(result.StandardOutput);
+
+        Devices.Clear();
+        foreach (var device in devices)
         {
-            IsRunning = false;
+            Devices.Add(device);
         }
+
+        SelectedDevice = Devices.FirstOrDefault(device => device.IsUsable) ?? Devices.FirstOrDefault();
     }
 
     [RelayCommand]
@@ -233,6 +224,12 @@ public partial class DeviceToolsViewModel : ObservableObject
         PackageName = string.Empty;
         Activity = string.Empty;
         Activities.Clear();
+    }
+
+    [RelayCommand]
+    private void ClearConsole()
+    {
+        ConsoleLog = Properties.Resources.WaitingForCommand;
     }
 
     [RelayCommand(CanExecute = nameof(CanRunPackageAction))]
@@ -508,7 +505,6 @@ public partial class DeviceToolsViewModel : ObservableObject
         return $"'{value.Replace("'", "'\"'\"'")}'";
     }
 
-    private bool CanRefreshDevices() => !IsRunning;
     private bool CanRunDeviceAction() => !IsRunning && HasWorkingDevice;
     private bool CanInstallApk() => CanRunDeviceAction() && File.Exists(SelectedApkPath);
     private bool CanDetectPackage() => !IsRunning && File.Exists(SelectedApkPath);
