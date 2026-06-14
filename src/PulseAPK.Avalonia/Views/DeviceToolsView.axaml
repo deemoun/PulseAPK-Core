@@ -312,14 +312,16 @@
                                             <StackPanel Spacing="6">
                                                 <TextBlock Text="Utilities" FontWeight="SemiBold" />
                                                 <TextBlock Text="Capture the screen or record a short MP4 without modifying app data." Opacity="0.75" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding ScreenRecordStatus}" Opacity="0.75" TextWrapping="Wrap" />
                                                 <WrapPanel>
                                                     <Button Content="Screenshot" Command="{Binding TakeScreenshotCommand}" Margin="0,0,8,4" />
                                                     <Button Content="Start Screen Record" Command="{Binding StartScreenRecordCommand}" Margin="0,0,8,4" />
                                                     <Button Content="Stop Screen Record" Command="{Binding StopScreenRecordCommand}" Margin="0,0,8,4" />
                                                 </WrapPanel>
-                                                <TextBlock Text="After starting a screen recording, use Stop Screen Record to finish and pull the MP4."
+                                                <TextBlock Text="Recording is active on the selected device until you stop it."
                                                            IsVisible="{Binding IsScreenRecording}"
-                                                           Opacity="0.75"
+                                                           FontWeight="SemiBold"
+                                                           Opacity="0.85"
                                                            TextWrapping="Wrap" />
                                             </StackPanel>
                                         </Border>

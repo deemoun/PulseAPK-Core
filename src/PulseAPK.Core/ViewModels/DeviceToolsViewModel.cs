@@ -189,6 +189,7 @@ public partial class DeviceToolsViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(StartScreenRecordCommand))]
     [NotifyCanExecuteChangedFor(nameof(StopScreenRecordCommand))]
+    [NotifyPropertyChangedFor(nameof(ScreenRecordStatus))]
     private bool _isScreenRecording;
 
     private CancellationTokenSource? _screenRecordCancellation;
@@ -238,6 +239,9 @@ public partial class DeviceToolsViewModel : ObservableObject
     public bool HasWorkingDevice => SelectedDevice?.IsUsable == true;
     public bool CanShowNoDeviceHint => !IsRunning && !HasWorkingDevice;
     public bool CanShowPackageRequiredHint => !IsRunning && string.IsNullOrWhiteSpace(PackageName);
+    public string ScreenRecordStatus => IsScreenRecording
+        ? "Recording in progress. Tap Stop Screen Record to end the adb shell screenrecord session, then PulseAPK will pull the MP4."
+        : "Start Screen Record runs adb shell screenrecord and saves the pulled MP4 after you stop it.";
 
     public DeviceToolsViewModel(AdbService adbService, IFilePickerService filePickerService, IDialogService dialogService)
     {
@@ -512,7 +516,7 @@ public partial class DeviceToolsViewModel : ObservableObject
         var serial = SelectedDevice?.Serial ?? string.Empty;
         _screenRecordCancellation = new CancellationTokenSource();
         IsScreenRecording = true;
-        AppendLog("Screen recording started. Use Stop Screen Record to finish and pull the MP4.");
+        AppendLog($"Screen recording started on the device at {remotePath}. Use Stop Screen Record to end adb shell screenrecord and pull the MP4.");
 
         _screenRecordTask = CompleteScreenRecordAsync(serial, remotePath, localPath, _screenRecordCancellation);
     }
@@ -762,6 +766,7 @@ public partial class DeviceToolsViewModel : ObservableObject
 
         if (!string.IsNullOrWhiteSpace(pid))
         {
+            AppendLog($"Found running PID {pid} for '{package}'. Using logcat --pid filtering where supported by the device.");
             await RunForDeviceAndLogAsync(["logcat", "-d", "--pid", pid]);
             return;
         }
