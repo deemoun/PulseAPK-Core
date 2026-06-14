@@ -175,6 +175,10 @@
                                             <Button Content="Detect Package" Command="{Binding DetectPackageCommand}" MinWidth="120" Margin="0,0,8,4" />
                                             <Button Content="Clear APK Selection" Command="{Binding ClearApkCommand}" Margin="0,0,8,4" />
                                         </WrapPanel>
+                                        <TextBlock Text="Connect a usable Android device to enable these actions."
+                                                   IsVisible="{Binding CanShowNoDeviceHint}"
+                                                   Opacity="0.75"
+                                                   TextWrapping="Wrap" />
                                     </StackPanel>
                                 </StackPanel>
 
@@ -202,6 +206,16 @@
                                         <Button Content="Current Activity" Command="{Binding CurrentActivityCommand}" Margin="0,0,8,4" />
                                         <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,4" />
                                     </WrapPanel>
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Text="Connect a usable Android device to enable these actions."
+                                                   IsVisible="{Binding CanShowNoDeviceHint}"
+                                                   Opacity="0.75"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="Enter a package name to continue."
+                                                   IsVisible="{Binding CanShowPackageRequiredHint}"
+                                                   Opacity="0.75"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
                                 </StackPanel>
 
                                 <StackPanel Spacing="10" IsVisible="{Binding IsAppMaintenanceMode}">
@@ -220,6 +234,16 @@
                                             <Button Content="App Path" Command="{Binding RunAppPathPresetCommand}" Margin="0,0,8,4" />
                                             <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,4" />
                                         </WrapPanel>
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Text="Connect a usable Android device to enable these actions."
+                                                       IsVisible="{Binding CanShowNoDeviceHint}"
+                                                       Opacity="0.75"
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Text="Enter a package name to continue."
+                                                       IsVisible="{Binding CanShowPackageRequiredHint}"
+                                                       Opacity="0.75"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
 
@@ -258,6 +282,10 @@
                                                     MinWidth="100"
                                                     Margin="0,0,8,4" />
                                         </WrapPanel>
+                                        <TextBlock Text="Connect a usable Android device to enable these actions."
+                                                   IsVisible="{Binding CanShowNoDeviceHint}"
+                                                   Opacity="0.75"
+                                                   TextWrapping="Wrap" />
                                     </StackPanel>
                                 </StackPanel>
                             </Grid>
