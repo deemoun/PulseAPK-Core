@@ -4,76 +4,88 @@
              xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
              x:Class="PulseAPK.Avalonia.Views.AboutView"
              x:DataType="vm:AboutViewModel">
-    <Grid Margin="20"
-          HorizontalAlignment="Stretch"
-          VerticalAlignment="Stretch">
-        <Border Classes="card"
-                Width="420"
-                MaxWidth="520"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                BoxShadow="0 0 28 0 #4000E5FF">
-            <StackPanel Spacing="18" HorizontalAlignment="Center">
-                <Border Width="104"
-                        Height="104"
-                        Padding="10"
-                        Background="{DynamicResource CyberConsoleBackgroundBrush}"
-                        BorderBrush="{DynamicResource CyberAccentSecondaryBrush}"
-                        BorderThickness="1.5"
-                        CornerRadius="24"
-                        HorizontalAlignment="Center"
-                        BoxShadow="0 0 22 0 #66FF2BD6">
-                    <Image Source="/Assets/CyberUnpack.png"
-                           Stretch="Uniform" />
-                </Border>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20"
+              MinHeight="560"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch">
+            <Border Classes="card"
+                    Width="460"
+                    MaxWidth="560"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <StackPanel Spacing="18"
+                            HorizontalAlignment="Stretch">
+                    <Border Width="112"
+                            Height="112"
+                            Padding="12"
+                            Background="{DynamicResource CyberConsoleBackgroundBrush}"
+                            BorderBrush="{DynamicResource CyberAccentSecondaryBrush}"
+                            BorderThickness="1.5"
+                            CornerRadius="24"
+                            HorizontalAlignment="Center">
+                        <Image Source="avares://PulseAPK/Assets/CyberUnpack.png"
+                               Stretch="Uniform" />
+                    </Border>
 
-                <StackPanel Spacing="6" HorizontalAlignment="Center">
-                    <TextBlock Text="PulseAPK"
-                               FontSize="42"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource CyberAccentBrush}"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center" />
-                    <TextBlock Text="Android APK reverse engineering toolkit"
-                               FontSize="15"
-                               Foreground="{DynamicResource CyberAccentSecondaryBrush}"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center" />
-                </StackPanel>
-
-                <Border Classes="neon-pill" HorizontalAlignment="Center">
-                    <TextBlock Text="{Binding AppVersion}"
-                               FontSize="16"
-                               HorizontalAlignment="Center" />
-                </Border>
-
-                <StackPanel Spacing="8" HorizontalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
-                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_DevelopedBy]}"
-                                   FontSize="14" />
-                        <TextBlock Text="{Binding DeveloperName}"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource CyberAccentBrush}" />
+                    <StackPanel Spacing="6"
+                                HorizontalAlignment="Stretch">
+                        <TextBlock Text="PulseAPK"
+                                   FontSize="42"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource CyberAccentBrush}"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center" />
+                        <TextBlock Text="Android APK reverse engineering toolkit"
+                                   FontSize="15"
+                                   Foreground="{DynamicResource CyberAccentSecondaryBrush}"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap" />
                     </StackPanel>
 
-                    <TextBlock Text="{Binding Year}"
-                               FontSize="14"
-                               HorizontalAlignment="Center"
-                               Opacity="0.75" />
-                </StackPanel>
+                    <Border Classes="neon-pill"
+                            HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding AppVersion}"
+                                   FontSize="16"
+                                   HorizontalAlignment="Center" />
+                    </Border>
 
-                <StackPanel Spacing="10" HorizontalAlignment="Center">
-                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_ProjectPage]}"
-                            Command="{Binding OpenProjectPageCommand}"
-                            Width="240"
-                            HorizontalContentAlignment="Center" />
-                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_DeveloperPage]}"
-                            Command="{Binding OpenDeveloperPageCommand}"
-                            Width="240"
-                            HorizontalContentAlignment="Center" />
+                    <StackPanel Spacing="8"
+                                HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Spacing="6">
+                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_DevelopedBy]}"
+                                       FontSize="14" />
+                            <TextBlock Text="{Binding DeveloperName}"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource CyberAccentBrush}" />
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding Year}"
+                                   FontSize="14"
+                                   HorizontalAlignment="Center"
+                                   Opacity="0.75" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="10"
+                                HorizontalAlignment="Stretch">
+                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_ProjectPage]}"
+                                Command="{Binding OpenProjectPageCommand}"
+                                Width="240"
+                                HorizontalAlignment="Center"
+                                HorizontalContentAlignment="Center" />
+                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_DeveloperPage]}"
+                                Command="{Binding OpenDeveloperPageCommand}"
+                                Width="240"
+                                HorizontalAlignment="Center"
+                                HorizontalContentAlignment="Center" />
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
-        </Border>
-    </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

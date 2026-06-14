@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <AvaloniaResource Include="..\..\Resources\CyberUnpack.ico" Link="Assets\CyberUnpack.ico" />
+    <AvaloniaResource Include="..\..\Resources\CyberUnpack.png" Link="Assets\CyberUnpack.png" />
   </ItemGroup>
 
   <ItemGroup>
