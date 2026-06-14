@@ -39,6 +39,7 @@ public sealed record DeviceToolPreset(string DisplayName, DeviceToolPresetKind K
 
 public partial class DeviceToolsViewModel : ObservableObject
 {
+    private static string T(string key) => LocalizationService.Instance[key];
     private readonly AdbService _adbService;
     private readonly IFilePickerService _filePickerService;
     private readonly IDialogService _dialogService;
@@ -199,36 +200,36 @@ public partial class DeviceToolsViewModel : ObservableObject
     public ObservableCollection<string> Activities { get; } = [];
     public ObservableCollection<DeviceToolPreset> Presets { get; } =
     [
-        new("Model", DeviceToolPresetKind.Model),
-        new("Android Release", DeviceToolPresetKind.AndroidRelease),
-        new("SDK", DeviceToolPresetKind.Sdk),
-        new("CPU ABI", DeviceToolPresetKind.CpuAbi),
-        new("List Packages", DeviceToolPresetKind.ListPackages),
-        new("Third-Party Packages", DeviceToolPresetKind.ThirdPartyPackages),
-        new("Search Package", DeviceToolPresetKind.SearchPackage),
-        new("App Path", DeviceToolPresetKind.AppPath),
-        new("Current Activity", DeviceToolPresetKind.CurrentActivity),
-        new("Reboot", DeviceToolPresetKind.Reboot),
-        new("ADB Root", DeviceToolPresetKind.AdbRoot),
-        new("ADB Remount", DeviceToolPresetKind.AdbRemount),
-        new("Logcat for Package", DeviceToolPresetKind.LogcatForPackage)
+        new(T("DeviceToolsPresetModel"), DeviceToolPresetKind.Model),
+        new(T("DeviceToolsPresetAndroidRelease"), DeviceToolPresetKind.AndroidRelease),
+        new(T("DeviceToolsPresetSdk"), DeviceToolPresetKind.Sdk),
+        new(T("DeviceToolsPresetCpuAbi"), DeviceToolPresetKind.CpuAbi),
+        new(T("DeviceToolsPresetListPackages"), DeviceToolPresetKind.ListPackages),
+        new(T("DeviceToolsPresetThirdPartyPackages"), DeviceToolPresetKind.ThirdPartyPackages),
+        new(T("DeviceToolsPresetSearchPackage"), DeviceToolPresetKind.SearchPackage),
+        new(T("DeviceToolsPresetAppPath"), DeviceToolPresetKind.AppPath),
+        new(T("DeviceToolsPresetCurrentActivity"), DeviceToolPresetKind.CurrentActivity),
+        new(T("DeviceToolsPresetReboot"), DeviceToolPresetKind.Reboot),
+        new(T("DeviceToolsPresetAdbRoot"), DeviceToolPresetKind.AdbRoot),
+        new(T("DeviceToolsPresetAdbRemount"), DeviceToolPresetKind.AdbRemount),
+        new(T("DeviceToolsPresetLogcatForPackage"), DeviceToolPresetKind.LogcatForPackage)
     ];
     public IReadOnlyList<DeviceToolModeOption> DeviceToolModes { get; } =
     [
-        new(DeviceToolMode.InstallApk, "Install APK"),
-        new(DeviceToolMode.LaunchApp, "Launch"),
-        new(DeviceToolMode.AppMaintenance, "Manage App"),
-        new(DeviceToolMode.ShellPresets, "Shell")
+        new(DeviceToolMode.InstallApk, T("DeviceToolsModeInstallApk")),
+        new(DeviceToolMode.LaunchApp, T("DeviceToolsModeLaunch")),
+        new(DeviceToolMode.AppMaintenance, T("DeviceToolsModeManageApp")),
+        new(DeviceToolMode.ShellPresets, T("DeviceToolsModeShell"))
     ];
     public string AdbStatus => IsCheckingAdb
-        ? "ADB: checking..."
+        ? T("DeviceToolsAdbChecking")
         : HasCheckedAdb
-            ? (IsAdbFound ? "ADB: found" : "ADB: not found")
-            : "ADB: not checked";
+            ? (IsAdbFound ? T("DeviceToolsAdbFound") : T("DeviceToolsAdbNotFound"))
+            : T("DeviceToolsAdbNotChecked");
     public string DeviceListStatus => IsRefreshingDevices
-        ? "Checking devices..."
+        ? T("DeviceToolsCheckingDevices")
         : HasCheckedDevices && IsAdbFound && Devices.Count == 0
-            ? "No Android device connected. Connect a device and enable USB debugging."
+            ? T("DeviceToolsNoConnectedDevices")
             : string.Empty;
     public bool IsAdbMissing => HasCheckedAdb && !IsCheckingAdb && !IsAdbFound;
     public bool HasNoConnectedDevices => HasCheckedDevices && IsAdbFound && !IsRefreshingDevices && Devices.Count == 0;
@@ -240,8 +241,8 @@ public partial class DeviceToolsViewModel : ObservableObject
     public bool CanShowNoDeviceHint => !IsRunning && !HasWorkingDevice;
     public bool CanShowPackageRequiredHint => !IsRunning && string.IsNullOrWhiteSpace(PackageName);
     public string ScreenRecordStatus => IsScreenRecording
-        ? "Recording in progress. Tap Stop Screen Record to end the adb shell screenrecord session, then PulseAPK will pull the MP4."
-        : "Start Screen Record runs adb shell screenrecord and saves the pulled MP4 after you stop it.";
+        ? T("DeviceToolsScreenRecordInProgress")
+        : T("DeviceToolsScreenRecordReady");
 
     public DeviceToolsViewModel(AdbService adbService, IFilePickerService filePickerService, IDialogService dialogService)
     {
