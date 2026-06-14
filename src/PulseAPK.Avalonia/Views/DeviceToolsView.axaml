@@ -192,12 +192,17 @@
                                             <TextBlock Text="Package name" Opacity="0.8" />
                                             <TextBox Text="{Binding PackageName}" Watermark="com.example.app" />
                                         </StackPanel>
-                                        <StackPanel Grid.Column="1" Spacing="6">
-                                            <TextBlock Text="Activity" Opacity="0.8" />
-                                            <TextBox Text="{Binding Activity}" Watermark=".MainActivity or full class name" />
-                                            <ComboBox ItemsSource="{Binding Activities}"
-                                                      SelectedItem="{Binding Activity}"
-                                                      HorizontalAlignment="Stretch" />
+                                        <StackPanel Grid.Column="1" Spacing="8">
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="Activity" Opacity="0.8" />
+                                                <TextBox Text="{Binding Activity}" Watermark=".MainActivity or full class name" />
+                                            </StackPanel>
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="Detected activities" Opacity="0.8" />
+                                                <ComboBox ItemsSource="{Binding Activities}"
+                                                          SelectedItem="{Binding Activity}"
+                                                          HorizontalAlignment="Stretch" />
+                                            </StackPanel>
                                         </StackPanel>
                                     </Grid>
                                     <WrapPanel>
