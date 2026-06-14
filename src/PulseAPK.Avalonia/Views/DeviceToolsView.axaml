@@ -73,7 +73,6 @@
                             <Button Grid.Column="2"
                                     Content="Install APK"
                                     Command="{Binding InstallApkCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     MinWidth="100" />
                             <Button Grid.Column="3"
                                     Content="Detect Package"
@@ -110,27 +109,21 @@
                         <WrapPanel>
                             <Button Content="Launch App"
                                     Command="{Binding LaunchAppCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Launch Activity"
                                     Command="{Binding LaunchActivityCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Force Stop"
                                     Command="{Binding ForceStopCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Clear Data"
                                     Command="{Binding ClearDataCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Uninstall"
                                     Command="{Binding UninstallCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Current Activity"
                                     Command="{Binding CurrentActivityCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Clear"
                                     Command="{Binding ClearPackageCommand}"
@@ -152,12 +145,11 @@
                             <Button Grid.Column="1"
                                     Content="Run Shell"
                                     Command="{Binding RunShellCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     MinWidth="110" />
                             <Button Grid.Column="2"
-                                    Content="Run ADB"
+                                    Content="Run ADB Args"
+                                    ToolTip.Tip="Runs the text as raw adb arguments after the selected device (-s &lt;serial&gt;). Example: devices -l or shell getprop ro.product.model."
                                     Command="{Binding RunAdbCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     MinWidth="100" />
                         </Grid>
                     </StackPanel>
@@ -173,51 +165,39 @@
                         <WrapPanel>
                             <Button Content="Model"
                                     Command="{Binding RunModelPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Android Release"
                                     Command="{Binding RunAndroidReleasePresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="SDK"
                                     Command="{Binding RunSdkPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="CPU ABI"
                                     Command="{Binding RunCpuAbiPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="List Packages"
                                     Command="{Binding RunListPackagesPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Third-Party Packages"
                                     Command="{Binding RunThirdPartyPackagesPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Search Package"
                                     Command="{Binding RunSearchPackagePresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="App Path"
                                     Command="{Binding RunAppPathPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Current Activity"
                                     Command="{Binding RunCurrentActivityPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="Reboot"
                                     Command="{Binding RunRebootPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="ADB Root"
                                     Command="{Binding RunAdbRootPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                             <Button Content="ADB Remount"
                                     Command="{Binding RunAdbRemountPresetCommand}"
-                                    IsEnabled="{Binding HasWorkingDevice}"
                                     Margin="0,0,8,8" />
                         </WrapPanel>
                     </StackPanel>
@@ -232,8 +212,14 @@
                 CornerRadius="6"
                 Padding="12">
             <Grid RowDefinitions="Auto,*" RowSpacing="8">
-                <TextBlock Text="Console log"
-                           FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="Console log"
+                               FontWeight="SemiBold" />
+                    <Button Grid.Column="1"
+                            Content="Clear"
+                            Command="{Binding ClearConsoleCommand}"
+                            MinWidth="80" />
+                </Grid>
                 <TextBox Grid.Row="1"
                          Text="{Binding ConsoleLog}"
                          IsReadOnly="True"
