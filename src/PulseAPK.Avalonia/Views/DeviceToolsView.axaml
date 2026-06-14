@@ -125,34 +125,37 @@
                         CornerRadius="6"
                         Padding="12">
                     <StackPanel Spacing="10">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsChooseWorkflow]}"
-                                       FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsWorkflowHelp]}"
-                                       Opacity="0.75" />
-                        </StackPanel>
+                        <StackPanel Spacing="10"
+                                    IsEnabled="{Binding HasWorkingDevice}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsChooseWorkflow]}"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsWorkflowHelp]}"
+                                           Opacity="0.75" />
+                            </StackPanel>
 
-                        <ListBox ItemsSource="{Binding DeviceToolModes}"
-                                 SelectedItem="{Binding SelectedDeviceToolMode}"
-                                 HorizontalAlignment="Left">
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate x:DataType="vm:DeviceToolModeOption">
-                                    <Border Background="{DynamicResource MainBackgroundBrush}"
-                                            BorderBrush="{DynamicResource ConsoleBorderBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="12"
-                                            Padding="14,6"
-                                            Margin="0,0,8,0">
-                                        <TextBlock Text="{Binding DisplayName}" />
-                                    </Border>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                            <ListBox ItemsSource="{Binding DeviceToolModes}"
+                                     SelectedItem="{Binding SelectedDeviceToolMode}"
+                                     HorizontalAlignment="Left">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:DeviceToolModeOption">
+                                        <Border Background="{DynamicResource MainBackgroundBrush}"
+                                                BorderBrush="{DynamicResource ConsoleBorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="12"
+                                                Padding="14,6"
+                                                Margin="0,0,8,0">
+                                            <TextBlock Text="{Binding DisplayName}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
 
                         <Border Background="{DynamicResource MainBackgroundBrush}"
                                 BorderBrush="{DynamicResource ConsoleBorderBrush}"
