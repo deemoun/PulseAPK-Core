@@ -53,6 +53,7 @@ public partial class App : Application
         services.AddTransient<UbersignRunner>();
         services.AddTransient<SmaliAnalyserService>();
         services.AddTransient<ReportService>();
+        services.AddSingleton<AdbService>();
         services.AddSingleton<ISystemService, PulseAPK.Core.Services.SystemService>();
 
         // Patching services
@@ -83,6 +84,7 @@ public partial class App : Application
         services.AddTransient<PatchViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<AnalyserViewModel>();
+        services.AddTransient<DeviceToolsViewModel>();
         services.AddTransient<AboutViewModel>();
 
         // Windows

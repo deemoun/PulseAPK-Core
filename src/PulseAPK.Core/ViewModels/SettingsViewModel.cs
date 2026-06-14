@@ -15,6 +15,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly IToolDownloadService _toolDownloadService;
     private readonly LocalizationService _localizationService;
     private readonly IThemeService _themeService;
+    private readonly AdbService _adbService;
     private bool _disposed;
 
     [ObservableProperty]
@@ -22,6 +23,15 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private string _ubersignPath;
+
+    [ObservableProperty]
+    private string _adbPath;
+
+    [ObservableProperty]
+    private string _adbTestLog = Properties.Resources.WaitingForCommand;
+
+    [ObservableProperty]
+    private bool _isTestingAdb;
 
     [ObservableProperty]
     private bool _isDownloadingTools;
@@ -48,7 +58,8 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         IToolRepository toolRepository,
         IToolDownloadService toolDownloadService,
         LocalizationService localizationService,
-        IThemeService themeService)
+        IThemeService themeService,
+        AdbService adbService)
     {
         _settingsService = settingsService;
         _filePickerService = filePickerService;
@@ -57,9 +68,11 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _toolDownloadService = toolDownloadService;
         _localizationService = localizationService;
         _themeService = themeService;
+        _adbService = adbService;
 
         _apktoolPath = _settingsService.Settings.ApktoolPath;
         _ubersignPath = _settingsService.Settings.UbersignPath;
+        _adbPath = _settingsService.Settings.AdbPath;
         _selectedLanguage = _localizationService.CurrentLanguage;
 
         RefreshThemeModes(_settingsService.Settings.ThemeMode);
@@ -77,6 +90,12 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     partial void OnUbersignPathChanged(string value)
     {
         _settingsService.Settings.UbersignPath = value;
+        _settingsService.Save();
+    }
+
+    partial void OnAdbPathChanged(string value)
+    {
+        _settingsService.Settings.AdbPath = value;
         _settingsService.Save();
     }
     
@@ -119,6 +138,39 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         if (file != null)
         {
             UbersignPath = file;
+        }
+    }
+
+    [RelayCommand]
+    private async Task BrowseAdb()
+    {
+        var file = await _filePickerService.OpenFileAsync("ADB|adb;adb.exe|All Files (*.*)|*.*");
+        if (file != null)
+        {
+            AdbPath = file;
+        }
+    }
+
+    [RelayCommand]
+    private async Task TestAdb()
+    {
+        if (IsTestingAdb)
+        {
+            return;
+        }
+
+        IsTestingAdb = true;
+        try
+        {
+            var adbPath = string.IsNullOrWhiteSpace(AdbPath)
+                ? await _adbService.ResolveAdbPathAsync()
+                : AdbPath;
+            var result = await _adbService.RunAdbAsync(adbPath ?? string.Empty, ["version"]);
+            AdbTestLog = CommandLogFormatter.FormatCommandResult(result);
+        }
+        finally
+        {
+            IsTestingAdb = false;
         }
     }
 
@@ -255,3 +307,18 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 }
 
 public sealed record ThemeModeItem(string Key, string Name);
+
+internal static class CommandLogFormatter
+{
+    public static string FormatCommandResult(PulseAPK.Core.Models.AdbCommandResult result)
+    {
+        return string.Join(
+            Environment.NewLine,
+            $"$ {result.CommandText}",
+            "stdout:",
+            string.IsNullOrWhiteSpace(result.StandardOutput) ? "(empty)" : result.StandardOutput.TrimEnd(),
+            "stderr:",
+            string.IsNullOrWhiteSpace(result.StandardError) ? "(empty)" : result.StandardError.TrimEnd(),
+            $"exit code: {result.ExitCode}");
+    }
+}

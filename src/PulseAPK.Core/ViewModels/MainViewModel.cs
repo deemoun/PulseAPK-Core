@@ -25,6 +25,7 @@ public partial class MainViewModel : ObservableObject
     public string MenuBuildLabel => _localizationService["MenuBuild"];
     public string MenuPatchLabel => _localizationService["MenuPatch"];
     public string MenuAnalyserLabel => _localizationService["MenuAnalyser"];
+    public string MenuDeviceToolsLabel => "Device Tools";
     public string MenuSettingsLabel => _localizationService["MenuSettings"];
     public string MenuAboutLabel => _localizationService["MenuAbout"];
 
@@ -74,6 +75,13 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void NavigateToDeviceTools()
+    {
+        SetCurrentView(Resolve<DeviceToolsViewModel>());
+        SelectedMenu = "DeviceTools";
+    }
+
+    [RelayCommand]
     private void NavigateToAbout()
     {
         SetCurrentView(Resolve<AboutViewModel>());
@@ -115,6 +123,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(MenuBuildLabel));
         OnPropertyChanged(nameof(MenuPatchLabel));
         OnPropertyChanged(nameof(MenuAnalyserLabel));
+        OnPropertyChanged(nameof(MenuDeviceToolsLabel));
         OnPropertyChanged(nameof(MenuSettingsLabel));
         OnPropertyChanged(nameof(MenuAboutLabel));
     }

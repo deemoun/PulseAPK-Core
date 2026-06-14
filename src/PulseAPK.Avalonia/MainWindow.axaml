@@ -28,6 +28,9 @@
         <DataTemplate DataType="{x:Type vm:AnalyserViewModel}">
             <views:AnalyserView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DeviceToolsViewModel}">
+            <views:DeviceToolsView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:AboutViewModel}">
             <views:AboutView/>
         </DataTemplate>
@@ -55,6 +58,9 @@
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToAnalyserCommand}"
                         Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAnalyser]}"
+                        HorizontalAlignment="Stretch"/>
+                <Button Command="{Binding NavigateToDeviceToolsCommand}"
+                        Content="{Binding MenuDeviceToolsLabel}"
                         HorizontalAlignment="Stretch"/>
                 <Button Command="{Binding NavigateToSettingsCommand}"
                         Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuSettings]}"

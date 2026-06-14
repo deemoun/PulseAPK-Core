@@ -1,0 +1,247 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
+             x:Class="PulseAPK.Avalonia.Views.DeviceToolsView"
+             x:DataType="vm:DeviceToolsViewModel">
+    <Grid RowDefinitions="*,220" RowSpacing="16" Margin="20">
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="14">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Device Tools"
+                               FontSize="24"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="Install APKs, launch activities, and run common ADB shell commands."
+                               Opacity="0.75" />
+                </StackPanel>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="ADB Status" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                            <TextBox Text="{Binding DetectedAdbPath}"
+                                     IsReadOnly="True"
+                                     Watermark="ADB path" />
+                            <Button Grid.Column="1"
+                                    Content="Refresh Devices"
+                                    Command="{Binding RefreshDevicesCommand}"
+                                    MinWidth="140" />
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding AdbStatus}"
+                                       VerticalAlignment="Center"
+                                       FontWeight="SemiBold" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Connected Devices" FontWeight="SemiBold" />
+                        <ComboBox ItemsSource="{Binding Devices}"
+                                  SelectedItem="{Binding SelectedDevice}"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DisplayName}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="APK" FontWeight="SemiBold" />
+                        <TextBlock Text="Selected APK" Opacity="0.8" />
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
+                            <TextBox Text="{Binding SelectedApkPath}" Watermark="/path/to/app.apk" />
+                            <Button Grid.Column="1"
+                                    Content="Browse"
+                                    Command="{Binding BrowseApkCommand}"
+                                    MinWidth="90" />
+                            <Button Grid.Column="2"
+                                    Content="Install APK"
+                                    Command="{Binding InstallApkCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    MinWidth="100" />
+                            <Button Grid.Column="3"
+                                    Content="Detect Package"
+                                    Command="{Binding DetectPackageCommand}"
+                                    MinWidth="120" />
+                            <Button Grid.Column="4"
+                                    Content="Clear"
+                                    Command="{Binding ClearApkCommand}"
+                                    MinWidth="80" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Package &amp; Activity" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Package name" Opacity="0.8" />
+                                <TextBox Text="{Binding PackageName}" Watermark="com.example.app" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="6">
+                                <TextBlock Text="Activity" Opacity="0.8" />
+                                <TextBox Text="{Binding Activity}" Watermark=".MainActivity or full class name" />
+                                <ComboBox ItemsSource="{Binding Activities}"
+                                          SelectedItem="{Binding Activity}"
+                                          HorizontalAlignment="Stretch" />
+                            </StackPanel>
+                        </Grid>
+                        <WrapPanel>
+                            <Button Content="Launch App"
+                                    Command="{Binding LaunchAppCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Launch Activity"
+                                    Command="{Binding LaunchActivityCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Force Stop"
+                                    Command="{Binding ForceStopCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Clear Data"
+                                    Command="{Binding ClearDataCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Uninstall"
+                                    Command="{Binding UninstallCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Current Activity"
+                                    Command="{Binding CurrentActivityCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Clear"
+                                    Command="{Binding ClearPackageCommand}"
+                                    Margin="0,0,8,8" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Shell Command" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                            <TextBox Text="{Binding CommandText}"
+                                     Watermark="getprop ro.product.model" />
+                            <Button Grid.Column="1"
+                                    Content="Run Shell"
+                                    Command="{Binding RunShellCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    MinWidth="110" />
+                            <Button Grid.Column="2"
+                                    Content="Run ADB"
+                                    Command="{Binding RunAdbCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    MinWidth="100" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Presets" FontWeight="SemiBold" />
+                        <WrapPanel>
+                            <Button Content="Model"
+                                    Command="{Binding RunModelPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Android Release"
+                                    Command="{Binding RunAndroidReleasePresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="SDK"
+                                    Command="{Binding RunSdkPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="CPU ABI"
+                                    Command="{Binding RunCpuAbiPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="List Packages"
+                                    Command="{Binding RunListPackagesPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Third-Party Packages"
+                                    Command="{Binding RunThirdPartyPackagesPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Search Package"
+                                    Command="{Binding RunSearchPackagePresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="App Path"
+                                    Command="{Binding RunAppPathPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Current Activity"
+                                    Command="{Binding RunCurrentActivityPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="Reboot"
+                                    Command="{Binding RunRebootPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="ADB Root"
+                                    Command="{Binding RunAdbRootPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                            <Button Content="ADB Remount"
+                                    Command="{Binding RunAdbRemountPresetCommand}"
+                                    IsEnabled="{Binding HasWorkingDevice}"
+                                    Margin="0,0,8,8" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="1"
+                Background="{DynamicResource MainBackgroundBrush}"
+                BorderBrush="{DynamicResource ConsoleBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12">
+            <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                <TextBlock Text="Console log"
+                           FontWeight="SemiBold" />
+                <TextBox Grid.Row="1"
+                         Text="{Binding ConsoleLog}"
+                         IsReadOnly="True"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         VerticalAlignment="Stretch" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

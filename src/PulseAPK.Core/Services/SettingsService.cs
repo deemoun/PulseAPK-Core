@@ -8,6 +8,7 @@ namespace PulseAPK.Core.Services
     {
         public string ApktoolPath { get; set; } = "apktool.jar";
         public string UbersignPath { get; set; } = string.Empty;
+        public string AdbPath { get; set; } = string.Empty;
         public string SelectedLanguage { get; set; } = "en-US";
         public string ThemeMode { get; set; } = "dark_mode";
     }
