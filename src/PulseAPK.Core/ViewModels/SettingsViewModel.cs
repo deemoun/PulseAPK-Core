@@ -15,7 +15,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly IToolDownloadService _toolDownloadService;
     private readonly LocalizationService _localizationService;
     private readonly IThemeService _themeService;
-    private readonly AdbService _adbService;
     private bool _disposed;
 
     [ObservableProperty]
@@ -26,12 +25,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private string _adbPath;
-
-    [ObservableProperty]
-    private string _adbTestLog = Properties.Resources.WaitingForCommand;
-
-    [ObservableProperty]
-    private bool _isTestingAdb;
 
     [ObservableProperty]
     private bool _isDownloadingTools;
@@ -58,8 +51,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         IToolRepository toolRepository,
         IToolDownloadService toolDownloadService,
         LocalizationService localizationService,
-        IThemeService themeService,
-        AdbService adbService)
+        IThemeService themeService)
     {
         _settingsService = settingsService;
         _filePickerService = filePickerService;
@@ -68,7 +60,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _toolDownloadService = toolDownloadService;
         _localizationService = localizationService;
         _themeService = themeService;
-        _adbService = adbService;
 
         _apktoolPath = _settingsService.Settings.ApktoolPath;
         _ubersignPath = _settingsService.Settings.UbersignPath;
@@ -148,29 +139,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         if (file != null)
         {
             AdbPath = file;
-        }
-    }
-
-    [RelayCommand]
-    private async Task TestAdb()
-    {
-        if (IsTestingAdb)
-        {
-            return;
-        }
-
-        IsTestingAdb = true;
-        try
-        {
-            var adbPath = string.IsNullOrWhiteSpace(AdbPath)
-                ? await _adbService.ResolveAdbPathAsync()
-                : AdbPath;
-            var result = await _adbService.RunAdbAsync(adbPath ?? string.Empty, ["version"]);
-            AdbTestLog = CommandLogFormatter.FormatCommandResult(result);
-        }
-        finally
-        {
-            IsTestingAdb = false;
         }
     }
 
