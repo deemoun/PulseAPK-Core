@@ -29,7 +29,7 @@
             <Setter Property="BorderBrush" Value="#EF6C00" />
         </Style>
     </UserControl.Styles>
-    <Grid RowDefinitions="*,Auto" RowSpacing="16" Margin="20">
+    <Grid RowDefinitions="*,Auto" RowSpacing="10" Margin="20">
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="14">
                 <StackPanel Spacing="4">
@@ -306,23 +306,32 @@
                 BorderThickness="1"
                 CornerRadius="6"
                 Padding="12">
-            <Expander Header="Console log"
-                      IsExpanded="False">
-                <Grid RowDefinitions="Auto,*" RowSpacing="8" Margin="0,8,0,0">
-                    <Button Content="Clear"
+            <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <TextBlock Text="Command output"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+                    <Button Grid.Column="1"
+                            Content="Clear"
                             Command="{Binding ClearConsoleCommand}"
                             MinWidth="80"
                             HorizontalAlignment="Right" />
-                    <TextBox Grid.Row="1"
-                             Text="{Binding ConsoleLog}"
-                             IsReadOnly="True"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             MinHeight="160"
-                             MaxHeight="260" />
                 </Grid>
-            </Expander>
+
+                <TextBlock Grid.Row="1"
+                           Text="Latest command output appears below."
+                           FontSize="12"
+                           Opacity="0.65" />
+
+                <TextBox Grid.Row="2"
+                         Text="{Binding ConsoleLog}"
+                         IsReadOnly="True"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         MinHeight="180"
+                         MaxHeight="280" />
+            </Grid>
         </Border>
     </Grid>
 </UserControl>
