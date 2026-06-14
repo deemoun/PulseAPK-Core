@@ -30,6 +30,14 @@ public partial class MainViewModel : ObservableObject
     public string MenuSettingsLabel => _localizationService["MenuSettings"];
     public string MenuAboutLabel => _localizationService["MenuAbout"];
 
+    public bool IsDecompileSelected => SelectedMenu == "Decompile";
+    public bool IsBuildSelected => SelectedMenu == "Build";
+    public bool IsPatchSelected => SelectedMenu == "Patch";
+    public bool IsAnalyserSelected => SelectedMenu == "Analyser";
+    public bool IsDeviceToolsSelected => SelectedMenu == "DeviceTools";
+    public bool IsSettingsSelected => SelectedMenu == "Settings";
+    public bool IsAboutSelected => SelectedMenu == "About";
+
     public bool IsDecompileEnabled => FeatureFlags.Decompile;
     public bool IsBuildEnabled => FeatureFlags.BuildApk;
     public bool IsPatchEnabled => FeatureFlags.PatchApk;
@@ -103,6 +111,17 @@ public partial class MainViewModel : ObservableObject
         if (!CanNavigateToAbout()) return;
         SetCurrentView(Resolve<AboutViewModel>());
         SelectedMenu = "About";
+    }
+
+    partial void OnSelectedMenuChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsDecompileSelected));
+        OnPropertyChanged(nameof(IsBuildSelected));
+        OnPropertyChanged(nameof(IsPatchSelected));
+        OnPropertyChanged(nameof(IsAnalyserSelected));
+        OnPropertyChanged(nameof(IsDeviceToolsSelected));
+        OnPropertyChanged(nameof(IsSettingsSelected));
+        OnPropertyChanged(nameof(IsAboutSelected));
     }
 
     private static bool CanNavigateToDecompile() => FeatureFlags.Decompile;

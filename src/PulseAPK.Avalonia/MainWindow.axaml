@@ -37,8 +37,8 @@
         </Style>
 
         <Style Selector="Button.nav-button.active">
-            <Setter Property="Background" Value="{DynamicResource CyberAccentPressedBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="Background" Value="{DynamicResource CyberSelectedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberSelectedBorderBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
         </Style>
 
@@ -101,6 +101,7 @@
 
                 <Button Classes="nav-button"
                         Command="{Binding NavigateToDecompileCommand}"
+                        Classes.active="{Binding IsDecompileSelected}"
                         IsVisible="{Binding IsDecompileEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Classes="nav-glyph" Text="⌬"/>
@@ -109,6 +110,7 @@
                 </Button>
                 <Button Classes="nav-button"
                         Command="{Binding NavigateToBuildCommand}"
+                        Classes.active="{Binding IsBuildSelected}"
                         IsVisible="{Binding IsBuildEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Classes="nav-glyph" Text="⬡"/>
@@ -117,6 +119,7 @@
                 </Button>
                 <Button Classes="nav-button"
                         Command="{Binding NavigateToPatchCommand}"
+                        Classes.active="{Binding IsPatchSelected}"
                         IsVisible="{Binding IsPatchEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Classes="nav-glyph" Text="⚡"/>
@@ -125,6 +128,7 @@
                 </Button>
                 <Button Classes="nav-button"
                         Command="{Binding NavigateToAnalyserCommand}"
+                        Classes.active="{Binding IsAnalyserSelected}"
                         IsVisible="{Binding IsAnalyserEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Classes="nav-glyph" Text="◎"/>
@@ -133,6 +137,7 @@
                 </Button>
                 <Button Classes="nav-button"
                         Command="{Binding NavigateToDeviceToolsCommand}"
+                        Classes.active="{Binding IsDeviceToolsSelected}"
                         IsVisible="{Binding IsDeviceToolsEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Classes="nav-glyph" Text="▣"/>
@@ -141,6 +146,7 @@
                 </Button>
                 <Button Classes="nav-button"
                         Command="{Binding NavigateToSettingsCommand}"
+                        Classes.active="{Binding IsSettingsSelected}"
                         IsVisible="{Binding IsSettingsEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Classes="nav-glyph" Text="⚙"/>
@@ -149,6 +155,7 @@
                 </Button>
                 <Button Classes="nav-button"
                         Command="{Binding NavigateToAboutCommand}"
+                        Classes.active="{Binding IsAboutSelected}"
                         IsVisible="{Binding IsAboutEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Classes="nav-glyph" Text="?"/>
