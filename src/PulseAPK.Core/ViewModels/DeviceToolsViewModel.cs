@@ -8,6 +8,16 @@ using Properties = PulseAPK.Core.Properties;
 
 namespace PulseAPK.Core.ViewModels;
 
+public enum DeviceToolMode
+{
+    InstallApk,
+    LaunchApp,
+    AppMaintenance,
+    ShellPresets
+}
+
+public sealed record DeviceToolModeOption(DeviceToolMode Mode, string DisplayName);
+
 public partial class DeviceToolsViewModel : ObservableObject
 {
     private readonly AdbService _adbService;
@@ -75,6 +85,13 @@ public partial class DeviceToolsViewModel : ObservableObject
     private string _consoleLog = Properties.Resources.WaitingForCommand;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsInstallApkMode))]
+    [NotifyPropertyChangedFor(nameof(IsLaunchAppMode))]
+    [NotifyPropertyChangedFor(nameof(IsAppMaintenanceMode))]
+    [NotifyPropertyChangedFor(nameof(IsShellPresetsMode))]
+    private DeviceToolModeOption? _selectedDeviceToolMode;
+
+    [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(InstallApkCommand))]
     [NotifyCanExecuteChangedFor(nameof(DetectPackageCommand))]
     [NotifyCanExecuteChangedFor(nameof(LaunchAppCommand))]
@@ -101,14 +118,26 @@ public partial class DeviceToolsViewModel : ObservableObject
 
     public ObservableCollection<AdbDevice> Devices { get; } = [];
     public ObservableCollection<string> Activities { get; } = [];
+    public IReadOnlyList<DeviceToolModeOption> DeviceToolModes { get; } =
+    [
+        new(DeviceToolMode.InstallApk, "Install APK"),
+        new(DeviceToolMode.LaunchApp, "Launch App"),
+        new(DeviceToolMode.AppMaintenance, "App Maintenance"),
+        new(DeviceToolMode.ShellPresets, "Shell / Presets")
+    ];
 
     public string AdbStatus => IsAdbFound ? "ADB: found" : "ADB: not found";
+    public bool IsInstallApkMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.InstallApk;
+    public bool IsLaunchAppMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.LaunchApp;
+    public bool IsAppMaintenanceMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.AppMaintenance;
+    public bool IsShellPresetsMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.ShellPresets;
     public bool HasWorkingDevice => SelectedDevice?.IsUsable == true;
 
     public DeviceToolsViewModel(AdbService adbService, IFilePickerService filePickerService)
     {
         _adbService = adbService;
         _filePickerService = filePickerService;
+        _selectedDeviceToolMode = DeviceToolModes[0];
     }
 
     [RelayCommand(AllowConcurrentExecutions = true)]
