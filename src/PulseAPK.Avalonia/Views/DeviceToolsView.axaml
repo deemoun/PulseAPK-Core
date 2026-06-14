@@ -93,7 +93,7 @@
                             </ComboBox>
 
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding DeviceListStatus}"
+                                       Text="{Binding InlineDeviceListStatus}"
                                        VerticalAlignment="Center"
                                        Opacity="0.75" />
                         </Grid>
