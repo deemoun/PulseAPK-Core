@@ -22,12 +22,31 @@
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
         </Style>
 
+
         <Style Selector="Button:pressed">
             <Setter Property="Background" Value="{DynamicResource CyberButtonPressedBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberWarningBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
         </Style>
 
+        <Style Selector="Button.primary-action">
+            <Setter Property="Background" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="Button.primary-action:pointerover">
+            <Setter Property="Background" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
+
+        <Style Selector="Button.primary-action:pressed">
+            <Setter Property="Background" Value="{DynamicResource CyberButtonPressedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
 
         <Style Selector="Button:disabled">
             <Setter Property="Background" Value="{DynamicResource CyberDisabledButtonBrush}" />

@@ -209,7 +209,7 @@
                                         <TextBox Text="{Binding SelectedApkPath}" Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsApkPathWatermark]}" />
                                         <WrapPanel>
                                             <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}" Command="{Binding BrowseApkCommand}" MinWidth="90" Margin="0,0,8,4" />
-                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsInstallApk]}" Command="{Binding InstallApkCommand}" MinWidth="100" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsInstallApk]}" Command="{Binding InstallApkCommand}" Classes="primary-action" MinWidth="100" Margin="0,0,8,4" />
                                             <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsDetectPackage]}" Command="{Binding DetectPackageCommand}" MinWidth="120" Margin="0,0,8,4" />
                                             <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClearApkSelection]}" Command="{Binding ClearApkCommand}" Margin="0,0,8,4" />
                                         </WrapPanel>
@@ -244,8 +244,8 @@
                                         </StackPanel>
                                     </Grid>
                                     <WrapPanel>
-                                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchApp]}" Command="{Binding LaunchAppCommand}" Margin="0,0,8,4" />
-                                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchActivity]}" Command="{Binding LaunchActivityCommand}" Margin="0,0,8,4" />
+                                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchApp]}" Command="{Binding LaunchAppCommand}" Classes="primary-action" Margin="0,0,8,4" />
+                                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchActivity]}" Command="{Binding LaunchActivityCommand}" Classes="primary-action" Margin="0,0,8,4" />
                                         <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCurrentActivity]}" Command="{Binding CurrentActivityCommand}" Margin="0,0,8,4" />
                                         <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClear]}" Command="{Binding ClearPackageCommand}" Margin="0,0,8,4" />
                                     </WrapPanel>
@@ -284,7 +284,7 @@
                                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageUtilitiesHelp]}" Classes="helper-text" TextWrapping="Wrap" />
                                                 <WrapPanel>
                                                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsOpenAppSettings]}" Command="{Binding OpenAppSettingsCommand}" Margin="0,0,8,4" />
-                                                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCopyApkFromDevice]}" Command="{Binding CopyApkFromDeviceCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCopyApkFromDevice]}" Command="{Binding CopyApkFromDeviceCommand}" Classes="primary-action" Margin="0,0,8,4" />
                                                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLogcatForPackage]}" Command="{Binding RunLogcatForPackagePresetCommand}" Margin="0,0,8,4" />
                                                 </WrapPanel>
                                             </StackPanel>
@@ -324,16 +324,18 @@
                                         <Button Grid.Column="2"
                                                 Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunPreset]}"
                                                 Command="{Binding RunSelectedPresetCommand}"
+                                                Classes="primary-action"
                                                 MinWidth="110" />
                                     </Grid>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommand]}" Opacity="0.8" />
                                         <TextBox Text="{Binding CommandText}" Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommandWatermark]}" />
                                         <WrapPanel>
-                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunShell]}" Command="{Binding RunShellCommand}" MinWidth="110" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunShell]}" Command="{Binding RunShellCommand}" Classes="primary-action" MinWidth="110" Margin="0,0,8,4" />
                                             <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunAdbArgs]}"
                                                     ToolTip.Tip="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunAdbArgsTip]}"
                                                     Command="{Binding RunAdbCommand}"
+                                                    Classes="primary-action"
                                                     MinWidth="100"
                                                     Margin="0,0,8,4" />
                                         </WrapPanel>
