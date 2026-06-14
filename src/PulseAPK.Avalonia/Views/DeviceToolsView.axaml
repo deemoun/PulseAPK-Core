@@ -4,49 +4,98 @@
              xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
              x:Class="PulseAPK.Avalonia.Views.DeviceToolsView"
              x:DataType="vm:DeviceToolsViewModel">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="CyberConsoleBorderBrush" Color="#00E5FF" />
+    </UserControl.Resources>
     <UserControl.Styles>
         <Style Selector="Button.destructive">
-            <Setter Property="Background" Value="#B3261E" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="#3A0710" />
+            <Setter Property="BorderBrush" Value="#FF174D" />
+            <Setter Property="BorderThickness" Value="1.75" />
+            <Setter Property="Foreground" Value="#FFB3C1" />
         </Style>
         <Style Selector="Button.destructive:pointerover">
-            <Setter Property="Background" Value="#C93A32" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="#6E0B1D" />
+            <Setter Property="BorderBrush" Value="#FF5A36" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
         <Style Selector="Button.destructive:pressed">
-            <Setter Property="Background" Value="#8C1D18" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="#26040A" />
+            <Setter Property="BorderBrush" Value="#FF2BD6" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+        <Style Selector="Border.connection-card.online">
+            <Setter Property="BorderBrush" Value="#00E5FF" />
+            <Setter Property="BorderThickness" Value="1.5" />
+        </Style>
+        <Style Selector="Border.connection-card.offline">
+            <Setter Property="BorderBrush" Value="#FF174D" />
+            <Setter Property="BorderThickness" Value="1.5" />
         </Style>
         <Style Selector="Border.connection-status-pill">
-            <Setter Property="Background" Value="#ECEFF1" />
-            <Setter Property="BorderBrush" Value="#B0BEC5" />
+            <Setter Property="Background" Value="{DynamicResource CyberAccentMutedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberCardBorderBrush}" />
         </Style>
         <Style Selector="Border.connection-status-pill.online">
-            <Setter Property="Background" Value="#15803D" />
-            <Setter Property="BorderBrush" Value="#86EFAC" />
+            <Setter Property="Background" Value="#062C2F" />
+            <Setter Property="BorderBrush" Value="#00E5FF" />
         </Style>
         <Style Selector="Border.connection-status-pill.online TextBlock">
             <Setter Property="Foreground" Value="#ECFDF5" />
         </Style>
         <Style Selector="Border.connection-status-pill.offline">
-            <Setter Property="Background" Value="#B91C1C" />
-            <Setter Property="BorderBrush" Value="#FCA5A5" />
+            <Setter Property="Background" Value="#3A0710" />
+            <Setter Property="BorderBrush" Value="#FF174D" />
         </Style>
         <Style Selector="Border.connection-status-pill.offline TextBlock">
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="#FFB3C1" />
+        </Style>
+        <Style Selector="ListBox.workflow-tabs">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="ListBox.workflow-tabs ListBoxItem">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1.25" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="Padding" Value="16,8" />
+        </Style>
+        <Style Selector="ListBox.workflow-tabs ListBoxItem:pointerover">
+            <Setter Property="Background" Value="{DynamicResource CyberAccentMutedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+        </Style>
+        <Style Selector="ListBox.workflow-tabs ListBoxItem:selected">
+            <Setter Property="Background" Value="{DynamicResource CyberAccentPressedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+        </Style>
+        <Style Selector="TextBox.terminal-output">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberConsoleBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1.25" />
+            <Setter Property="FontFamily" Value="Consolas, Menlo, monospace" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
         </Style>
     </UserControl.Styles>
     <Grid RowDefinitions="*,Auto" RowSpacing="16" Margin="20">
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16">
-                <StackPanel Spacing="4">
+                <StackPanel Spacing="6">
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsHeader]}"
                                Classes="page-title" />
+                    <Border Width="86"
+                            Height="3"
+                            HorizontalAlignment="Left"
+                            Background="{DynamicResource CyberAccentSecondaryBrush}"
+                            CornerRadius="2" />
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsSubtitle]}"
                                Classes="helper-text" />
                 </StackPanel>
 
-                <Border Classes="card">
+                <Border Classes="card connection-card"
+                        Classes.online="{Binding IsAdbFound}"
+                        Classes.offline="{Binding IsAdbMissing}">
                     <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="16">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                             <StackPanel Spacing="6">
@@ -109,7 +158,9 @@
                     </Grid>
                 </Border>
 
-                <Border Classes="card">
+                <Border Classes="card connection-card"
+                        Classes.online="{Binding IsDeviceOnline}"
+                        Classes.offline="{Binding IsDeviceOffline}">
                     <StackPanel Spacing="10">
                         <StackPanel Spacing="10">
                             <StackPanel Spacing="4">
@@ -136,7 +187,8 @@
                             <ListBox ItemsSource="{Binding DeviceToolModes}"
                                      SelectedItem="{Binding SelectedDeviceToolMode}"
                                      IsEnabled="{Binding HasWorkingDevice}"
-                                     HorizontalAlignment="Left">
+                                     HorizontalAlignment="Left"
+                                     Classes="workflow-tabs">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <StackPanel Orientation="Horizontal" />
@@ -144,10 +196,9 @@
                                 </ListBox.ItemsPanel>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:DeviceToolModeOption">
-                                        <Border Classes="neon-pill"
-                                                Margin="0,0,8,0">
-                                            <TextBlock Text="{Binding DisplayName}" />
-                                        </Border>
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource CyberAccentBrush}" />
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
@@ -328,8 +379,10 @@
                 Classes="console-card">
             <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
-                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommandOutput]}"
+                    <TextBlock Text="TERMINAL OUTPUT"
+                               FontFamily="Consolas, Menlo, monospace"
                                FontWeight="SemiBold"
+                               Foreground="{DynamicResource CyberAccentBrush}"
                                VerticalAlignment="Center" />
                     <Button Grid.Column="1"
                             Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClear]}"
@@ -347,6 +400,7 @@
                          IsReadOnly="True"
                          AcceptsReturn="True"
                          TextWrapping="Wrap"
+                         Classes="terminal-output"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          MinHeight="180"
                          MaxHeight="280" />
