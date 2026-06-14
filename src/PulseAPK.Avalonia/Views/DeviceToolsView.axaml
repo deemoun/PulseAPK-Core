@@ -60,7 +60,6 @@
                         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10">
                             <ComboBox ItemsSource="{Binding Devices}"
                                       SelectedItem="{Binding SelectedDevice}"
-                                      Watermark="Select device"
                                       HorizontalAlignment="Stretch">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -128,7 +127,6 @@
                                         <TextBox Text="{Binding Activity}" Watermark=".MainActivity or full class name" />
                                         <ComboBox ItemsSource="{Binding Activities}"
                                                   SelectedItem="{Binding Activity}"
-                                                  Watermark="Detected activities"
                                                   HorizontalAlignment="Stretch" />
                                     </StackPanel>
                                 </Grid>
@@ -190,7 +188,6 @@
                                     <ComboBox Grid.Column="1"
                                               ItemsSource="{Binding Presets}"
                                               SelectedItem="{Binding SelectedPreset}"
-                                              Watermark="Select preset"
                                               HorizontalAlignment="Stretch">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate x:DataType="vm:DeviceToolPreset">
