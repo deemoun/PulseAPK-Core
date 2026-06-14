@@ -485,6 +485,12 @@ Output: {0}</value>
   <data name="DeviceToolsWorkflowHelp" xml:space="preserve">
     <value>Switch between install, launch, app management, and shell tools.</value>
   </data>
+  <data name="DeviceToolsDeviceOnline" xml:space="preserve">
+    <value>Device: online</value>
+  </data>
+  <data name="DeviceToolsDeviceOffline" xml:space="preserve">
+    <value>Device: offline</value>
+  </data>
   <data name="DeviceToolsInstallApkPackage" xml:space="preserve">
     <value>Install APK Package</value>
   </data>

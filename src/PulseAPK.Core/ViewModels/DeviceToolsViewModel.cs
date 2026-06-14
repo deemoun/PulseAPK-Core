@@ -80,6 +80,9 @@ public partial class DeviceToolsViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasWorkingDevice))]
+    [NotifyPropertyChangedFor(nameof(IsDeviceOnline))]
+    [NotifyPropertyChangedFor(nameof(IsDeviceOffline))]
+    [NotifyPropertyChangedFor(nameof(DeviceConnectionStatus))]
     [NotifyPropertyChangedFor(nameof(CanShowNoDeviceHint))]
     [NotifyPropertyChangedFor(nameof(CanShowPackageRequiredHint))]
     [NotifyCanExecuteChangedFor(nameof(InstallApkCommand))]
@@ -242,6 +245,11 @@ public partial class DeviceToolsViewModel : ObservableObject
     public bool IsAppMaintenanceMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.AppMaintenance;
     public bool IsShellPresetsMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.ShellPresets;
     public bool HasWorkingDevice => SelectedDevice?.IsUsable == true;
+    public bool IsDeviceOnline => HasWorkingDevice;
+    public bool IsDeviceOffline => !HasWorkingDevice;
+    public string DeviceConnectionStatus => HasWorkingDevice
+        ? T("DeviceToolsDeviceOnline")
+        : T("DeviceToolsDeviceOffline");
     public bool CanShowNoDeviceHint => !IsRunning && !HasWorkingDevice;
     public bool CanShowPackageRequiredHint => !IsRunning && string.IsNullOrWhiteSpace(PackageName);
     public string ScreenRecordStatus => IsScreenRecording
