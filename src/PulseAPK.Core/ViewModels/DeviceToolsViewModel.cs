@@ -49,22 +49,28 @@ public partial class DeviceToolsViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AdbStatus))]
     [NotifyPropertyChangedFor(nameof(DeviceListStatus))]
+    [NotifyPropertyChangedFor(nameof(IsAdbMissing))]
+    [NotifyPropertyChangedFor(nameof(HasNoConnectedDevices))]
     private bool _isAdbFound;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AdbStatus))]
+    [NotifyPropertyChangedFor(nameof(IsAdbMissing))]
     private bool _hasCheckedAdb;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AdbStatus))]
+    [NotifyPropertyChangedFor(nameof(IsAdbMissing))]
     private bool _isCheckingAdb;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DeviceListStatus))]
+    [NotifyPropertyChangedFor(nameof(HasNoConnectedDevices))]
     private bool _hasCheckedDevices;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DeviceListStatus))]
+    [NotifyPropertyChangedFor(nameof(HasNoConnectedDevices))]
     private bool _isRefreshingDevices;
 
     [ObservableProperty]
@@ -191,8 +197,10 @@ public partial class DeviceToolsViewModel : ObservableObject
     public string DeviceListStatus => IsRefreshingDevices
         ? "Checking devices..."
         : HasCheckedDevices && IsAdbFound && Devices.Count == 0
-            ? "No connected devices found"
+            ? "No Android device connected. Connect a device and enable USB debugging."
             : string.Empty;
+    public bool IsAdbMissing => HasCheckedAdb && !IsCheckingAdb && !IsAdbFound;
+    public bool HasNoConnectedDevices => HasCheckedDevices && IsAdbFound && !IsRefreshingDevices && Devices.Count == 0;
     public bool IsInstallApkMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.InstallApk;
     public bool IsLaunchAppMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.LaunchApp;
     public bool IsAppMaintenanceMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.AppMaintenance;
@@ -241,10 +249,12 @@ public partial class DeviceToolsViewModel : ObservableObject
 
             SelectedDevice = Devices.FirstOrDefault(device => device.IsUsable) ?? Devices.FirstOrDefault();
             OnPropertyChanged(nameof(DeviceListStatus));
+            OnPropertyChanged(nameof(HasNoConnectedDevices));
         }
         finally
         {
             IsRefreshingDevices = false;
+            OnPropertyChanged(nameof(HasNoConnectedDevices));
         }
     }
 

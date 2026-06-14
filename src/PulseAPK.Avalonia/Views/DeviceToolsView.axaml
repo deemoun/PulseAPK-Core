@@ -16,6 +16,18 @@
             <Setter Property="Background" Value="#8C1D18" />
             <Setter Property="Foreground" Value="White" />
         </Style>
+        <Style Selector="Border.adb-status-pill">
+            <Setter Property="Background" Value="#ECEFF1" />
+            <Setter Property="BorderBrush" Value="#B0BEC5" />
+        </Style>
+        <Style Selector="Border.adb-status-pill.found">
+            <Setter Property="Background" Value="#DDF6E6" />
+            <Setter Property="BorderBrush" Value="#2E7D32" />
+        </Style>
+        <Style Selector="Border.adb-status-pill.missing">
+            <Setter Property="Background" Value="#FDE7D3" />
+            <Setter Property="BorderBrush" Value="#EF6C00" />
+        </Style>
     </UserControl.Styles>
     <Grid RowDefinitions="*,Auto" RowSpacing="16" Margin="20">
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
@@ -32,32 +44,43 @@
                         BorderBrush="{DynamicResource CardBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="6"
-                        Padding="10">
-                    <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                            <Border Background="{DynamicResource MainBackgroundBrush}"
-                                    BorderBrush="{DynamicResource ConsoleBorderBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="12"
-                                    Padding="10,4"
-                                    VerticalAlignment="Center"
-                                    ToolTip.Tip="{Binding DetectedAdbPath}">
-                                <TextBlock Text="{Binding AdbStatus}"
+                        Padding="12">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Connection"
                                            FontWeight="SemiBold" />
-                            </Border>
+                                <WrapPanel>
+                                    <Border Classes="adb-status-pill"
+                                            Classes.found="{Binding IsAdbFound}"
+                                            Classes.missing="{Binding IsAdbMissing}"
+                                            BorderThickness="1"
+                                            CornerRadius="12"
+                                            Padding="10,4"
+                                            Margin="0,0,8,4"
+                                            ToolTip.Tip="{Binding DetectedAdbPath}">
+                                        <TextBlock Text="{Binding AdbStatus}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="12" />
+                                    </Border>
+                                    <TextBlock Text="Select a connected Android device for APK and shell tools."
+                                               Opacity="0.75"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,4" />
+                                </WrapPanel>
+                            </StackPanel>
 
-                            <Expander Grid.Column="1"
-                                      Header="Details"
-                                      HorizontalAlignment="Left"
-                                      VerticalAlignment="Center">
-                                <TextBox Text="{Binding DetectedAdbPath}"
-                                         IsReadOnly="True"
-                                         MinWidth="360"
-                                         Margin="0,6,0,0" />
-                            </Expander>
+                            <Button Grid.Column="1"
+                                    Content="Refresh Devices"
+                                    Command="{Binding RefreshDevicesCommand}"
+                                    MinWidth="120"
+                                    VerticalAlignment="Top" />
                         </Grid>
 
-                        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                        <Grid Grid.Row="1"
+                              ColumnDefinitions="*,Auto"
+                              ColumnSpacing="10"
+                              IsVisible="{Binding IsAdbFound}">
                             <ComboBox ItemsSource="{Binding Devices}"
                                       SelectedItem="{Binding SelectedDevice}"
                                       HorizontalAlignment="Stretch">
@@ -72,12 +95,28 @@
                                        Text="{Binding DeviceListStatus}"
                                        VerticalAlignment="Center"
                                        Opacity="0.75" />
-
-                            <Button Grid.Column="2"
-                                    Content="Refresh Devices"
-                                    Command="{Binding RefreshDevicesCommand}"
-                                    MinWidth="120" />
                         </Grid>
+
+                        <Border Grid.Row="2"
+                                Background="{DynamicResource MainBackgroundBrush}"
+                                BorderBrush="{DynamicResource ConsoleBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="10"
+                                IsVisible="{Binding HasNoConnectedDevices}">
+                            <TextBlock Text="{Binding DeviceListStatus}"
+                                       TextWrapping="Wrap"
+                                       FontWeight="SemiBold" />
+                        </Border>
+
+                        <Expander Grid.Row="3"
+                                  Header="ADB path"
+                                  HorizontalAlignment="Left">
+                            <TextBox Text="{Binding DetectedAdbPath}"
+                                     IsReadOnly="True"
+                                     MinWidth="360"
+                                     Margin="0,6,0,0" />
+                        </Expander>
                     </Grid>
                 </Border>
 
