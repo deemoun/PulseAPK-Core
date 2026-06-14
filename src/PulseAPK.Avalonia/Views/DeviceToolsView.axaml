@@ -52,7 +52,7 @@
                         BorderThickness="1"
                         CornerRadius="6"
                         Padding="12">
-                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
+                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <StackPanel Spacing="6">
                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnection]}"
@@ -116,14 +116,6 @@
                                        FontWeight="SemiBold" />
                         </Border>
 
-                        <Expander Grid.Row="3"
-                                  Header="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsAdbPath]}"
-                                  HorizontalAlignment="Left">
-                            <TextBox Text="{Binding DetectedAdbPath}"
-                                     IsReadOnly="True"
-                                     MinWidth="360"
-                                     Margin="0,6,0,0" />
-                        </Expander>
                     </Grid>
                 </Border>
 

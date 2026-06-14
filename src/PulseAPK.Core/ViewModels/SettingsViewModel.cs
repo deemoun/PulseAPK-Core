@@ -13,6 +13,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly IDialogService _dialogService;
     private readonly IToolRepository _toolRepository;
     private readonly IToolDownloadService _toolDownloadService;
+    private readonly AdbService _adbService;
     private readonly LocalizationService _localizationService;
     private readonly IThemeService _themeService;
     private bool _disposed;
@@ -25,6 +26,9 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private string _adbPath;
+
+    [ObservableProperty]
+    private string _adbPathWatermark = "Auto-detect if empty";
 
     [ObservableProperty]
     private bool _isDownloadingTools;
@@ -50,6 +54,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         IDialogService dialogService,
         IToolRepository toolRepository,
         IToolDownloadService toolDownloadService,
+        AdbService adbService,
         LocalizationService localizationService,
         IThemeService themeService)
     {
@@ -58,6 +63,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _dialogService = dialogService;
         _toolRepository = toolRepository;
         _toolDownloadService = toolDownloadService;
+        _adbService = adbService;
         _localizationService = localizationService;
         _themeService = themeService;
 
@@ -70,6 +76,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _localizationService.PropertyChanged += OnLocalizationChanged;
 
         NormalizeManagedToolPathsIfMissing();
+        _ = RefreshAdbPathWatermarkAsync();
     }
 
     partial void OnApktoolPathChanged(string value)
@@ -88,6 +95,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     {
         _settingsService.Settings.AdbPath = value;
         _settingsService.Save();
+        _ = RefreshAdbPathWatermarkAsync();
     }
     
     partial void OnSelectedLanguageChanged(LanguageItem value)
@@ -235,6 +243,25 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         return normalizedConfiguredPath.StartsWith(normalizedToolFolder, StringComparison.OrdinalIgnoreCase);
     }
 
+
+    private async Task RefreshAdbPathWatermarkAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(AdbPath))
+        {
+            AdbPathWatermark = "Auto-detect if empty";
+            return;
+        }
+
+        var detectedPath = await _adbService.ResolveAdbPathAsync();
+        if (!string.IsNullOrWhiteSpace(AdbPath))
+        {
+            return;
+        }
+
+        AdbPathWatermark = string.IsNullOrWhiteSpace(detectedPath)
+            ? "Auto-detect if empty"
+            : detectedPath;
+    }
 
     private void OnLocalizationChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
