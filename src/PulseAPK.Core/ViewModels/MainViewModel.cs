@@ -11,7 +11,11 @@ namespace PulseAPK.Core.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     private readonly IServiceProvider _serviceProvider;
+    private const string SupportWorkUrl = "https://yarygintech.com/support-work/";
+
     private readonly LocalizationService _localizationService;
+    private readonly ISettingsService _settingsService;
+    private readonly ISystemService _systemService;
 
     [ObservableProperty]
     private object _currentView = null!;
@@ -30,6 +34,9 @@ public partial class MainViewModel : ObservableObject
     public string MenuSettingsLabel => _localizationService["MenuSettings"];
     public string MenuAboutLabel => _localizationService["MenuAbout"];
 
+    [ObservableProperty]
+    private bool _isSupportWorkVisible;
+
     public bool IsDecompileSelected => SelectedMenu == "Decompile";
     public bool IsBuildSelected => SelectedMenu == "Build";
     public bool IsPatchSelected => SelectedMenu == "Patch";
@@ -46,10 +53,17 @@ public partial class MainViewModel : ObservableObject
     public bool IsSettingsEnabled => FeatureFlags.Settings;
     public bool IsAboutEnabled => FeatureFlags.About;
 
-    public MainViewModel(IServiceProvider serviceProvider, LocalizationService localizationService)
+    public MainViewModel(
+        IServiceProvider serviceProvider,
+        LocalizationService localizationService,
+        ISettingsService settingsService,
+        ISystemService systemService)
     {
         _serviceProvider = serviceProvider;
         _localizationService = localizationService;
+        _settingsService = settingsService;
+        _systemService = systemService;
+        IsSupportWorkVisible = !_settingsService.Settings.IsSupportWorkDismissed;
         WindowTitle = _localizationService["AppTitle"];
         _localizationService.PropertyChanged += HandleLocalizationChanged;
         SetInitialView();
@@ -111,6 +125,20 @@ public partial class MainViewModel : ObservableObject
         if (!CanNavigateToAbout()) return;
         SetCurrentView(Resolve<AboutViewModel>());
         SelectedMenu = "About";
+    }
+
+    [RelayCommand]
+    private void OpenSupportWork()
+    {
+        _systemService.OpenUrl(SupportWorkUrl);
+    }
+
+    [RelayCommand]
+    private void DismissSupportWork()
+    {
+        IsSupportWorkVisible = false;
+        _settingsService.Settings.IsSupportWorkDismissed = true;
+        _settingsService.Save();
     }
 
     partial void OnSelectedMenuChanged(string value)
