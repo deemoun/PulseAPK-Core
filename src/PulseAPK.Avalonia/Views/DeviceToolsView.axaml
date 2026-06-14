@@ -22,12 +22,18 @@
             <Setter Property="BorderBrush" Value="#B0BEC5" />
         </Style>
         <Style Selector="Border.adb-status-pill.found">
-            <Setter Property="Background" Value="#DDF6E6" />
-            <Setter Property="BorderBrush" Value="#2E7D32" />
+            <Setter Property="Background" Value="#0284C7" />
+            <Setter Property="BorderBrush" Value="#7DD3FC" />
+        </Style>
+        <Style Selector="Border.adb-status-pill.found TextBlock">
+            <Setter Property="Foreground" Value="#E0F7FF" />
         </Style>
         <Style Selector="Border.adb-status-pill.missing">
-            <Setter Property="Background" Value="#FDE7D3" />
-            <Setter Property="BorderBrush" Value="#EF6C00" />
+            <Setter Property="Background" Value="#B91C1C" />
+            <Setter Property="BorderBrush" Value="#FCA5A5" />
+        </Style>
+        <Style Selector="Border.adb-status-pill.missing TextBlock">
+            <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
     </UserControl.Styles>
     <Grid RowDefinitions="*,Auto" RowSpacing="10" Margin="20">
