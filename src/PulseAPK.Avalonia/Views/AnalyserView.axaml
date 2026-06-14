@@ -50,9 +50,9 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="2"
-                Classes="console-card">
-            <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
+        <Expander Grid.Row="2"
+                  IsExpanded="False">
+            <Expander.Header>
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
                     <Border Classes="console-header-dot"
                             VerticalAlignment="Center" />
@@ -67,18 +67,22 @@
                                    Classes="live-log-pill-text" />
                     </Border>
                 </Grid>
-                <Border Grid.Row="1"
-                        Classes="console-divider" />
-                <TextBox Grid.Row="2"
-                         Text="{Binding ConsoleLog}"
-                         IsReadOnly="True"
-                         AcceptsReturn="True"
-                         TextWrapping="Wrap"
-                         Classes="terminal-output"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         VerticalAlignment="Stretch" />
-            </Grid>
-        </Border>
+            </Expander.Header>
+            <Border Classes="console-card compact">
+                <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                    <Border Classes="console-divider" />
+                    <TextBox Grid.Row="1"
+                             Text="{Binding ConsoleLog}"
+                             IsReadOnly="True"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             Classes="terminal-output"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             MinHeight="180"
+                             MaxHeight="320" />
+                </Grid>
+            </Border>
+        </Expander>
 
         <Button Grid.Row="3"
                 Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SaveReport]}"

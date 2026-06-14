@@ -302,7 +302,7 @@
     <value>APK 名称</value>
   </data>
   <data name="ConsoleLog" xml:space="preserve">
-    <value>控制台日志</value>
+    <value>Terminal</value>
   </data>
   <data name="ApkPathPlaceholder" xml:space="preserve">
     <value>选择 APK 文件后将显示路径。</value>

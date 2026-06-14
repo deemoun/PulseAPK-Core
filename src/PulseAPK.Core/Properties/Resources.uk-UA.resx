@@ -302,7 +302,7 @@
     <value>Назва APK</value>
   </data>
   <data name="ConsoleLog" xml:space="preserve">
-    <value>Журнал консолі</value>
+    <value>Terminal</value>
   </data>
   <data name="ApkPathPlaceholder" xml:space="preserve">
     <value>Шлях буде відображено після вибору APK-файлу.</value>

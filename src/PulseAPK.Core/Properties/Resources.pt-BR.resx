@@ -302,7 +302,7 @@
     <value>Nome do APK</value>
   </data>
   <data name="ConsoleLog" xml:space="preserve">
-    <value>Registro do console</value>
+    <value>Terminal</value>
   </data>
   <data name="ApkPathPlaceholder" xml:space="preserve">
     <value>O caminho será exibido após escolher um arquivo APK.</value>
