@@ -36,24 +36,19 @@
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
     </UserControl.Styles>
-    <Grid RowDefinitions="*,Auto" RowSpacing="10" Margin="20">
+    <Grid RowDefinitions="*,Auto" RowSpacing="16" Margin="20">
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="14">
+            <StackPanel Spacing="16">
                 <StackPanel Spacing="4">
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsHeader]}"
-                               FontSize="24"
-                               FontWeight="SemiBold" />
+                               Classes="page-title" />
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsSubtitle]}"
-                               Opacity="0.75" />
+                               Classes="helper-text" />
                 </StackPanel>
 
-                <Border Background="{DynamicResource CardBackgroundBrush}"
-                        BorderBrush="{DynamicResource CardBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="12">
-                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <Border Classes="card">
+                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="16">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                             <StackPanel Spacing="6">
                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnection]}"
                                            FontWeight="SemiBold" />
@@ -67,11 +62,10 @@
                                             Margin="0,0,8,4"
                                             ToolTip.Tip="{Binding DetectedAdbPath}">
                                         <TextBlock Text="{Binding AdbStatus}"
-                                                   FontWeight="SemiBold"
-                                                   FontSize="12" />
+                                                   FontWeight="SemiBold" />
                                     </Border>
                                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsSelectDeviceHelp]}"
-                                               Opacity="0.75"
+                                               Classes="helper-text"
                                                VerticalAlignment="Center"
                                                Margin="0,0,0,4" />
                                 </WrapPanel>
@@ -101,15 +95,11 @@
                             <TextBlock Grid.Column="1"
                                        Text="{Binding InlineDeviceListStatus}"
                                        VerticalAlignment="Center"
-                                       Opacity="0.75" />
+                                       Classes="helper-text" />
                         </Grid>
 
                         <Border Grid.Row="2"
-                                Background="{DynamicResource MainBackgroundBrush}"
-                                BorderBrush="{DynamicResource ConsoleBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="6"
-                                Padding="10"
+                                Classes="console-card compact"
                                 IsVisible="{Binding HasNoConnectedDevices}">
                             <TextBlock Text="{Binding DeviceListStatus}"
                                        TextWrapping="Wrap"
@@ -119,11 +109,7 @@
                     </Grid>
                 </Border>
 
-                <Border Background="{DynamicResource CardBackgroundBrush}"
-                        BorderBrush="{DynamicResource CardBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="12">
+                <Border Classes="card">
                     <StackPanel Spacing="10">
                         <StackPanel Spacing="10">
                             <StackPanel Spacing="4">
@@ -140,12 +126,11 @@
                                             Padding="10,4"
                                             VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DeviceConnectionStatus}"
-                                                   FontWeight="SemiBold"
-                                                   FontSize="12" />
+                                                   FontWeight="SemiBold" />
                                     </Border>
                                 </Grid>
                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsWorkflowHelp]}"
-                                           Opacity="0.75" />
+                                           Classes="helper-text" />
                             </StackPanel>
 
                             <ListBox ItemsSource="{Binding DeviceToolModes}"
@@ -159,11 +144,7 @@
                                 </ListBox.ItemsPanel>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:DeviceToolModeOption">
-                                        <Border Background="{DynamicResource MainBackgroundBrush}"
-                                                BorderBrush="{DynamicResource ConsoleBorderBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="12"
-                                                Padding="14,6"
+                                        <Border Classes="neon-pill"
                                                 Margin="0,0,8,0">
                                             <TextBlock Text="{Binding DisplayName}" />
                                         </Border>
@@ -172,16 +153,12 @@
                             </ListBox>
                         </StackPanel>
 
-                        <Border Background="{DynamicResource MainBackgroundBrush}"
-                                BorderBrush="{DynamicResource ConsoleBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="6"
-                                Padding="14">
+                        <Border Classes="console-card">
                             <Grid>
                                 <StackPanel Spacing="10" IsVisible="{Binding IsInstallApkMode}">
                                     <StackPanel Spacing="3">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsInstallApkPackage]}" FontSize="18" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsInstallApkHelp]}" Opacity="0.75" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsInstallApkHelp]}" Classes="helper-text" />
                                     </StackPanel>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsApkFile]}" Opacity="0.8" />
@@ -194,7 +171,7 @@
                                         </WrapPanel>
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnectDeviceHint]}"
                                                    IsVisible="{Binding CanShowNoDeviceHint}"
-                                                   Opacity="0.75"
+                                                   Classes="helper-text"
                                                    TextWrapping="Wrap" />
                                     </StackPanel>
                                 </StackPanel>
@@ -202,7 +179,7 @@
                                 <StackPanel Spacing="10" IsVisible="{Binding IsLaunchAppMode}">
                                     <StackPanel Spacing="3">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchInstalledApp]}" FontSize="18" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchHelp]}" Opacity="0.75" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchHelp]}" Classes="helper-text" />
                                     </StackPanel>
                                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                                         <StackPanel Spacing="6">
@@ -231,11 +208,11 @@
                                     <StackPanel Spacing="2">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnectDeviceHint]}"
                                                    IsVisible="{Binding CanShowNoDeviceHint}"
-                                                   Opacity="0.75"
+                                                   Classes="helper-text"
                                                    TextWrapping="Wrap" />
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageRequiredHint]}"
                                                    IsVisible="{Binding CanShowPackageRequiredHint}"
-                                                   Opacity="0.75"
+                                                   Classes="helper-text"
                                                    TextWrapping="Wrap" />
                                     </StackPanel>
                                 </StackPanel>
@@ -243,7 +220,7 @@
                                 <StackPanel Spacing="10" IsVisible="{Binding IsAppMaintenanceMode}">
                                     <StackPanel Spacing="3">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsManageInstalledApp]}" FontSize="18" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsManageHelp]}" Opacity="0.75" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsManageHelp]}" Classes="helper-text" />
                                     </StackPanel>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageName]}" Opacity="0.8" />
@@ -256,15 +233,11 @@
                                             <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsAppPath]}" Command="{Binding RunAppPathPresetCommand}" Margin="0,0,8,4" />
                                             <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClear]}" Command="{Binding ClearPackageCommand}" Margin="0,0,8,4" />
                                         </WrapPanel>
-                                        <Border Background="{DynamicResource CardBackgroundBrush}"
-                                                BorderBrush="{DynamicResource CardBorderBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="6"
-                                                Padding="10"
+                                        <Border Classes="card compact"
                                                 Margin="0,4,0,0">
                                             <StackPanel Spacing="6">
                                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsUtilities]}" FontWeight="SemiBold" />
-                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageUtilitiesHelp]}" Opacity="0.75" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageUtilitiesHelp]}" Classes="helper-text" TextWrapping="Wrap" />
                                                 <WrapPanel>
                                                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsOpenAppSettings]}" Command="{Binding OpenAppSettingsCommand}" Margin="0,0,8,4" />
                                                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCopyApkFromDevice]}" Command="{Binding CopyApkFromDeviceCommand}" Margin="0,0,8,4" />
@@ -275,11 +248,11 @@
                                         <StackPanel Spacing="2">
                                             <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnectDeviceHint]}"
                                                        IsVisible="{Binding CanShowNoDeviceHint}"
-                                                       Opacity="0.75"
+                                                       Classes="helper-text"
                                                        TextWrapping="Wrap" />
                                             <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageRequiredHint]}"
                                                        IsVisible="{Binding CanShowPackageRequiredHint}"
-                                                       Opacity="0.75"
+                                                       Classes="helper-text"
                                                        TextWrapping="Wrap" />
                                         </StackPanel>
                                     </StackPanel>
@@ -288,7 +261,7 @@
                                 <StackPanel Spacing="10" IsVisible="{Binding IsShellPresetsMode}">
                                     <StackPanel Spacing="3">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunAdbShellCommands]}" FontSize="18" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsShellHelp]}" Opacity="0.75" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsShellHelp]}" Classes="helper-text" />
                                     </StackPanel>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPreset]}"
@@ -320,16 +293,12 @@
                                                     MinWidth="100"
                                                     Margin="0,0,8,4" />
                                         </WrapPanel>
-                                        <Border Background="{DynamicResource CardBackgroundBrush}"
-                                                BorderBrush="{DynamicResource CardBorderBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="6"
-                                                Padding="10"
+                                        <Border Classes="card compact"
                                                 Margin="0,4,0,0">
                                             <StackPanel Spacing="6">
                                                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsUtilities]}" FontWeight="SemiBold" />
-                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsScreenUtilitiesHelp]}" Opacity="0.75" TextWrapping="Wrap" />
-                                                <TextBlock Text="{Binding ScreenRecordStatus}" Opacity="0.75" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsScreenUtilitiesHelp]}" Classes="helper-text" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding ScreenRecordStatus}" Classes="helper-text" TextWrapping="Wrap" />
                                                 <WrapPanel>
                                                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsScreenshot]}" Command="{Binding TakeScreenshotCommand}" Margin="0,0,8,4" />
                                                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsStartScreenRecord]}" Command="{Binding StartScreenRecordCommand}" Margin="0,0,8,4" />
@@ -344,7 +313,7 @@
                                         </Border>
                                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnectDeviceHint]}"
                                                    IsVisible="{Binding CanShowNoDeviceHint}"
-                                                   Opacity="0.75"
+                                                   Classes="helper-text"
                                                    TextWrapping="Wrap" />
                                     </StackPanel>
                                 </StackPanel>
@@ -356,13 +325,9 @@
         </ScrollViewer>
 
         <Border Grid.Row="1"
-                Background="{DynamicResource MainBackgroundBrush}"
-                BorderBrush="{DynamicResource ConsoleBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="6"
-                Padding="12">
+                Classes="console-card">
             <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommandOutput]}"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center" />
@@ -375,8 +340,7 @@
 
                 <TextBlock Grid.Row="1"
                            Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommandOutputHelp]}"
-                           FontSize="12"
-                           Opacity="0.65" />
+                           Classes="helper-text" />
 
                 <TextBox Grid.Row="2"
                          Text="{Binding ConsoleLog}"

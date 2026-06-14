@@ -4,10 +4,9 @@
              xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
              x:Class="PulseAPK.Avalonia.Views.AboutView"
              x:DataType="vm:AboutViewModel">
-    <StackPanel Spacing="12" Margin="20" HorizontalAlignment="Center">
+    <StackPanel Spacing="16" Margin="20" HorizontalAlignment="Center">
         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AppTitle]}"
-                   FontSize="36"
-                   FontWeight="Bold"
+                   Classes="page-title"
                    HorizontalAlignment="Center" />
         <TextBlock Text="{Binding AppVersion}"
                    FontSize="16"

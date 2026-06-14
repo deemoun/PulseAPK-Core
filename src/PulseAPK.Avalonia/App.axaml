@@ -55,16 +55,47 @@
 
         <Style Selector="Border.card">
             <Setter Property="Background" Value="{DynamicResource CyberCardBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource CyberCardBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1.25" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="20" />
+        </Style>
+
+        <Style Selector="Border.card.compact">
+            <Setter Property="Padding" Value="16" />
+        </Style>
+
+        <Style Selector="Border.console-card">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1.25" />
             <Setter Property="CornerRadius" Value="12" />
             <Setter Property="Padding" Value="16" />
+        </Style>
+
+        <Style Selector="Border.console-card.compact">
+            <Setter Property="Padding" Value="14" />
+        </Style>
+
+        <Style Selector="Border.neon-pill">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="14,6" />
         </Style>
 
         <Style Selector="TextBlock.page-title">
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentBrush}" />
             <Setter Property="FontSize" Value="28" />
             <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="TextBlock.helper-text">
+            <Setter Property="Foreground" Value="{DynamicResource CyberCardBorderBrush}" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Opacity" Value="0.65" />
+            <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
     </Application.Styles>
 
