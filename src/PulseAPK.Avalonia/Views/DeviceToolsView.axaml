@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
+             xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
              x:Class="PulseAPK.Avalonia.Views.DeviceToolsView"
              x:DataType="vm:DeviceToolsViewModel">
     <UserControl.Styles>
@@ -33,10 +34,10 @@
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="14">
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Device Tools"
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsHeader]}"
                                FontSize="24"
                                FontWeight="SemiBold" />
-                    <TextBlock Text="Install APKs, launch activities, and run common ADB shell commands."
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsSubtitle]}"
                                Opacity="0.75" />
                 </StackPanel>
 
@@ -48,7 +49,7 @@
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <StackPanel Spacing="6">
-                                <TextBlock Text="Connection"
+                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnection]}"
                                            FontWeight="SemiBold" />
                                 <WrapPanel>
                                     <Border Classes="adb-status-pill"
@@ -63,7 +64,7 @@
                                                    FontWeight="SemiBold"
                                                    FontSize="12" />
                                     </Border>
-                                    <TextBlock Text="Select a connected Android device for APK and shell tools."
+                                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsSelectDeviceHelp]}"
                                                Opacity="0.75"
                                                VerticalAlignment="Center"
                                                Margin="0,0,0,4" />
@@ -71,7 +72,7 @@
                             </StackPanel>
 
                             <Button Grid.Column="1"
-                                    Content="Refresh Devices"
+                                    Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRefreshDevices]}"
                                     Command="{Binding RefreshDevicesCommand}"
                                     MinWidth="120"
                                     VerticalAlignment="Top" />
@@ -110,7 +111,7 @@
                         </Border>
 
                         <Expander Grid.Row="3"
-                                  Header="ADB path"
+                                  Header="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsAdbPath]}"
                                   HorizontalAlignment="Left">
                             <TextBox Text="{Binding DetectedAdbPath}"
                                      IsReadOnly="True"
@@ -127,9 +128,9 @@
                         Padding="12">
                     <StackPanel Spacing="10">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Choose a workflow"
+                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsChooseWorkflow]}"
                                        FontWeight="SemiBold" />
-                            <TextBlock Text="Switch between install, launch, app management, and shell tools."
+                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsWorkflowHelp]}"
                                        Opacity="0.75" />
                         </StackPanel>
 
@@ -163,19 +164,19 @@
                             <Grid>
                                 <StackPanel Spacing="10" IsVisible="{Binding IsInstallApkMode}">
                                     <StackPanel Spacing="3">
-                                        <TextBlock Text="Install APK Package" FontSize="18" FontWeight="SemiBold" />
-                                        <TextBlock Text="Select an APK file, install it to the active device, or read package metadata from it." Opacity="0.75" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsInstallApkPackage]}" FontSize="18" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsInstallApkHelp]}" Opacity="0.75" />
                                     </StackPanel>
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="APK file" Opacity="0.8" />
-                                        <TextBox Text="{Binding SelectedApkPath}" Watermark="/path/to/app.apk" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsApkFile]}" Opacity="0.8" />
+                                        <TextBox Text="{Binding SelectedApkPath}" Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsApkPathWatermark]}" />
                                         <WrapPanel>
-                                            <Button Content="Browse" Command="{Binding BrowseApkCommand}" MinWidth="90" Margin="0,0,8,4" />
-                                            <Button Content="Install APK" Command="{Binding InstallApkCommand}" MinWidth="100" Margin="0,0,8,4" />
-                                            <Button Content="Detect Package" Command="{Binding DetectPackageCommand}" MinWidth="120" Margin="0,0,8,4" />
-                                            <Button Content="Clear APK Selection" Command="{Binding ClearApkCommand}" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}" Command="{Binding BrowseApkCommand}" MinWidth="90" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsInstallApk]}" Command="{Binding InstallApkCommand}" MinWidth="100" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsDetectPackage]}" Command="{Binding DetectPackageCommand}" MinWidth="120" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClearApkSelection]}" Command="{Binding ClearApkCommand}" Margin="0,0,8,4" />
                                         </WrapPanel>
-                                        <TextBlock Text="Connect a usable Android device to enable these actions."
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnectDeviceHint]}"
                                                    IsVisible="{Binding CanShowNoDeviceHint}"
                                                    Opacity="0.75"
                                                    TextWrapping="Wrap" />
@@ -184,21 +185,21 @@
 
                                 <StackPanel Spacing="10" IsVisible="{Binding IsLaunchAppMode}">
                                     <StackPanel Spacing="3">
-                                        <TextBlock Text="Launch an Installed App" FontSize="18" FontWeight="SemiBold" />
-                                        <TextBlock Text="Enter a package, optionally choose an activity, then launch or inspect the current foreground activity." Opacity="0.75" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchInstalledApp]}" FontSize="18" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchHelp]}" Opacity="0.75" />
                                     </StackPanel>
                                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                                         <StackPanel Spacing="6">
-                                            <TextBlock Text="Package name" Opacity="0.8" />
-                                            <TextBox Text="{Binding PackageName}" Watermark="com.example.app" />
+                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageName]}" Opacity="0.8" />
+                                            <TextBox Text="{Binding PackageName}" Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageWatermark]}" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Spacing="8">
                                             <StackPanel Spacing="6">
-                                                <TextBlock Text="Activity" Opacity="0.8" />
-                                                <TextBox Text="{Binding Activity}" Watermark=".MainActivity or full class name" />
+                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsActivity]}" Opacity="0.8" />
+                                                <TextBox Text="{Binding Activity}" Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsActivityWatermark]}" />
                                             </StackPanel>
                                             <StackPanel Spacing="6">
-                                                <TextBlock Text="Detected activities" Opacity="0.8" />
+                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsDetectedActivities]}" Opacity="0.8" />
                                                 <ComboBox ItemsSource="{Binding Activities}"
                                                           SelectedItem="{Binding Activity}"
                                                           HorizontalAlignment="Stretch" />
@@ -206,17 +207,17 @@
                                         </StackPanel>
                                     </Grid>
                                     <WrapPanel>
-                                        <Button Content="Launch App" Command="{Binding LaunchAppCommand}" Margin="0,0,8,4" />
-                                        <Button Content="Launch Activity" Command="{Binding LaunchActivityCommand}" Margin="0,0,8,4" />
-                                        <Button Content="Current Activity" Command="{Binding CurrentActivityCommand}" Margin="0,0,8,4" />
-                                        <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,4" />
+                                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchApp]}" Command="{Binding LaunchAppCommand}" Margin="0,0,8,4" />
+                                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLaunchActivity]}" Command="{Binding LaunchActivityCommand}" Margin="0,0,8,4" />
+                                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCurrentActivity]}" Command="{Binding CurrentActivityCommand}" Margin="0,0,8,4" />
+                                        <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClear]}" Command="{Binding ClearPackageCommand}" Margin="0,0,8,4" />
                                     </WrapPanel>
                                     <StackPanel Spacing="2">
-                                        <TextBlock Text="Connect a usable Android device to enable these actions."
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnectDeviceHint]}"
                                                    IsVisible="{Binding CanShowNoDeviceHint}"
                                                    Opacity="0.75"
                                                    TextWrapping="Wrap" />
-                                        <TextBlock Text="Enter a package name to continue."
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageRequiredHint]}"
                                                    IsVisible="{Binding CanShowPackageRequiredHint}"
                                                    Opacity="0.75"
                                                    TextWrapping="Wrap" />
@@ -225,19 +226,19 @@
 
                                 <StackPanel Spacing="10" IsVisible="{Binding IsAppMaintenanceMode}">
                                     <StackPanel Spacing="3">
-                                        <TextBlock Text="Manage Installed App" FontSize="18" FontWeight="SemiBold" />
-                                        <TextBlock Text="Target a package, then stop it, reset data, remove it, or inspect package details." Opacity="0.75" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsManageInstalledApp]}" FontSize="18" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsManageHelp]}" Opacity="0.75" />
                                     </StackPanel>
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Package name" Opacity="0.8" />
-                                        <TextBox Text="{Binding PackageName}" Watermark="com.example.app" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageName]}" Opacity="0.8" />
+                                        <TextBox Text="{Binding PackageName}" Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageWatermark]}" />
                                         <WrapPanel>
-                                            <Button Content="Force Stop" Classes="destructive" Command="{Binding ForceStopCommand}" Margin="0,0,8,4" />
-                                            <Button Content="Clear Data" Classes="destructive" Command="{Binding ClearDataCommand}" Margin="0,0,8,4" />
-                                            <Button Content="Uninstall" Classes="destructive" Command="{Binding UninstallCommand}" Margin="0,0,8,4" />
-                                            <Button Content="Search Package" Command="{Binding RunSearchPackagePresetCommand}" Margin="0,0,8,4" />
-                                            <Button Content="App Path" Command="{Binding RunAppPathPresetCommand}" Margin="0,0,8,4" />
-                                            <Button Content="Clear" Command="{Binding ClearPackageCommand}" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsForceStop]}" Classes="destructive" Command="{Binding ForceStopCommand}" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClearData]}" Classes="destructive" Command="{Binding ClearDataCommand}" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsUninstall]}" Classes="destructive" Command="{Binding UninstallCommand}" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsSearchPackage]}" Command="{Binding RunSearchPackagePresetCommand}" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsAppPath]}" Command="{Binding RunAppPathPresetCommand}" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClear]}" Command="{Binding ClearPackageCommand}" Margin="0,0,8,4" />
                                         </WrapPanel>
                                         <Border Background="{DynamicResource CardBackgroundBrush}"
                                                 BorderBrush="{DynamicResource CardBorderBrush}"
@@ -246,21 +247,21 @@
                                                 Padding="10"
                                                 Margin="0,4,0,0">
                                             <StackPanel Spacing="6">
-                                                <TextBlock Text="Utilities" FontWeight="SemiBold" />
-                                                <TextBlock Text="Non-destructive shortcuts for the selected device and package." Opacity="0.75" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsUtilities]}" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageUtilitiesHelp]}" Opacity="0.75" TextWrapping="Wrap" />
                                                 <WrapPanel>
-                                                    <Button Content="Open App Settings" Command="{Binding OpenAppSettingsCommand}" Margin="0,0,8,4" />
-                                                    <Button Content="Copy APK from Device" Command="{Binding CopyApkFromDeviceCommand}" Margin="0,0,8,4" />
-                                                    <Button Content="Logcat for Package" Command="{Binding RunLogcatForPackagePresetCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsOpenAppSettings]}" Command="{Binding OpenAppSettingsCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCopyApkFromDevice]}" Command="{Binding CopyApkFromDeviceCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsLogcatForPackage]}" Command="{Binding RunLogcatForPackagePresetCommand}" Margin="0,0,8,4" />
                                                 </WrapPanel>
                                             </StackPanel>
                                         </Border>
                                         <StackPanel Spacing="2">
-                                            <TextBlock Text="Connect a usable Android device to enable these actions."
+                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnectDeviceHint]}"
                                                        IsVisible="{Binding CanShowNoDeviceHint}"
                                                        Opacity="0.75"
                                                        TextWrapping="Wrap" />
-                                            <TextBlock Text="Enter a package name to continue."
+                                            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPackageRequiredHint]}"
                                                        IsVisible="{Binding CanShowPackageRequiredHint}"
                                                        Opacity="0.75"
                                                        TextWrapping="Wrap" />
@@ -270,11 +271,11 @@
 
                                 <StackPanel Spacing="10" IsVisible="{Binding IsShellPresetsMode}">
                                     <StackPanel Spacing="3">
-                                        <TextBlock Text="Run ADB Shell Commands" FontSize="18" FontWeight="SemiBold" />
-                                        <TextBlock Text="Run a preset command, or type shell/raw ADB arguments for the selected device." Opacity="0.75" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunAdbShellCommands]}" FontSize="18" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsShellHelp]}" Opacity="0.75" />
                                     </StackPanel>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                                        <TextBlock Text="Preset"
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsPreset]}"
                                                    Opacity="0.8"
                                                    VerticalAlignment="Center" />
                                         <ComboBox Grid.Column="1"
@@ -288,17 +289,17 @@
                                             </ComboBox.ItemTemplate>
                                         </ComboBox>
                                         <Button Grid.Column="2"
-                                                Content="Run Preset"
+                                                Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunPreset]}"
                                                 Command="{Binding RunSelectedPresetCommand}"
                                                 MinWidth="110" />
                                     </Grid>
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Command" Opacity="0.8" />
-                                        <TextBox Text="{Binding CommandText}" Watermark="getprop ro.product.model" />
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommand]}" Opacity="0.8" />
+                                        <TextBox Text="{Binding CommandText}" Watermark="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommandWatermark]}" />
                                         <WrapPanel>
-                                            <Button Content="Run Shell" Command="{Binding RunShellCommand}" MinWidth="110" Margin="0,0,8,4" />
-                                            <Button Content="Run ADB Args"
-                                                    ToolTip.Tip="Runs the text as raw adb arguments after the selected device (-s &lt;serial&gt;). Example: devices -l or shell getprop ro.product.model."
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunShell]}" Command="{Binding RunShellCommand}" MinWidth="110" Margin="0,0,8,4" />
+                                            <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunAdbArgs]}"
+                                                    ToolTip.Tip="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRunAdbArgsTip]}"
                                                     Command="{Binding RunAdbCommand}"
                                                     MinWidth="100"
                                                     Margin="0,0,8,4" />
@@ -310,22 +311,22 @@
                                                 Padding="10"
                                                 Margin="0,4,0,0">
                                             <StackPanel Spacing="6">
-                                                <TextBlock Text="Utilities" FontWeight="SemiBold" />
-                                                <TextBlock Text="Capture the screen or record a short MP4 without modifying app data." Opacity="0.75" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsUtilities]}" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsScreenUtilitiesHelp]}" Opacity="0.75" TextWrapping="Wrap" />
                                                 <TextBlock Text="{Binding ScreenRecordStatus}" Opacity="0.75" TextWrapping="Wrap" />
                                                 <WrapPanel>
-                                                    <Button Content="Screenshot" Command="{Binding TakeScreenshotCommand}" Margin="0,0,8,4" />
-                                                    <Button Content="Start Screen Record" Command="{Binding StartScreenRecordCommand}" Margin="0,0,8,4" />
-                                                    <Button Content="Stop Screen Record" Command="{Binding StopScreenRecordCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsScreenshot]}" Command="{Binding TakeScreenshotCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsStartScreenRecord]}" Command="{Binding StartScreenRecordCommand}" Margin="0,0,8,4" />
+                                                    <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsStopScreenRecord]}" Command="{Binding StopScreenRecordCommand}" Margin="0,0,8,4" />
                                                 </WrapPanel>
-                                                <TextBlock Text="Recording is active on the selected device until you stop it."
+                                                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsRecordingActiveHint]}"
                                                            IsVisible="{Binding IsScreenRecording}"
                                                            FontWeight="SemiBold"
                                                            Opacity="0.85"
                                                            TextWrapping="Wrap" />
                                             </StackPanel>
                                         </Border>
-                                        <TextBlock Text="Connect a usable Android device to enable these actions."
+                                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsConnectDeviceHint]}"
                                                    IsVisible="{Binding CanShowNoDeviceHint}"
                                                    Opacity="0.75"
                                                    TextWrapping="Wrap" />
@@ -346,18 +347,18 @@
                 Padding="12">
             <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                    <TextBlock Text="Command output"
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommandOutput]}"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center" />
                     <Button Grid.Column="1"
-                            Content="Clear"
+                            Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsClear]}"
                             Command="{Binding ClearConsoleCommand}"
                             MinWidth="80"
                             HorizontalAlignment="Right" />
                 </Grid>
 
                 <TextBlock Grid.Row="1"
-                           Text="Latest command output appears below."
+                           Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommandOutputHelp]}"
                            FontSize="12"
                            Opacity="0.65" />
 

@@ -26,7 +26,7 @@ public partial class MainViewModel : ObservableObject
     public string MenuBuildLabel => _localizationService["MenuBuild"];
     public string MenuPatchLabel => _localizationService["MenuPatch"];
     public string MenuAnalyserLabel => _localizationService["MenuAnalyser"];
-    public string MenuDeviceToolsLabel => "Device Tools";
+    public string MenuDeviceToolsLabel => _localizationService["MenuDeviceTools"];
     public string MenuSettingsLabel => _localizationService["MenuSettings"];
     public string MenuAboutLabel => _localizationService["MenuAbout"];
 
