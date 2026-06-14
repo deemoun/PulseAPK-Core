@@ -51,6 +51,7 @@ public partial class DeviceToolsViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AdbStatus))]
     [NotifyPropertyChangedFor(nameof(DeviceListStatus))]
+    [NotifyPropertyChangedFor(nameof(InlineDeviceListStatus))]
     [NotifyPropertyChangedFor(nameof(IsAdbMissing))]
     [NotifyPropertyChangedFor(nameof(HasNoConnectedDevices))]
     private bool _isAdbFound;
@@ -67,11 +68,13 @@ public partial class DeviceToolsViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DeviceListStatus))]
+    [NotifyPropertyChangedFor(nameof(InlineDeviceListStatus))]
     [NotifyPropertyChangedFor(nameof(HasNoConnectedDevices))]
     private bool _hasCheckedDevices;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DeviceListStatus))]
+    [NotifyPropertyChangedFor(nameof(InlineDeviceListStatus))]
     [NotifyPropertyChangedFor(nameof(HasNoConnectedDevices))]
     private bool _isRefreshingDevices;
 
@@ -231,6 +234,7 @@ public partial class DeviceToolsViewModel : ObservableObject
         : HasCheckedDevices && IsAdbFound && Devices.Count == 0
             ? T("DeviceToolsNoConnectedDevices")
             : string.Empty;
+    public string InlineDeviceListStatus => HasNoConnectedDevices ? string.Empty : DeviceListStatus;
     public bool IsAdbMissing => HasCheckedAdb && !IsCheckingAdb && !IsAdbFound;
     public bool HasNoConnectedDevices => HasCheckedDevices && IsAdbFound && !IsRefreshingDevices && Devices.Count == 0;
     public bool IsInstallApkMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.InstallApk;
@@ -287,6 +291,7 @@ public partial class DeviceToolsViewModel : ObservableObject
             SelectedDevice = Devices.FirstOrDefault(device => device.IsUsable) ?? Devices.FirstOrDefault();
             OnPropertyChanged(nameof(DeviceListStatus));
             OnPropertyChanged(nameof(HasNoConnectedDevices));
+            OnPropertyChanged(nameof(InlineDeviceListStatus));
         }
         finally
         {
