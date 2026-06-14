@@ -307,13 +307,16 @@ internal static class CommandLogFormatter
 {
     public static string FormatCommandResult(PulseAPK.Core.Models.AdbCommandResult result)
     {
+        var output = string.Join(
+            Environment.NewLine,
+            new[] { result.StandardOutput, result.StandardError }
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => value.TrimEnd()));
+
         return string.Join(
             Environment.NewLine,
-            $"$ {result.CommandText}",
-            "stdout:",
-            string.IsNullOrWhiteSpace(result.StandardOutput) ? "(empty)" : result.StandardOutput.TrimEnd(),
-            "stderr:",
-            string.IsNullOrWhiteSpace(result.StandardError) ? "(empty)" : result.StandardError.TrimEnd(),
-            $"exit code: {result.ExitCode}");
+            $"Command: {result.CommandText}",
+            "Output:",
+            string.IsNullOrWhiteSpace(output) ? "(empty)" : output);
     }
 }
