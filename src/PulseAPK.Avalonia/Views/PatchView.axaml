@@ -9,20 +9,14 @@
           Margin="20">
         <StackPanel Spacing="4">
             <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchHeader]}"
-                       FontSize="24"
-                       FontWeight="SemiBold" />
+                       Classes="page-title" />
             <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchBetaWarning]}"
-                       FontSize="13"
-                       Opacity="0.7" />
+                       Classes="helper-text" />
         </StackPanel>
 
         <Border Grid.Row="1"
-                Background="{DynamicResource CardBackgroundBrush}"
-                BorderBrush="{DynamicResource CardBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="6"
-                Padding="12">
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                Classes="card">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                 <StackPanel Spacing="6">
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectApk]}"
                                FontWeight="SemiBold" />
@@ -32,8 +26,7 @@
                              IsTabStop="False"
                              IsHitTestVisible="False" />
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[BrowseApkTip]}"
-                               FontSize="12"
-                               Opacity="0.7"
+                               Classes="helper-text"
                                IsVisible="{Binding IsHintVisible}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
@@ -70,7 +63,7 @@
                 <CheckBox Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[UseAapt2]}"
                           IsChecked="{Binding UseAapt2ForBuild}" />
                 <Grid ColumnDefinitions="*,*"
-                      ColumnSpacing="12"
+                      ColumnSpacing="16"
                       Margin="0,8,0,0">
                     <StackPanel Spacing="4">
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptProfile]}"
@@ -98,8 +91,7 @@
                     </StackPanel>
                 </Grid>
                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptSampleInjectionInfo]}"
-                           FontSize="12"
-                           Opacity="0.7"
+                           Classes="helper-text"
                            IsVisible="{Binding IsSampleInjectionProfileSelected}" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="8">
@@ -122,11 +114,7 @@
         </Grid>
 
         <Border Grid.Row="3"
-                Background="{DynamicResource MainBackgroundBrush}"
-                BorderBrush="{DynamicResource ConsoleBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="6"
-                Padding="12">
+                Classes="console-card">
             <Grid RowDefinitions="Auto,*" RowSpacing="8">
                 <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}"
                            FontWeight="SemiBold" />
