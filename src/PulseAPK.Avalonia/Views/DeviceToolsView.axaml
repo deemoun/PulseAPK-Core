@@ -133,21 +133,28 @@
                             <StackPanel Spacing="10" IsVisible="{Binding IsShellPresetsMode}">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Shell" FontWeight="SemiBold" />
-                                    <TextBlock Text="Pick a preset to fill the command, or type shell/raw ADB arguments manually." Opacity="0.8" />
+                                    <TextBlock Text="Run a preset, or type shell/raw ADB arguments manually." Opacity="0.8" />
                                 </StackPanel>
-                                <StackPanel Spacing="6">
-                                    <TextBlock Text="Preset" Opacity="0.8" />
-                                    <ComboBox ItemsSource="{Binding ShellPresets}"
-                                              SelectedItem="{Binding SelectedShellPreset}"
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                    <TextBlock Text="Preset"
+                                               Opacity="0.8"
+                                               VerticalAlignment="Center" />
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding Presets}"
+                                              SelectedItem="{Binding SelectedPreset}"
                                               Watermark="Select preset"
                                               HorizontalAlignment="Stretch">
                                         <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:ShellPresetOption">
+                                            <DataTemplate x:DataType="vm:DeviceToolPreset">
                                                 <TextBlock Text="{Binding DisplayName}" />
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
-                                </StackPanel>
+                                    <Button Grid.Column="2"
+                                            Content="Run Preset"
+                                            Command="{Binding RunSelectedPresetCommand}"
+                                            MinWidth="110" />
+                                </Grid>
                                 <TextBox Text="{Binding CommandText}" Watermark="getprop ro.product.model" />
                                 <WrapPanel>
                                     <Button Content="Run Shell" Command="{Binding RunShellCommand}" MinWidth="110" Margin="0,0,8,8" />
