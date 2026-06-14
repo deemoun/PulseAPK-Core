@@ -57,7 +57,7 @@
                             </Expander>
                         </Grid>
 
-                        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
                             <ComboBox ItemsSource="{Binding Devices}"
                                       SelectedItem="{Binding SelectedDevice}"
                                       HorizontalAlignment="Stretch">
@@ -68,7 +68,12 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
 
-                            <Button Grid.Column="1"
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding DeviceListStatus}"
+                                       VerticalAlignment="Center"
+                                       Opacity="0.75" />
+
+                            <Button Grid.Column="2"
                                     Content="Refresh Devices"
                                     Command="{Binding RefreshDevicesCommand}"
                                     MinWidth="120" />

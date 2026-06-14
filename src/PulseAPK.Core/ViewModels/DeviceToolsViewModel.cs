@@ -48,7 +48,24 @@ public partial class DeviceToolsViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AdbStatus))]
+    [NotifyPropertyChangedFor(nameof(DeviceListStatus))]
     private bool _isAdbFound;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AdbStatus))]
+    private bool _hasCheckedAdb;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AdbStatus))]
+    private bool _isCheckingAdb;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DeviceListStatus))]
+    private bool _hasCheckedDevices;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DeviceListStatus))]
+    private bool _isRefreshingDevices;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasWorkingDevice))]
@@ -166,7 +183,16 @@ public partial class DeviceToolsViewModel : ObservableObject
         new(DeviceToolMode.AppMaintenance, "Manage App"),
         new(DeviceToolMode.ShellPresets, "Shell")
     ];
-    public string AdbStatus => IsAdbFound ? "ADB: found" : "ADB: not found";
+    public string AdbStatus => IsCheckingAdb
+        ? "ADB: checking..."
+        : HasCheckedAdb
+            ? (IsAdbFound ? "ADB: found" : "ADB: not found")
+            : "ADB: not checked";
+    public string DeviceListStatus => IsRefreshingDevices
+        ? "Checking devices..."
+        : HasCheckedDevices && IsAdbFound && Devices.Count == 0
+            ? "No connected devices found"
+            : string.Empty;
     public bool IsInstallApkMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.InstallApk;
     public bool IsLaunchAppMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.LaunchApp;
     public bool IsAppMaintenanceMode => SelectedDeviceToolMode?.Mode == DeviceToolMode.AppMaintenance;
@@ -185,28 +211,63 @@ public partial class DeviceToolsViewModel : ObservableObject
     [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task RefreshDevices()
     {
-        var resolvedPath = await _adbService.ResolveAdbPathAsync();
-        IsAdbFound = !string.IsNullOrWhiteSpace(resolvedPath);
-        DetectedAdbPath = resolvedPath ?? string.Empty;
+        await RefreshDevicesAsync();
+    }
 
-        if (!IsAdbFound)
+    public async Task RefreshDevicesAsync()
+    {
+        IsRefreshingDevices = true;
+        try
         {
-            AppendLog("ADB was not found. Configure ADB Path in Settings or install Android platform-tools.");
+            await CheckAdbAsync();
+
             Devices.Clear();
             SelectedDevice = null;
-            return;
+            HasCheckedDevices = true;
+
+            if (!IsAdbFound)
+            {
+                AppendLog("ADB was not found. Configure ADB Path in Settings or install Android platform-tools.");
+                return;
+            }
+
+            var result = await RunAdbAndLogAsync(["devices", "-l"]);
+            var devices = AdbService.ParseDevices(result.StandardOutput);
+
+            foreach (var device in devices)
+            {
+                Devices.Add(device);
+            }
+
+            SelectedDevice = Devices.FirstOrDefault(device => device.IsUsable) ?? Devices.FirstOrDefault();
+            OnPropertyChanged(nameof(DeviceListStatus));
         }
-
-        var result = await RunAdbAndLogAsync(["devices", "-l"]);
-        var devices = AdbService.ParseDevices(result.StandardOutput);
-
-        Devices.Clear();
-        foreach (var device in devices)
+        finally
         {
-            Devices.Add(device);
+            IsRefreshingDevices = false;
         }
+    }
 
-        SelectedDevice = Devices.FirstOrDefault(device => device.IsUsable) ?? Devices.FirstOrDefault();
+    public async Task CheckAdbAsync()
+    {
+        IsCheckingAdb = true;
+        try
+        {
+            var resolvedPath = await _adbService.ResolveAdbPathAsync();
+            IsAdbFound = !string.IsNullOrWhiteSpace(resolvedPath);
+            DetectedAdbPath = resolvedPath ?? string.Empty;
+            HasCheckedAdb = true;
+        }
+        catch
+        {
+            IsAdbFound = false;
+            DetectedAdbPath = string.Empty;
+            HasCheckedAdb = true;
+        }
+        finally
+        {
+            IsCheckingAdb = false;
+        }
     }
 
     [RelayCommand]
@@ -567,8 +628,7 @@ public partial class DeviceToolsViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(DetectedAdbPath))
         {
-            DetectedAdbPath = await _adbService.ResolveAdbPathAsync() ?? string.Empty;
-            IsAdbFound = !string.IsNullOrWhiteSpace(DetectedAdbPath);
+            await CheckAdbAsync();
         }
 
         var result = await _adbService.RunAdbAsync(DetectedAdbPath, arguments);

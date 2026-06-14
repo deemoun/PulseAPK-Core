@@ -91,8 +91,10 @@ public partial class MainViewModel : ObservableObject
     private void NavigateToDeviceTools()
     {
         if (!CanNavigateToDeviceTools()) return;
-        SetCurrentView(Resolve<DeviceToolsViewModel>());
+        var viewModel = Resolve<DeviceToolsViewModel>();
+        SetCurrentView(viewModel);
         SelectedMenu = "DeviceTools";
+        _ = viewModel.RefreshDevicesAsync();
     }
 
     [RelayCommand(CanExecute = nameof(CanNavigateToAbout))]
