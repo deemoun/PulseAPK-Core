@@ -24,7 +24,7 @@
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentBrush}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="Padding" Value="10,8" />
         </Style>
 
         <Style Selector="Button.nav-button:pointerover">
@@ -51,10 +51,11 @@
         </Style>
 
         <Style Selector="TextBlock.nav-glyph">
-            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
-            <Setter Property="Width" Value="24" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberHelperTextBrush}" />
+            <Setter Property="Width" Value="34" />
+            <Setter Property="TextAlignment" Value="Center" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
@@ -91,7 +92,7 @@
         <!-- Sidebar -->
         <Border Grid.Column="0" Background="{DynamicResource CyberSidebarBrush}" Padding="16">
             <Grid RowDefinitions="Auto,*,Auto">
-            <StackPanel Grid.Row="0" Spacing="10">
+            <StackPanel Grid.Row="0" Spacing="8">
                 <StackPanel Margin="0,0,0,8">
                     <TextBlock Text="PulseAPK"
                                FontSize="30"
@@ -116,8 +117,8 @@
                         Command="{Binding NavigateToDecompileCommand}"
                         Classes.active="{Binding IsDecompileSelected}"
                         IsVisible="{Binding IsDecompileEnabled}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Classes="nav-glyph" Text="⌬"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="nav-glyph" Text="[D]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuDecompile]}"/>
                     </StackPanel>
                 </Button>
@@ -125,8 +126,8 @@
                         Command="{Binding NavigateToBuildCommand}"
                         Classes.active="{Binding IsBuildSelected}"
                         IsVisible="{Binding IsBuildEnabled}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Classes="nav-glyph" Text="⬡"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="nav-glyph" Text="[B]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuBuild]}"/>
                     </StackPanel>
                 </Button>
@@ -134,8 +135,8 @@
                         Command="{Binding NavigateToPatchCommand}"
                         Classes.active="{Binding IsPatchSelected}"
                         IsVisible="{Binding IsPatchEnabled}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Classes="nav-glyph" Text="⚡"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="nav-glyph" Text="[P]"/>
                         <TextBlock Text="{Binding MenuPatchLabel}"/>
                     </StackPanel>
                 </Button>
@@ -143,8 +144,8 @@
                         Command="{Binding NavigateToAnalyserCommand}"
                         Classes.active="{Binding IsAnalyserSelected}"
                         IsVisible="{Binding IsAnalyserEnabled}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Classes="nav-glyph" Text="◎"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="nav-glyph" Text="[A]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAnalyser]}"/>
                     </StackPanel>
                 </Button>
@@ -152,8 +153,8 @@
                         Command="{Binding NavigateToDeviceToolsCommand}"
                         Classes.active="{Binding IsDeviceToolsSelected}"
                         IsVisible="{Binding IsDeviceToolsEnabled}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Classes="nav-glyph" Text="▣"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="nav-glyph" Text="[DEV]"/>
                         <TextBlock Text="{Binding MenuDeviceToolsLabel}"/>
                     </StackPanel>
                 </Button>
@@ -161,8 +162,8 @@
                         Command="{Binding NavigateToSettingsCommand}"
                         Classes.active="{Binding IsSettingsSelected}"
                         IsVisible="{Binding IsSettingsEnabled}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Classes="nav-glyph" Text="⚙"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="nav-glyph" Text="[CFG]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuSettings]}"/>
                     </StackPanel>
                 </Button>
@@ -170,8 +171,8 @@
                         Command="{Binding NavigateToAboutCommand}"
                         Classes.active="{Binding IsAboutSelected}"
                         IsVisible="{Binding IsAboutEnabled}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Classes="nav-glyph" Text="?"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="nav-glyph" Text="[?]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAbout]}"/>
                     </StackPanel>
                 </Button>
