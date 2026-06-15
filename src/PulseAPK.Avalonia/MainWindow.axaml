@@ -17,7 +17,7 @@
 
     <Window.Styles>
         <Style Selector="Button.nav-button">
-            <Setter Property="Background" Value="#33141B2E" />
+            <Setter Property="Background" Value="{DynamicResource CyberAccentMutedBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
             <Setter Property="BorderThickness" Value="4,1,1,1" />
             <Setter Property="CornerRadius" Value="10" />
@@ -28,10 +28,15 @@
         </Style>
 
         <Style Selector="Button.nav-button:pointerover">
-            <Setter Property="Background" Value="#10131F" />
+            <Setter Property="Background" Value="{DynamicResource CyberPointerOverBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
             <Setter Property="BorderThickness" Value="6,1.5,1.5,1.5" />
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+        </Style>
+
+        <Style Selector="Button.nav-button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CyberPointerOverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
         </Style>
 
         <Style Selector="Button.nav-button:pressed">
@@ -41,7 +46,7 @@
         </Style>
 
         <Style Selector="Button.nav-button.active">
-            <Setter Property="Background" Value="#11131D" />
+            <Setter Property="Background" Value="{DynamicResource CyberSelectedBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberSelectedBorderBrush}" />
             <Setter Property="BorderThickness" Value="6,1,1,1" />
             <Setter Property="CornerRadius" Value="4" />
