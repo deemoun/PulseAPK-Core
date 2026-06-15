@@ -38,18 +38,18 @@
             <Setter Property="BorderBrush" Value="{DynamicResource CyberCardBorderBrush}" />
         </Style>
         <Style Selector="Border.connection-status-pill.online">
-            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="#00E5FF" />
+            <Setter Property="Background" Value="{DynamicResource CyberStatusOnlineBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberStatusOnlineBorderBrush}" />
         </Style>
         <Style Selector="Border.connection-status-pill.online TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource CyberStatusOnlineTextBrush}" />
         </Style>
         <Style Selector="Border.connection-status-pill.offline">
-            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="#FF174D" />
+            <Setter Property="Background" Value="{DynamicResource CyberStatusOfflineBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberStatusOfflineBorderBrush}" />
         </Style>
         <Style Selector="Border.connection-status-pill.offline TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource CyberDestructiveForegroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberStatusOfflineTextBrush}" />
         </Style>
         <Style Selector="ListBox.workflow-tabs">
             <Setter Property="Background" Value="Transparent" />
