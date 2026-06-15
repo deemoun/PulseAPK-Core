@@ -204,6 +204,7 @@
                     <SolidColorBrush x:Key="CyberPointerOverBrush" Color="#111827" />
                     <SolidColorBrush x:Key="CyberSelectedBrush" Color="#20104A" />
                     <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#7A2CFF" />
+                    <SolidColorBrush x:Key="CyberSelectedForegroundBrush" Color="#F4F7FF" />
                     <SolidColorBrush x:Key="CyberPrimaryButtonForegroundBrush" Color="#03111A" />
                     <SolidColorBrush x:Key="CyberPressedButtonForegroundBrush" Color="#FFFFFF" />
                     <SolidColorBrush x:Key="CyberFocusBorderBrush" Color="#FFB000" />
@@ -245,8 +246,9 @@
                     <SolidColorBrush x:Key="CyberAccentPressedBrush" Color="#FCE0F6" />
                     <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#FFD7F7" />
                     <SolidColorBrush x:Key="CyberPointerOverBrush" Color="#EAF7FF" />
-                    <SolidColorBrush x:Key="CyberSelectedBrush" Color="#FFD7F7" />
+                    <SolidColorBrush x:Key="CyberSelectedBrush" Color="#FFC1EF" />
                     <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#B0007C" />
+                    <SolidColorBrush x:Key="CyberSelectedForegroundBrush" Color="#6F004F" />
                     <SolidColorBrush x:Key="CyberPrimaryButtonForegroundBrush" Color="#001B22" />
                     <SolidColorBrush x:Key="CyberPressedButtonForegroundBrush" Color="#101018" />
                     <SolidColorBrush x:Key="CyberFocusBorderBrush" Color="#7A4D00" />

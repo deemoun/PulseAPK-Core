@@ -50,22 +50,9 @@
             <Setter Property="BorderBrush" Value="{DynamicResource CyberSelectedBorderBrush}" />
             <Setter Property="BorderThickness" Value="6,1,1,1" />
             <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Foreground" Value="#F4F7FF" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberSelectedForegroundBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Opacity" Value="1" />
-        </Style>
-
-        <Style Selector="TextBlock.nav-glyph">
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="{DynamicResource CyberHelperTextBrush}" />
-            <Setter Property="Width" Value="42" />
-            <Setter Property="TextAlignment" Value="Center" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
-
-        <Style Selector="Button.nav-button.active TextBlock.nav-glyph">
-            <Setter Property="Foreground" Value="{DynamicResource CyberAccentBrush}" />
         </Style>
 
         <Style Selector="Button.support-work-button">
@@ -164,7 +151,6 @@
                         Classes.active="{Binding IsDecompileSelected}"
                         IsVisible="{Binding IsDecompileEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="nav-glyph" Text="[D]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuDecompile]}"/>
                     </StackPanel>
                 </Button>
@@ -173,7 +159,6 @@
                         Classes.active="{Binding IsBuildSelected}"
                         IsVisible="{Binding IsBuildEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="nav-glyph" Text="[B]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuBuild]}"/>
                     </StackPanel>
                 </Button>
@@ -182,7 +167,6 @@
                         Classes.active="{Binding IsPatchSelected}"
                         IsVisible="{Binding IsPatchEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="nav-glyph" Text="[P]"/>
                         <TextBlock Text="{Binding MenuPatchLabel}"/>
                     </StackPanel>
                 </Button>
@@ -191,7 +175,6 @@
                         Classes.active="{Binding IsAnalyserSelected}"
                         IsVisible="{Binding IsAnalyserEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="nav-glyph" Text="[A]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAnalyser]}"/>
                     </StackPanel>
                 </Button>
@@ -200,7 +183,6 @@
                         Classes.active="{Binding IsDeviceToolsSelected}"
                         IsVisible="{Binding IsDeviceToolsEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="nav-glyph" Text="[DEV]"/>
                         <TextBlock Text="{Binding MenuDeviceToolsLabel}"/>
                     </StackPanel>
                 </Button>
