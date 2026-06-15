@@ -17,8 +17,9 @@
         </Style>
 
         <Style Selector="Button:pointerover">
-            <Setter Property="Background" Value="{DynamicResource CyberAccentMutedBrush}" />
+            <Setter Property="Background" Value="#111827" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
         </Style>
 
@@ -37,9 +38,10 @@
         </Style>
 
         <Style Selector="Button.primary-action:pointerover">
-            <Setter Property="Background" Value="{DynamicResource CyberAccentSecondaryBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource CyberPrimaryButtonForegroundBrush}" />
+            <Setter Property="Background" Value="#10131F" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
         </Style>
 
         <Style Selector="Button.primary-action:pressed">

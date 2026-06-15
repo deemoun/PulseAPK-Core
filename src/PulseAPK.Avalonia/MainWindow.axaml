@@ -28,8 +28,9 @@
         </Style>
 
         <Style Selector="Button.nav-button:pointerover">
-            <Setter Property="Background" Value="{DynamicResource CyberAccentMutedBrush}" />
+            <Setter Property="Background" Value="#10131F" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="6,1.5,1.5,1.5" />
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
         </Style>
 
