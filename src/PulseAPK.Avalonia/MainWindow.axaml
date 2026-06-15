@@ -74,22 +74,19 @@
             <Setter Property="MinHeight" Value="30" />
             <Setter Property="Padding" Value="8,5" />
             <Style.Animations>
-                <Animation Duration="0:0:0.45"
-                           IterationCount="4">
+                <Animation Duration="0:0:0.30"
+                           IterationCount="3">
                     <KeyFrame Cue="0%">
                         <Setter Property="Background" Value="{DynamicResource CyberAccentMutedBrush}" />
                         <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
-                        <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
                     </KeyFrame>
                     <KeyFrame Cue="50%">
                         <Setter Property="Background" Value="{DynamicResource CyberAccentPressedBrush}" />
                         <Setter Property="BorderBrush" Value="{DynamicResource CyberWarningBrush}" />
-                        <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
                     </KeyFrame>
                     <KeyFrame Cue="100%">
                         <Setter Property="Background" Value="{DynamicResource CyberAccentMutedBrush}" />
                         <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
-                        <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
                     </KeyFrame>
                 </Animation>
             </Style.Animations>
