@@ -187,36 +187,36 @@
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="CyberBackgroundBrush" Color="#090A18" />
-                    <SolidColorBrush x:Key="CyberSidebarBrush" Color="#0D1024" />
-                    <SolidColorBrush x:Key="CyberCardBrush" Color="#141B2E" />
-                    <SolidColorBrush x:Key="CyberCardBorderBrush" Color="#263B5E" />
-                    <SolidColorBrush x:Key="CyberAccentBrush" Color="#00E5FF" />
-                    <SolidColorBrush x:Key="CyberAccentSecondaryBrush" Color="#FF2BD6" />
-                    <SolidColorBrush x:Key="CyberWarningBrush" Color="#FF5A36" />
-                    <SolidColorBrush x:Key="CyberConsoleBackgroundBrush" Color="#050A12" />
+                    <SolidColorBrush x:Key="CyberBackgroundBrush" Color="#05070D" />
+                    <SolidColorBrush x:Key="CyberSidebarBrush" Color="#080B12" />
+                    <SolidColorBrush x:Key="CyberCardBrush" Color="#0C101A" />
+                    <SolidColorBrush x:Key="CyberCardBorderBrush" Color="#1C2A40" />
+                    <SolidColorBrush x:Key="CyberAccentBrush" Color="#00D9FF" />
+                    <SolidColorBrush x:Key="CyberAccentSecondaryBrush" Color="#7A2CFF" />
+                    <SolidColorBrush x:Key="CyberWarningBrush" Color="#FFB000" />
+                    <SolidColorBrush x:Key="CyberConsoleBackgroundBrush" Color="#03060B" />
                     <SolidColorBrush x:Key="CyberConsoleForegroundBrush" Color="#39FF88" />
-                    <SolidColorBrush x:Key="CyberAccentMutedBrush" Color="#102B3C" />
-                    <SolidColorBrush x:Key="CyberAccentPressedBrush" Color="#2B1234" />
-                    <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#3A0B4D" />
-                    <SolidColorBrush x:Key="CyberSelectedBrush" Color="#3A0B4D" />
-                    <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#FF2BD6" />
+                    <SolidColorBrush x:Key="CyberAccentMutedBrush" Color="#0A2636" />
+                    <SolidColorBrush x:Key="CyberAccentPressedBrush" Color="#122B3D" />
+                    <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#20104A" />
+                    <SolidColorBrush x:Key="CyberSelectedBrush" Color="#20104A" />
+                    <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#7A2CFF" />
                     <SolidColorBrush x:Key="CyberPrimaryButtonForegroundBrush" Color="#03111A" />
                     <SolidColorBrush x:Key="CyberPressedButtonForegroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="CyberFocusBorderBrush" Color="#FFF27A" />
-                    <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#071B2A" />
-                    <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#0E6A82" />
-                    <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#4FD8EA" />
-                    <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#8EA4C8" />
-                    <BoxShadows x:Key="CyberCardBoxShadow">0 10 28 0 #6600E5FF</BoxShadows>
-                    <BoxShadows x:Key="CyberConsoleCardBoxShadow">0 12 32 0 #8000E5FF</BoxShadows>
-                    <BoxShadows x:Key="CyberNeonPillBoxShadow">0 0 18 0 #66FF2BD6</BoxShadows>
+                    <SolidColorBrush x:Key="CyberFocusBorderBrush" Color="#FFB000" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#0A111C" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#17485C" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#6FE7FF" />
+                    <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#91A3C2" />
+                    <BoxShadows x:Key="CyberCardBoxShadow">0 10 28 0 #5500D9FF</BoxShadows>
+                    <BoxShadows x:Key="CyberConsoleCardBoxShadow">0 12 32 0 #6600D9FF</BoxShadows>
+                    <BoxShadows x:Key="CyberNeonPillBoxShadow">0 0 18 0 #557A2CFF</BoxShadows>
 
-                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#0D1024" />
-                    <SolidColorBrush x:Key="MainBackgroundBrush" Color="#090A18" />
-                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#141B2E" />
-                    <SolidColorBrush x:Key="CardBorderBrush" Color="#263B5E" />
-                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#00E5FF" />
+                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#080B12" />
+                    <SolidColorBrush x:Key="MainBackgroundBrush" Color="#05070D" />
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#0C101A" />
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#1C2A40" />
+                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#00D9FF" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Light">
                     <SolidColorBrush x:Key="CyberBackgroundBrush" Color="#F7FAFF" />
