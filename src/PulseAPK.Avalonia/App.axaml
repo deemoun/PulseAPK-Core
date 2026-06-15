@@ -80,7 +80,7 @@
 
 
         <Style Selector="TextBox.terminal-output">
-            <Setter Property="Background" Value="#02060D" />
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="6" />
@@ -89,6 +89,18 @@
             <Setter Property="Padding" Value="14,10" />
             <Setter Property="SelectionBrush" Value="{DynamicResource CyberAccentMutedBrush}" />
             <Setter Property="SelectionForegroundBrush" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
+
+        <Style Selector="TextBox.terminal-output:pointerover">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
+
+        <Style Selector="TextBox.terminal-output:focus">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberFocusBorderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
         </Style>
 
         <Style Selector="ComboBox">
