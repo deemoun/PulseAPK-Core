@@ -133,6 +133,8 @@
         </Grid>
 
         <Expander Grid.Row="3"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
                   IsExpanded="False">
             <Expander.Header>
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
@@ -150,7 +152,9 @@
                     </Border>
                 </Grid>
             </Expander.Header>
-            <Border Classes="console-card compact">
+            <Border Classes="console-card compact"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
                 <Grid RowDefinitions="Auto,*" RowSpacing="8">
                     <Border Classes="console-divider" />
                     <TextBox Grid.Row="1"
@@ -158,10 +162,12 @@
                              IsReadOnly="True"
                              AcceptsReturn="True"
                              TextWrapping="Wrap"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Stretch"
                              Classes="terminal-output"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             MinHeight="180"
-                             MaxHeight="320" />
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             MinHeight="260" />
                 </Grid>
             </Border>
         </Expander>

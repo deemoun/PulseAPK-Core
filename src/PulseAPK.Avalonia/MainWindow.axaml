@@ -10,7 +10,10 @@
         x:DataType="vm:MainViewModel"
         Title="{Binding WindowTitle}"
         Icon="/Assets/CyberUnpack.ico"
-        Height="700">
+        Width="1280"
+        Height="800"
+        MinWidth="1100"
+        MinHeight="760">
 
     <Window.Styles>
         <Style Selector="Button.nav-button">
@@ -209,7 +212,9 @@
 
         <!-- Content -->
         <Border Grid.Column="1" Background="{DynamicResource MainBackgroundBrush}" Padding="20">
-            <ContentControl Content="{Binding CurrentView}"/>
+            <ContentControl Content="{Binding CurrentView}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"/>
         </Border>
     </Grid>
 </Window>
