@@ -54,7 +54,7 @@
             <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Foreground" Value="{DynamicResource CyberHelperTextBrush}" />
-            <Setter Property="Width" Value="34" />
+            <Setter Property="Width" Value="42" />
             <Setter Property="TextAlignment" Value="Center" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
@@ -129,7 +129,7 @@
         </DataTemplate>
     </Window.DataTemplates>
 
-    <Grid ColumnDefinitions="240, *">
+    <Grid ColumnDefinitions="270, *">
         <!-- Sidebar -->
         <Border Grid.Column="0" Background="{DynamicResource CyberSidebarBrush}" Padding="16">
             <Grid RowDefinitions="Auto,*,Auto">
