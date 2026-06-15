@@ -129,7 +129,7 @@
         </DataTemplate>
     </Window.DataTemplates>
 
-    <Grid ColumnDefinitions="270, *">
+    <Grid ColumnDefinitions="290, *">
         <!-- Sidebar -->
         <Border Grid.Column="0" Background="{DynamicResource CyberSidebarBrush}" Padding="16">
             <Grid RowDefinitions="Auto,*,Auto">
