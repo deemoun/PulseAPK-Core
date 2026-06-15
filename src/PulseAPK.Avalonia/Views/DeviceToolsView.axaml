@@ -9,43 +9,43 @@
     </UserControl.Resources>
     <UserControl.Styles>
         <Style Selector="Button.destructive">
-            <Setter Property="Background" Value="#3A0710" />
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="#FF174D" />
-            <Setter Property="BorderThickness" Value="1.75" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="#FFB3C1" />
         </Style>
         <Style Selector="Button.destructive:pointerover">
             <Setter Property="Background" Value="#10131F" />
             <Setter Property="BorderBrush" Value="#FF5A36" />
-            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
         <Style Selector="Button.destructive:pressed">
-            <Setter Property="Background" Value="#26040A" />
+            <Setter Property="Background" Value="#14070D" />
             <Setter Property="BorderBrush" Value="#FF2BD6" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
         <Style Selector="Border.connection-card.online">
             <Setter Property="BorderBrush" Value="#00E5FF" />
-            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.connection-card.offline">
             <Setter Property="BorderBrush" Value="#FF174D" />
-            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Border.connection-status-pill">
-            <Setter Property="Background" Value="{DynamicResource CyberAccentMutedBrush}" />
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberCardBorderBrush}" />
         </Style>
         <Style Selector="Border.connection-status-pill.online">
-            <Setter Property="Background" Value="#062C2F" />
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="#00E5FF" />
         </Style>
         <Style Selector="Border.connection-status-pill.online TextBlock">
             <Setter Property="Foreground" Value="#ECFDF5" />
         </Style>
         <Style Selector="Border.connection-status-pill.offline">
-            <Setter Property="Background" Value="#3A0710" />
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="#FF174D" />
         </Style>
         <Style Selector="Border.connection-status-pill.offline TextBlock">
@@ -58,15 +58,15 @@
         <Style Selector="ListBox.workflow-tabs ListBoxItem">
             <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
-            <Setter Property="BorderThickness" Value="1.25" />
-            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
             <Setter Property="Margin" Value="0,0,8,0" />
             <Setter Property="Padding" Value="16,8" />
         </Style>
         <Style Selector="ListBox.workflow-tabs ListBoxItem:pointerover">
             <Setter Property="Background" Value="#111827" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
-            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
         </Style>
         <Style Selector="ListBox.workflow-tabs ListBoxItem:selected">
@@ -102,7 +102,7 @@
                                             Classes.online="{Binding IsAdbFound}"
                                             Classes.offline="{Binding IsAdbMissing}"
                                             BorderThickness="1"
-                                            CornerRadius="12"
+                                            CornerRadius="6"
                                             Padding="10,4"
                                             Margin="0,0,8,4"
                                             ToolTip.Tip="{Binding DetectedAdbPath}">
@@ -169,7 +169,7 @@
                                             Classes.online="{Binding IsDeviceOnline}"
                                             Classes.offline="{Binding IsDeviceOffline}"
                                             BorderThickness="1"
-                                            CornerRadius="12"
+                                            CornerRadius="6"
                                             Padding="10,4"
                                             VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DeviceConnectionStatus}"

@@ -23,7 +23,7 @@
                             Background="{DynamicResource CyberConsoleBackgroundBrush}"
                             BorderBrush="{DynamicResource CyberAccentSecondaryBrush}"
                             BorderThickness="1.5"
-                            CornerRadius="24"
+                            CornerRadius="6"
                             HorizontalAlignment="Center">
                         <Image Source="avares://PulseAPK/Assets/CyberUnpack.png"
                                Stretch="Uniform" />
