@@ -166,8 +166,7 @@
                              VerticalAlignment="Stretch"
                              Classes="terminal-output"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                             MinHeight="260" />
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto" />
                 </Grid>
             </Border>
         </Expander>
