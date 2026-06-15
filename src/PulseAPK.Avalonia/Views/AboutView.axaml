@@ -37,7 +37,7 @@
                                    Foreground="{DynamicResource CyberAccentBrush}"
                                    HorizontalAlignment="Center"
                                    TextAlignment="Center" />
-                        <TextBlock Text="Android APK reverse engineering toolkit"
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[About_Subtitle]}"
                                    FontSize="15"
                                    Foreground="{DynamicResource CyberAccentSecondaryBrush}"
                                    HorizontalAlignment="Center"

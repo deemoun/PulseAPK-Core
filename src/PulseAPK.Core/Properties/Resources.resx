@@ -169,6 +169,12 @@
   <data name="JavaPathFound" xml:space="preserve">
     <value>JAVA Path: {0}</value>
   </data>
+  <data name="About_Subtitle" xml:space="preserve">
+    <value>Android APK reverse engineering toolkit</value>
+  </data>
+  <data name="SupportWork" xml:space="preserve">
+    <value>Support Work</value>
+  </data>
   <data name="About_DevelopedBy" xml:space="preserve">
     <value>Developed by</value>
   </data>
