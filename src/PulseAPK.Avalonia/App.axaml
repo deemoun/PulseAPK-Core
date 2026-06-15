@@ -211,7 +211,11 @@
                     <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#17485C" />
                     <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#6FE7FF" />
                     <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#91A3C2" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineBackgroundBrush" Color="#052415" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineBorderBrush" Color="#39FF88" />
                     <SolidColorBrush x:Key="CyberStatusOnlineTextBrush" Color="#ECFDF5" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineBackgroundBrush" Color="#2A0710" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineBorderBrush" Color="#FF174D" />
                     <SolidColorBrush x:Key="CyberStatusOfflineTextBrush" Color="#FFB3C1" />
                     <SolidColorBrush x:Key="CyberDestructiveForegroundBrush" Color="#FFB3C1" />
                     <SolidColorBrush x:Key="CyberDestructivePointerOverForegroundBrush" Color="#FFFFFF" />
@@ -250,8 +254,12 @@
                     <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#58BCD1" />
                     <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#007C91" />
                     <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#52677A" />
-                    <SolidColorBrush x:Key="CyberStatusOnlineTextBrush" Color="#005A33" />
-                    <SolidColorBrush x:Key="CyberStatusOfflineTextBrush" Color="#B00025" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineBackgroundBrush" Color="#E5FFF1" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineBorderBrush" Color="#008A4B" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineTextBrush" Color="#003D23" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineBackgroundBrush" Color="#FFE8EE" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineBorderBrush" Color="#B00025" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineTextBrush" Color="#7A001A" />
                     <SolidColorBrush x:Key="CyberDestructiveForegroundBrush" Color="#B00025" />
                     <SolidColorBrush x:Key="CyberDestructivePointerOverForegroundBrush" Color="#FFFFFF" />
                     <SolidColorBrush x:Key="CyberDestructivePointerOverBrush" Color="#B00025" />
