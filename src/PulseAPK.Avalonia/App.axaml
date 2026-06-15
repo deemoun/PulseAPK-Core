@@ -19,7 +19,7 @@
         </Style>
 
         <Style Selector="Button:pointerover">
-            <Setter Property="Background" Value="#111827" />
+            <Setter Property="Background" Value="{DynamicResource CyberPointerOverBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
@@ -40,7 +40,7 @@
         </Style>
 
         <Style Selector="Button.primary-action:pointerover">
-            <Setter Property="Background" Value="#10131F" />
+            <Setter Property="Background" Value="{DynamicResource CyberPointerOverBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
@@ -201,6 +201,7 @@
                     <SolidColorBrush x:Key="CyberAccentMutedBrush" Color="#0A2636" />
                     <SolidColorBrush x:Key="CyberAccentPressedBrush" Color="#122B3D" />
                     <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#20104A" />
+                    <SolidColorBrush x:Key="CyberPointerOverBrush" Color="#111827" />
                     <SolidColorBrush x:Key="CyberSelectedBrush" Color="#20104A" />
                     <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#7A2CFF" />
                     <SolidColorBrush x:Key="CyberPrimaryButtonForegroundBrush" Color="#03111A" />
@@ -210,6 +211,12 @@
                     <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#17485C" />
                     <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#6FE7FF" />
                     <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#91A3C2" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineTextBrush" Color="#ECFDF5" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineTextBrush" Color="#FFB3C1" />
+                    <SolidColorBrush x:Key="CyberDestructiveForegroundBrush" Color="#FFB3C1" />
+                    <SolidColorBrush x:Key="CyberDestructivePointerOverForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CyberDestructivePointerOverBrush" Color="#10131F" />
+                    <SolidColorBrush x:Key="CyberDestructivePressedBrush" Color="#14070D" />
                     <BoxShadows x:Key="CyberCardBoxShadow">0 0 0 0 #00000000</BoxShadows>
                     <BoxShadows x:Key="CyberConsoleCardBoxShadow">0 0 0 0 #00000000</BoxShadows>
                     <BoxShadows x:Key="CyberNeonPillBoxShadow">0 0 10 0 #557A2CFF</BoxShadows>
@@ -233,6 +240,7 @@
                     <SolidColorBrush x:Key="CyberAccentMutedBrush" Color="#DDF8FF" />
                     <SolidColorBrush x:Key="CyberAccentPressedBrush" Color="#FCE0F6" />
                     <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#FFD7F7" />
+                    <SolidColorBrush x:Key="CyberPointerOverBrush" Color="#EAF7FF" />
                     <SolidColorBrush x:Key="CyberSelectedBrush" Color="#FFD7F7" />
                     <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#B0007C" />
                     <SolidColorBrush x:Key="CyberPrimaryButtonForegroundBrush" Color="#001B22" />
@@ -242,6 +250,12 @@
                     <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#58BCD1" />
                     <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#007C91" />
                     <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#52677A" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineTextBrush" Color="#005A33" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineTextBrush" Color="#B00025" />
+                    <SolidColorBrush x:Key="CyberDestructiveForegroundBrush" Color="#B00025" />
+                    <SolidColorBrush x:Key="CyberDestructivePointerOverForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CyberDestructivePointerOverBrush" Color="#B00025" />
+                    <SolidColorBrush x:Key="CyberDestructivePressedBrush" Color="#7A001A" />
                     <BoxShadows x:Key="CyberCardBoxShadow">0 0 0 0 #00000000</BoxShadows>
                     <BoxShadows x:Key="CyberConsoleCardBoxShadow">0 0 0 0 #00000000</BoxShadows>
                     <BoxShadows x:Key="CyberNeonPillBoxShadow">0 0 8 0 #33B0007C</BoxShadows>
