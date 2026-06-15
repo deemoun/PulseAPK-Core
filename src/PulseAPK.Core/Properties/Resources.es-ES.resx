@@ -610,4 +610,107 @@
   <data name="DeviceToolsScreenRecordReady" xml:space="preserve">
     <value>Start Screen Record runs adb shell screenrecord and saves the pulled MP4 after you stop it.</value>
   </data>
+  <data name="MenuPatch" xml:space="preserve">
+    <value>Parchear APK</value>
+  </data>
+  <data name="PatchBetaWarning" xml:space="preserve">
+    <value>Funcionalidad beta. Úsala bajo tu responsabilidad</value>
+  </data>
+  <data name="PatchAddCustomScript" xml:space="preserve">
+    <value>Añadir script personalizado</value>
+  </data>
+  <data name="PatchScriptSampleInjection" xml:space="preserve">
+    <value>Inyección de ejemplo</value>
+  </data>
+  <data name="PatchScriptSampleInjectionInfo" xml:space="preserve">
+    <value>La inyección de ejemplo solo añade un ayudante de registro smali; no se carga ninguna biblioteca nativa.</value>
+  </data>
+  <data name="PatchErrorSelectApk" xml:space="preserve">
+    <value>Selecciona un archivo APK para parchear.</value>
+  </data>
+  <data name="PatchErrorMissingApkTitle" xml:space="preserve">
+    <value>Falta el APK</value>
+  </data>
+  <data name="PatchDangerousDexConfirmation" xml:space="preserve">
+    <value>Reemplazar todos los dex puede descartar los cambios smali inyectados. Continúa solo si entiendes este riesgo.</value>
+  </data>
+  <data name="PatchDangerousDexTitle" xml:space="preserve">
+    <value>Reemplazo dex peligroso</value>
+  </data>
+  <data name="PatchLogDangerousDexCancelled" xml:space="preserve">
+    <value>[WARN] El usuario canceló el reemplazo dex peligroso.</value>
+  </data>
+  <data name="PatchLogStartingPipeline" xml:space="preserve">
+    <value>Iniciando canalización de parcheo...</value>
+  </data>
+  <data name="PatchLogScriptProfile" xml:space="preserve">
+    <value>[INFO] Perfil de script: {0}</value>
+  </data>
+  <data name="PatchLogRunSummary" xml:space="preserve">
+    <value>Parcheando '{0}' -&gt; '{1}' (sign={2}, decodeRes={3}, decodeSrc={4}, aapt2={5}, dexMode={6})</value>
+  </data>
+  <data name="PatchLogCreated" xml:space="preserve">
+    <value>APK parcheado creado: {0}</value>
+  </data>
+  <data name="PatchInfoCompleteMessage" xml:space="preserve">
+    <value>Parche completado correctamente.
+Salida: {0}</value>
+  </data>
+  <data name="PatchInfoCompleteTitle" xml:space="preserve">
+    <value>Parche completado</value>
+  </data>
+  <data name="PatchErrorFailedMessage" xml:space="preserve">
+    <value>El parche falló. Consulta la salida de la consola para más detalles.</value>
+  </data>
+  <data name="PatchErrorFailedTitle" xml:space="preserve">
+    <value>Parche fallido</value>
+  </data>
+  <data name="PatchPreviewHeader" xml:space="preserve">
+    <value>Vista previa del parche:</value>
+  </data>
+  <data name="PatchPreviewInputApk" xml:space="preserve">
+    <value>APK de entrada: {0}</value>
+  </data>
+  <data name="PatchPreviewSelectApk" xml:space="preserve">
+    <value>&lt;seleccionar apk&gt;</value>
+  </data>
+  <data name="PatchPreviewOutputApk" xml:space="preserve">
+    <value>APK de salida: {0}</value>
+  </data>
+  <data name="PatchPreviewOutputApkPlaceholder" xml:space="preserve">
+    <value>&lt;apk de salida&gt;</value>
+  </data>
+  <data name="PatchPreviewDecodeResources" xml:space="preserve">
+    <value>Decodificar recursos: {0}</value>
+  </data>
+  <data name="PatchPreviewDecodeSources" xml:space="preserve">
+    <value>Decodificar fuentes: {0}</value>
+  </data>
+  <data name="PatchPreviewUseAapt2" xml:space="preserve">
+    <value>Usar AAPT2: {0}</value>
+  </data>
+  <data name="PatchPreviewScriptProfile" xml:space="preserve">
+    <value>Perfil de script: {0}</value>
+  </data>
+  <data name="PatchPreviewInjectAllArchitectures" xml:space="preserve">
+    <value>Inyectar para todas las arquitecturas: {0}</value>
+  </data>
+  <data name="PatchPreviewSkipDexValidation" xml:space="preserve">
+    <value>Omitir validación DEX: {0}</value>
+  </data>
+  <data name="PatchPreviewAddCustomScript" xml:space="preserve">
+    <value>Añadir script personalizado: {0}</value>
+  </data>
+  <data name="PatchPreviewDexPreservation" xml:space="preserve">
+    <value>Conservación de Dex: {0}</value>
+  </data>
+  <data name="PatchPreviewSignOutput" xml:space="preserve">
+    <value>Firmar salida: {0}</value>
+  </data>
+  <data name="DeviceToolsDeviceOnline" xml:space="preserve">
+    <value>Dispositivo: en línea</value>
+  </data>
+  <data name="DeviceToolsDeviceOffline" xml:space="preserve">
+    <value>Dispositivo: sin conexión</value>
+  </data>
 </root>

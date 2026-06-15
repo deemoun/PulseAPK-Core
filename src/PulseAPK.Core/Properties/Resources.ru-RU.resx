@@ -695,4 +695,22 @@
   <data name="DeviceToolsScreenRecordReady" xml:space="preserve">
     <value>Start Screen Record runs adb shell screenrecord and saves the pulled MP4 after you stop it.</value>
   </data>
+  <data name="PatchBetaWarning" xml:space="preserve">
+    <value>Бета-функция. Используйте на свой риск</value>
+  </data>
+  <data name="PatchAddCustomScript" xml:space="preserve">
+    <value>Добавить пользовательский скрипт</value>
+  </data>
+  <data name="PatchScriptSampleInjection" xml:space="preserve">
+    <value>Пример внедрения</value>
+  </data>
+  <data name="PatchScriptSampleInjectionInfo" xml:space="preserve">
+    <value>Пример внедрения добавляет только помощник журнала smali; нативная библиотека не загружается.</value>
+  </data>
+  <data name="DeviceToolsDeviceOnline" xml:space="preserve">
+    <value>Устройство: онлайн</value>
+  </data>
+  <data name="DeviceToolsDeviceOffline" xml:space="preserve">
+    <value>Устройство: офлайн</value>
+  </data>
 </root>
