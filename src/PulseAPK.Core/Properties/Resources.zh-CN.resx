@@ -610,4 +610,107 @@
   <data name="DeviceToolsScreenRecordReady" xml:space="preserve">
     <value>Start Screen Record runs adb shell screenrecord and saves the pulled MP4 after you stop it.</value>
   </data>
+  <data name="MenuPatch" xml:space="preserve">
+    <value>修补 APK</value>
+  </data>
+  <data name="PatchBetaWarning" xml:space="preserve">
+    <value>测试版功能。使用风险自负</value>
+  </data>
+  <data name="PatchAddCustomScript" xml:space="preserve">
+    <value>添加自定义脚本</value>
+  </data>
+  <data name="PatchScriptSampleInjection" xml:space="preserve">
+    <value>示例注入</value>
+  </data>
+  <data name="PatchScriptSampleInjectionInfo" xml:space="preserve">
+    <value>示例注入只添加一个 smali 日志助手；不会加载原生库。</value>
+  </data>
+  <data name="PatchErrorSelectApk" xml:space="preserve">
+    <value>请选择要修补的 APK 文件。</value>
+  </data>
+  <data name="PatchErrorMissingApkTitle" xml:space="preserve">
+    <value>缺少 APK</value>
+  </data>
+  <data name="PatchDangerousDexConfirmation" xml:space="preserve">
+    <value>替换所有 dex 可能会丢弃已注入的 smali 更改。仅在了解风险后继续。</value>
+  </data>
+  <data name="PatchDangerousDexTitle" xml:space="preserve">
+    <value>危险的 dex 替换</value>
+  </data>
+  <data name="PatchLogDangerousDexCancelled" xml:space="preserve">
+    <value>[WARN] 用户已取消危险的 dex 替换。</value>
+  </data>
+  <data name="PatchLogStartingPipeline" xml:space="preserve">
+    <value>正在启动修补流程...</value>
+  </data>
+  <data name="PatchLogScriptProfile" xml:space="preserve">
+    <value>[INFO] 脚本配置：{0}</value>
+  </data>
+  <data name="PatchLogRunSummary" xml:space="preserve">
+    <value>正在修补 '{0}' -&gt; '{1}' (sign={2}, decodeRes={3}, decodeSrc={4}, aapt2={5}, dexMode={6})</value>
+  </data>
+  <data name="PatchLogCreated" xml:space="preserve">
+    <value>已创建修补后的 APK：{0}</value>
+  </data>
+  <data name="PatchInfoCompleteMessage" xml:space="preserve">
+    <value>修补成功完成。
+输出：{0}</value>
+  </data>
+  <data name="PatchInfoCompleteTitle" xml:space="preserve">
+    <value>修补完成</value>
+  </data>
+  <data name="PatchErrorFailedMessage" xml:space="preserve">
+    <value>修补失败。请查看控制台输出了解详情。</value>
+  </data>
+  <data name="PatchErrorFailedTitle" xml:space="preserve">
+    <value>修补失败</value>
+  </data>
+  <data name="PatchPreviewHeader" xml:space="preserve">
+    <value>修补预览：</value>
+  </data>
+  <data name="PatchPreviewInputApk" xml:space="preserve">
+    <value>输入 APK：{0}</value>
+  </data>
+  <data name="PatchPreviewSelectApk" xml:space="preserve">
+    <value>&lt;选择 apk&gt;</value>
+  </data>
+  <data name="PatchPreviewOutputApk" xml:space="preserve">
+    <value>输出 APK：{0}</value>
+  </data>
+  <data name="PatchPreviewOutputApkPlaceholder" xml:space="preserve">
+    <value>&lt;输出 apk&gt;</value>
+  </data>
+  <data name="PatchPreviewDecodeResources" xml:space="preserve">
+    <value>解码资源：{0}</value>
+  </data>
+  <data name="PatchPreviewDecodeSources" xml:space="preserve">
+    <value>解码源码：{0}</value>
+  </data>
+  <data name="PatchPreviewUseAapt2" xml:space="preserve">
+    <value>使用 AAPT2：{0}</value>
+  </data>
+  <data name="PatchPreviewScriptProfile" xml:space="preserve">
+    <value>脚本配置：{0}</value>
+  </data>
+  <data name="PatchPreviewInjectAllArchitectures" xml:space="preserve">
+    <value>为所有架构注入：{0}</value>
+  </data>
+  <data name="PatchPreviewSkipDexValidation" xml:space="preserve">
+    <value>跳过 DEX 验证：{0}</value>
+  </data>
+  <data name="PatchPreviewAddCustomScript" xml:space="preserve">
+    <value>添加自定义脚本：{0}</value>
+  </data>
+  <data name="PatchPreviewDexPreservation" xml:space="preserve">
+    <value>Dex 保留：{0}</value>
+  </data>
+  <data name="PatchPreviewSignOutput" xml:space="preserve">
+    <value>签名输出：{0}</value>
+  </data>
+  <data name="DeviceToolsDeviceOnline" xml:space="preserve">
+    <value>设备：在线</value>
+  </data>
+  <data name="DeviceToolsDeviceOffline" xml:space="preserve">
+    <value>设备：离线</value>
+  </data>
 </root>

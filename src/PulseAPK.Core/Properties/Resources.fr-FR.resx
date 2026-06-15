@@ -610,4 +610,107 @@
   <data name="DeviceToolsScreenRecordReady" xml:space="preserve">
     <value>Start Screen Record runs adb shell screenrecord and saves the pulled MP4 after you stop it.</value>
   </data>
+  <data name="MenuPatch" xml:space="preserve">
+    <value>Patcher APK</value>
+  </data>
+  <data name="PatchBetaWarning" xml:space="preserve">
+    <value>Fonctionnalité bêta. À utiliser à vos risques et périls</value>
+  </data>
+  <data name="PatchAddCustomScript" xml:space="preserve">
+    <value>Ajouter un script personnalisé</value>
+  </data>
+  <data name="PatchScriptSampleInjection" xml:space="preserve">
+    <value>Injection d’exemple</value>
+  </data>
+  <data name="PatchScriptSampleInjectionInfo" xml:space="preserve">
+    <value>L’injection d’exemple ajoute uniquement un assistant de journal smali ; aucune bibliothèque native n’est chargée.</value>
+  </data>
+  <data name="PatchErrorSelectApk" xml:space="preserve">
+    <value>Veuillez sélectionner un fichier APK à patcher.</value>
+  </data>
+  <data name="PatchErrorMissingApkTitle" xml:space="preserve">
+    <value>APK manquant</value>
+  </data>
+  <data name="PatchDangerousDexConfirmation" xml:space="preserve">
+    <value>Remplacer tous les dex peut supprimer les modifications smali injectées. Continuez uniquement si vous comprenez ce risque.</value>
+  </data>
+  <data name="PatchDangerousDexTitle" xml:space="preserve">
+    <value>Remplacement dex dangereux</value>
+  </data>
+  <data name="PatchLogDangerousDexCancelled" xml:space="preserve">
+    <value>[WARN] Le remplacement dex dangereux a été annulé par l’utilisateur.</value>
+  </data>
+  <data name="PatchLogStartingPipeline" xml:space="preserve">
+    <value>Démarrage du pipeline de patch...</value>
+  </data>
+  <data name="PatchLogScriptProfile" xml:space="preserve">
+    <value>[INFO] Profil de script : {0}</value>
+  </data>
+  <data name="PatchLogRunSummary" xml:space="preserve">
+    <value>Patch de '{0}' -&gt; '{1}' (sign={2}, decodeRes={3}, decodeSrc={4}, aapt2={5}, dexMode={6})</value>
+  </data>
+  <data name="PatchLogCreated" xml:space="preserve">
+    <value>APK patché créé : {0}</value>
+  </data>
+  <data name="PatchInfoCompleteMessage" xml:space="preserve">
+    <value>Patch terminé avec succès.
+Sortie : {0}</value>
+  </data>
+  <data name="PatchInfoCompleteTitle" xml:space="preserve">
+    <value>Patch terminé</value>
+  </data>
+  <data name="PatchErrorFailedMessage" xml:space="preserve">
+    <value>Le patch a échoué. Consultez la sortie de la console pour plus de détails.</value>
+  </data>
+  <data name="PatchErrorFailedTitle" xml:space="preserve">
+    <value>Échec du patch</value>
+  </data>
+  <data name="PatchPreviewHeader" xml:space="preserve">
+    <value>Aperçu du patch :</value>
+  </data>
+  <data name="PatchPreviewInputApk" xml:space="preserve">
+    <value>APK d’entrée : {0}</value>
+  </data>
+  <data name="PatchPreviewSelectApk" xml:space="preserve">
+    <value>&lt;sélectionner apk&gt;</value>
+  </data>
+  <data name="PatchPreviewOutputApk" xml:space="preserve">
+    <value>APK de sortie : {0}</value>
+  </data>
+  <data name="PatchPreviewOutputApkPlaceholder" xml:space="preserve">
+    <value>&lt;apk de sortie&gt;</value>
+  </data>
+  <data name="PatchPreviewDecodeResources" xml:space="preserve">
+    <value>Décoder les ressources : {0}</value>
+  </data>
+  <data name="PatchPreviewDecodeSources" xml:space="preserve">
+    <value>Décoder les sources : {0}</value>
+  </data>
+  <data name="PatchPreviewUseAapt2" xml:space="preserve">
+    <value>Utiliser AAPT2 : {0}</value>
+  </data>
+  <data name="PatchPreviewScriptProfile" xml:space="preserve">
+    <value>Profil de script : {0}</value>
+  </data>
+  <data name="PatchPreviewInjectAllArchitectures" xml:space="preserve">
+    <value>Injecter pour toutes les architectures : {0}</value>
+  </data>
+  <data name="PatchPreviewSkipDexValidation" xml:space="preserve">
+    <value>Ignorer la validation DEX : {0}</value>
+  </data>
+  <data name="PatchPreviewAddCustomScript" xml:space="preserve">
+    <value>Ajouter un script personnalisé : {0}</value>
+  </data>
+  <data name="PatchPreviewDexPreservation" xml:space="preserve">
+    <value>Préservation Dex : {0}</value>
+  </data>
+  <data name="PatchPreviewSignOutput" xml:space="preserve">
+    <value>Signer la sortie : {0}</value>
+  </data>
+  <data name="DeviceToolsDeviceOnline" xml:space="preserve">
+    <value>Appareil : en ligne</value>
+  </data>
+  <data name="DeviceToolsDeviceOffline" xml:space="preserve">
+    <value>Appareil : hors ligne</value>
+  </data>
 </root>
