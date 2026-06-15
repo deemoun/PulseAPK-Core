@@ -204,7 +204,6 @@
                         Classes.active="{Binding IsSettingsSelected}"
                         IsVisible="{Binding IsSettingsEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="nav-glyph" Text="[CFG]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuSettings]}"/>
                     </StackPanel>
                 </Button>
@@ -213,7 +212,6 @@
                         Classes.active="{Binding IsAboutSelected}"
                         IsVisible="{Binding IsAboutEnabled}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="nav-glyph" Text="[?]"/>
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[MenuAbout]}"/>
                     </StackPanel>
                 </Button>
