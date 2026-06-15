@@ -12,18 +12,18 @@
             <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="#FF174D" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="#FFB3C1" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberDestructiveForegroundBrush}" />
         </Style>
         <Style Selector="Button.destructive:pointerover">
-            <Setter Property="Background" Value="#10131F" />
+            <Setter Property="Background" Value="{DynamicResource CyberDestructivePointerOverBrush}" />
             <Setter Property="BorderBrush" Value="#FF5A36" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberDestructivePointerOverForegroundBrush}" />
         </Style>
         <Style Selector="Button.destructive:pressed">
-            <Setter Property="Background" Value="#14070D" />
+            <Setter Property="Background" Value="{DynamicResource CyberDestructivePressedBrush}" />
             <Setter Property="BorderBrush" Value="#FF2BD6" />
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberDestructivePointerOverForegroundBrush}" />
         </Style>
         <Style Selector="Border.connection-card.online">
             <Setter Property="BorderBrush" Value="#00E5FF" />
@@ -42,14 +42,14 @@
             <Setter Property="BorderBrush" Value="#00E5FF" />
         </Style>
         <Style Selector="Border.connection-status-pill.online TextBlock">
-            <Setter Property="Foreground" Value="#ECFDF5" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberStatusOnlineTextBrush}" />
         </Style>
         <Style Selector="Border.connection-status-pill.offline">
             <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="#FF174D" />
         </Style>
         <Style Selector="Border.connection-status-pill.offline TextBlock">
-            <Setter Property="Foreground" Value="#FFB3C1" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberDestructiveForegroundBrush}" />
         </Style>
         <Style Selector="ListBox.workflow-tabs">
             <Setter Property="Background" Value="Transparent" />
@@ -64,7 +64,7 @@
             <Setter Property="Padding" Value="16,8" />
         </Style>
         <Style Selector="ListBox.workflow-tabs ListBoxItem:pointerover">
-            <Setter Property="Background" Value="#111827" />
+            <Setter Property="Background" Value="{DynamicResource CyberPointerOverBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
