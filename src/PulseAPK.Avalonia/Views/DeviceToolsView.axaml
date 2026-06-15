@@ -15,8 +15,9 @@
             <Setter Property="Foreground" Value="#FFB3C1" />
         </Style>
         <Style Selector="Button.destructive:pointerover">
-            <Setter Property="Background" Value="#6E0B1D" />
+            <Setter Property="Background" Value="#10131F" />
             <Setter Property="BorderBrush" Value="#FF5A36" />
+            <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
         <Style Selector="Button.destructive:pressed">
@@ -63,8 +64,10 @@
             <Setter Property="Padding" Value="16,8" />
         </Style>
         <Style Selector="ListBox.workflow-tabs ListBoxItem:pointerover">
-            <Setter Property="Background" Value="{DynamicResource CyberAccentMutedBrush}" />
+            <Setter Property="Background" Value="#111827" />
             <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
         </Style>
         <Style Selector="ListBox.workflow-tabs ListBoxItem:selected">
             <Setter Property="Background" Value="{DynamicResource CyberAccentPressedBrush}" />
