@@ -33,7 +33,12 @@
         </DataTemplate>
     </Window.DataTemplates>
 
-    <Grid ColumnDefinitions="220, *">
+    <Grid ColumnDefinitions="220, *"
+          Background="{DynamicResource MainBackgroundBrush}">
+        <Grid.LayoutTransform>
+            <ScaleTransform ScaleX="{DynamicResource UiObjectScale}"
+                            ScaleY="{DynamicResource UiObjectScale}" />
+        </Grid.LayoutTransform>
         <!-- Sidebar -->
         <Border Grid.Column="0" Background="{DynamicResource SidebarBackgroundBrush}" Padding="16">
             <StackPanel Spacing="10">
@@ -67,12 +72,7 @@
 
         <!-- Content -->
         <Border Grid.Column="1" Background="{DynamicResource MainBackgroundBrush}" Padding="20">
-            <ContentControl Content="{Binding CurrentView}">
-                <ContentControl.LayoutTransform>
-                    <ScaleTransform ScaleX="{DynamicResource UiObjectScale}"
-                                    ScaleY="{DynamicResource UiObjectScale}" />
-                </ContentControl.LayoutTransform>
-            </ContentControl>
+            <ContentControl Content="{Binding CurrentView}" />
         </Border>
     </Grid>
 </Window>
