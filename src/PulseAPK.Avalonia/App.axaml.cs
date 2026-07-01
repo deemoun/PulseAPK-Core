@@ -31,7 +31,7 @@ public partial class App : Application
         var settingsService = Services.GetRequiredService<ISettingsService>();
         LocalizationService.Instance.Initialize(settingsService);
         var themeService = Services.GetRequiredService<IThemeService>();
-        themeService.ApplyVisualPreferences(settingsService.Settings.ThemeMode, settingsService.Settings.BackgroundColor, settingsService.Settings.ObjectScale);
+        themeService.ApplyTheme(settingsService.Settings.ThemeMode);
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
