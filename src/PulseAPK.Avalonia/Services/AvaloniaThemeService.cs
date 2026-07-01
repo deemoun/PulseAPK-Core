@@ -1,5 +1,4 @@
 using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Styling;
 using PulseAPK.Core.Abstractions;
@@ -9,15 +8,14 @@ namespace PulseAPK.Avalonia.Services;
 
 public sealed class AvaloniaThemeService : IThemeService
 {
-    private const string DefaultDarkBackground = "#121212";
-    private const string DefaultLightBackground = "#FFFFFF";
+    private const string DefaultBackground = "#121212";
     private const double DefaultScale = 1.0;
     private const double MinimumScale = 0.75;
     private const double MaximumScale = 1.5;
 
     public void ApplyTheme(string? themeMode)
     {
-        ApplyVisualPreferences(themeMode, DefaultDarkBackground, DefaultScale);
+        ApplyVisualPreferences(themeMode, DefaultBackground, DefaultScale);
     }
 
     public void ApplyVisualPreferences(string? themeMode, string? backgroundColor, double objectScale)
@@ -34,36 +32,16 @@ public sealed class AvaloniaThemeService : IThemeService
         var normalizedScale = Math.Clamp(objectScale, MinimumScale, MaximumScale);
         resources["UiObjectScale"] = normalizedScale;
 
-        var backgroundBrush = CreateBackgroundBrush(backgroundColor, isLightMode);
-        SetApplicationResource(resources, "MainBackgroundBrush", backgroundBrush);
-
-        if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
-            && desktop.MainWindow is not null)
+        if (string.IsNullOrWhiteSpace(backgroundColor)
+            || string.Equals(backgroundColor, DefaultBackground, StringComparison.OrdinalIgnoreCase))
         {
-            desktop.MainWindow.Background = backgroundBrush;
+            resources["MainBackgroundBrush"] = new SolidColorBrush(isLightMode ? Color.Parse("#FFFFFF") : Color.Parse("#121212"));
+            return;
         }
-    }
 
-    private static SolidColorBrush CreateBackgroundBrush(string? backgroundColor, bool isLightMode)
-    {
-        var defaultBackground = isLightMode ? DefaultLightBackground : DefaultDarkBackground;
-        var colorValue = string.IsNullOrWhiteSpace(backgroundColor)
-            || (!isLightMode && string.Equals(backgroundColor, DefaultDarkBackground, StringComparison.OrdinalIgnoreCase))
-            ? defaultBackground
-            : backgroundColor;
-
-        return Color.TryParse(colorValue, out var color)
-            ? new SolidColorBrush(color)
-            : new SolidColorBrush(Color.Parse(defaultBackground));
-    }
-
-    private static void SetApplicationResource(ResourceDictionary resources, string key, object value)
-    {
-        resources[key] = value;
-
-        foreach (var themeDictionary in resources.ThemeDictionaries.Values)
+        if (Color.TryParse(backgroundColor, out var color))
         {
-            themeDictionary[key] = value;
+            resources["MainBackgroundBrush"] = new SolidColorBrush(color);
         }
     }
 }
