@@ -67,12 +67,7 @@
 
         <!-- Content -->
         <Border Grid.Column="1" Background="{DynamicResource MainBackgroundBrush}" Padding="20">
-            <ContentControl Content="{Binding CurrentView}">
-                <ContentControl.LayoutTransform>
-                    <ScaleTransform ScaleX="{DynamicResource UiObjectScale}"
-                                    ScaleY="{DynamicResource UiObjectScale}" />
-                </ContentControl.LayoutTransform>
-            </ContentControl>
+            <ContentControl Content="{Binding CurrentView}"/>
         </Border>
     </Grid>
 </Window>

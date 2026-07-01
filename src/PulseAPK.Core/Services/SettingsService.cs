@@ -10,8 +10,6 @@ namespace PulseAPK.Core.Services
         public string UbersignPath { get; set; } = string.Empty;
         public string SelectedLanguage { get; set; } = "en-US";
         public string ThemeMode { get; set; } = "dark_mode";
-        public string BackgroundColor { get; set; } = "#121212";
-        public double ObjectScale { get; set; } = 1.0;
     }
 
     public interface ISettingsService

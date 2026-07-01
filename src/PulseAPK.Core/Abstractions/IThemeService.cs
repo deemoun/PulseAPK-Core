@@ -6,5 +6,4 @@ namespace PulseAPK.Core.Abstractions;
 public interface IThemeService
 {
     void ApplyTheme(string? themeMode);
-    void ApplyVisualPreferences(string? themeMode, string? backgroundColor, double objectScale);
 }
