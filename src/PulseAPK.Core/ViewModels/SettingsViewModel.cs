@@ -31,14 +31,27 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private ThemeModeItem _selectedThemeMode = null!;
+
+    [ObservableProperty]
+    private BackgroundColorItem _selectedBackgroundColor = null!;
+
+    [ObservableProperty]
+    private double _objectScale = 1.0;
     
     public List<LanguageItem> AvailableLanguages => _localizationService.AvailableLanguages;
     private List<ThemeModeItem> _availableThemeModes = [];
+    private List<BackgroundColorItem> _availableBackgroundColors = [];
 
     public List<ThemeModeItem> AvailableThemeModes
     {
         get => _availableThemeModes;
         private set => SetProperty(ref _availableThemeModes, value);
+    }
+
+    public List<BackgroundColorItem> AvailableBackgroundColors
+    {
+        get => _availableBackgroundColors;
+        private set => SetProperty(ref _availableBackgroundColors, value);
     }
 
     public SettingsViewModel(
@@ -61,8 +74,10 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _apktoolPath = _settingsService.Settings.ApktoolPath;
         _ubersignPath = _settingsService.Settings.UbersignPath;
         _selectedLanguage = _localizationService.CurrentLanguage;
+        _objectScale = ClampObjectScale(_settingsService.Settings.ObjectScale);
 
         RefreshThemeModes(_settingsService.Settings.ThemeMode);
+        RefreshBackgroundColors(_settingsService.Settings.BackgroundColor);
         _localizationService.PropertyChanged += OnLocalizationChanged;
 
         NormalizeManagedToolPathsIfMissing();
@@ -99,7 +114,33 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
         _settingsService.Settings.ThemeMode = value.Key;
         _settingsService.Save();
-        _themeService.ApplyTheme(value.Key);
+        ApplyVisualPreferences();
+    }
+
+    partial void OnSelectedBackgroundColorChanged(BackgroundColorItem value)
+    {
+        if (value is null)
+        {
+            return;
+        }
+
+        _settingsService.Settings.BackgroundColor = value.ColorValue;
+        _settingsService.Save();
+        ApplyVisualPreferences();
+    }
+
+    partial void OnObjectScaleChanged(double value)
+    {
+        var normalized = ClampObjectScale(value);
+        if (Math.Abs(normalized - value) > 0.001)
+        {
+            ObjectScale = normalized;
+            return;
+        }
+
+        _settingsService.Settings.ObjectScale = normalized;
+        _settingsService.Save();
+        ApplyVisualPreferences();
     }
 
     [RelayCommand]
@@ -221,6 +262,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         if (e.PropertyName == "Item[]" || e.PropertyName == string.Empty)
         {
             RefreshThemeModes(SelectedThemeMode?.Key);
+            RefreshBackgroundColors(SelectedBackgroundColor?.ColorValue);
         }
     }
 
@@ -233,6 +275,37 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         ];
 
         SelectedThemeMode = ResolveThemeMode(selectedThemeKey);
+    }
+
+    private void RefreshBackgroundColors(string? selectedColor)
+    {
+        AvailableBackgroundColors =
+        [
+            new BackgroundColorItem("#121212", "Charcoal"),
+            new BackgroundColorItem("#1E3A8A", "Blue"),
+            new BackgroundColorItem("#14532D", "Green"),
+            new BackgroundColorItem("#581C87", "Purple"),
+            new BackgroundColorItem("#7F1D1D", "Red"),
+            new BackgroundColorItem("#78350F", "Amber"),
+            new BackgroundColorItem("#134E4A", "Teal"),
+            new BackgroundColorItem("#4A044E", "Magenta"),
+            new BackgroundColorItem("#111827", "Slate"),
+            new BackgroundColorItem("#701A75", "Fuchsia")
+        ];
+
+        SelectedBackgroundColor = AvailableBackgroundColors.FirstOrDefault(color =>
+                                      string.Equals(color.ColorValue, selectedColor, StringComparison.OrdinalIgnoreCase))
+                                  ?? AvailableBackgroundColors[0];
+    }
+
+    private void ApplyVisualPreferences()
+    {
+        _themeService.ApplyVisualPreferences(SelectedThemeMode?.Key, SelectedBackgroundColor?.ColorValue, ObjectScale);
+    }
+
+    private static double ClampObjectScale(double value)
+    {
+        return Math.Clamp(value, 0.75, 1.5);
     }
 
     private ThemeModeItem ResolveThemeMode(string? themeMode)
@@ -255,3 +328,5 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 }
 
 public sealed record ThemeModeItem(string Key, string Name);
+
+public sealed record BackgroundColorItem(string ColorValue, string Name);
