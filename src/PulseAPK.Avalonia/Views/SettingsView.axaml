@@ -33,6 +33,31 @@
             </ComboBox.ItemTemplate>
         </ComboBox>
 
+        <TextBlock Text="Object size"
+                   FontWeight="SemiBold" />
+        <Grid ColumnDefinitions="260,Auto" ColumnSpacing="12">
+            <Slider Minimum="0.75"
+                    Maximum="1.5"
+                    TickFrequency="0.05"
+                    IsSnapToTickEnabled="True"
+                    Value="{Binding ObjectScale}" />
+            <TextBlock Grid.Column="1"
+                       VerticalAlignment="Center"
+                       Text="{Binding ObjectScale, StringFormat={}{0:P0}}" />
+        </Grid>
+
+        <TextBlock Text="Background color"
+                   FontWeight="SemiBold" />
+        <ComboBox ItemsSource="{Binding AvailableBackgroundColors}"
+                  SelectedItem="{Binding SelectedBackgroundColor}"
+                  Width="260">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ApktoolPath]}"
                    FontWeight="SemiBold" />
         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
