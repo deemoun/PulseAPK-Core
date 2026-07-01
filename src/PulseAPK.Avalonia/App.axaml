@@ -10,7 +10,6 @@
 
     <Application.Resources>
         <ResourceDictionary>
-            <SolidColorBrush x:Key="MainBackgroundBrush" Color="#121212" />
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#202020" />
