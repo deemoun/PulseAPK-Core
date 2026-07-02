@@ -8,7 +8,7 @@ using Properties = PulseAPK.Core.Properties;
 
 namespace PulseAPK.Core.ViewModels;
 
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly IServiceProvider _serviceProvider;
     private const string SupportWorkUrl = "https://yarygintech.com/support-work/";
@@ -16,6 +16,7 @@ public partial class MainViewModel : ObservableObject
     private readonly LocalizationService _localizationService;
     private readonly ISystemService _systemService;
     private readonly ISettingsService _settingsService;
+    private bool _disposed;
 
     [ObservableProperty]
     private object _currentView = null!;
@@ -254,6 +255,18 @@ public partial class MainViewModel : ObservableObject
         if (service == null)
             throw new InvalidOperationException($"Could not resolve service of type {typeof(T).Name}");
         return (T)service;
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _localizationService.PropertyChanged -= HandleLocalizationChanged;
+        _settingsService.SettingsChanged -= HandleSettingsChanged;
+        _disposed = true;
     }
 
     private void HandleLocalizationChanged(object? sender, PropertyChangedEventArgs e)

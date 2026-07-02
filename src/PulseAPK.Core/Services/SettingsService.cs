@@ -29,6 +29,7 @@ namespace PulseAPK.Core.Services
 
         private readonly string _settingsFilePath;
         private readonly string _legacySettingsFilePath;
+        private bool _lastSavedIsDeviceToolsEnabled;
 
         public AppSettings Settings { get; private set; }
         public event EventHandler? SettingsChanged;
@@ -42,6 +43,7 @@ namespace PulseAPK.Core.Services
             _settingsFilePath = Path.Combine(settingsFolder, SettingsFileName);
             _legacySettingsFilePath = Path.Combine(baseDirectory, SettingsFileName);
             Settings = LoadSettings();
+            _lastSavedIsDeviceToolsEnabled = Settings.IsDeviceToolsEnabled;
         }
 
         private static string ResolveSettingsFolder(string baseDirectory)
@@ -102,8 +104,15 @@ namespace PulseAPK.Core.Services
 
         public void Save()
         {
+            var didDeviceToolsSettingChange = _lastSavedIsDeviceToolsEnabled != Settings.IsDeviceToolsEnabled;
+
             Save(Settings);
-            SettingsChanged?.Invoke(this, EventArgs.Empty);
+
+            if (didDeviceToolsSettingChange)
+            {
+                _lastSavedIsDeviceToolsEnabled = Settings.IsDeviceToolsEnabled;
+                SettingsChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private void Save(AppSettings settings)

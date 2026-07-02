@@ -129,9 +129,9 @@ public class ApktoolRunnerTests
         }
 
         public AppSettings Settings { get; }
+        public string SettingsDirectory => Environment.CurrentDirectory;
+        public event EventHandler? SettingsChanged;
 
-        public void Save()
-        {
-        }
+        public void Save() => SettingsChanged?.Invoke(this, EventArgs.Empty);
     }
 }

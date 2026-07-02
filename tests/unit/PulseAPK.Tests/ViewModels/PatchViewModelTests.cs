@@ -145,7 +145,8 @@ public class PatchViewModelTests
     {
         public AppSettings Settings { get; } = new() { ApktoolPath = string.Empty };
         public string SettingsDirectory => Environment.CurrentDirectory;
-        public void Save() { }
+        public event EventHandler? SettingsChanged;
+        public void Save() => SettingsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private sealed class TestDialogService : IDialogService
