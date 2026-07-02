@@ -104,6 +104,9 @@
                                 Command="{Binding BrowseAdbCommand}"
                                 Width="110" />
                     </Grid>
+
+                    <CheckBox Content="Enable Device Tools"
+                              IsChecked="{Binding IsDeviceToolsEnabled}" />
                 </StackPanel>
             </Border>
         </StackPanel>

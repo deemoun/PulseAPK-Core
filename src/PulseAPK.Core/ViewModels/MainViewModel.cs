@@ -15,6 +15,7 @@ public partial class MainViewModel : ObservableObject
 
     private readonly LocalizationService _localizationService;
     private readonly ISystemService _systemService;
+    private readonly ISettingsService _settingsService;
 
     [ObservableProperty]
     private object _currentView = null!;
@@ -47,20 +48,23 @@ public partial class MainViewModel : ObservableObject
     public bool IsBuildEnabled => FeatureFlags.BuildApk;
     public bool IsPatchEnabled => FeatureFlags.PatchApk;
     public bool IsAnalyserEnabled => FeatureFlags.ApkAnalyser;
-    public bool IsDeviceToolsEnabled => FeatureFlags.DeviceTools;
+    public bool IsDeviceToolsEnabled => FeatureFlags.DeviceTools && _settingsService.Settings.IsDeviceToolsEnabled;
     public bool IsSettingsEnabled => FeatureFlags.Settings;
     public bool IsAboutEnabled => FeatureFlags.About;
 
     public MainViewModel(
         IServiceProvider serviceProvider,
         LocalizationService localizationService,
-        ISystemService systemService)
+        ISystemService systemService,
+        ISettingsService settingsService)
     {
         _serviceProvider = serviceProvider;
         _localizationService = localizationService;
         _systemService = systemService;
+        _settingsService = settingsService;
         WindowTitle = _localizationService["AppTitle"];
         _localizationService.PropertyChanged += HandleLocalizationChanged;
+        _settingsService.SettingsChanged += HandleSettingsChanged;
         SetInitialView();
     }
 
@@ -139,41 +143,86 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsAboutSelected));
     }
 
-    private static bool CanNavigateToDecompile() => FeatureFlags.Decompile;
-    private static bool CanNavigateToBuild() => FeatureFlags.BuildApk;
-    private static bool CanNavigateToPatch() => FeatureFlags.PatchApk;
-    private static bool CanNavigateToAnalyser() => FeatureFlags.ApkAnalyser;
-    private static bool CanNavigateToDeviceTools() => FeatureFlags.DeviceTools;
-    private static bool CanNavigateToSettings() => FeatureFlags.Settings;
-    private static bool CanNavigateToAbout() => FeatureFlags.About;
+    private bool CanNavigateToDecompile() => FeatureFlags.Decompile;
+    private bool CanNavigateToBuild() => FeatureFlags.BuildApk;
+    private bool CanNavigateToPatch() => FeatureFlags.PatchApk;
+    private bool CanNavigateToAnalyser() => FeatureFlags.ApkAnalyser;
+    private bool CanNavigateToDeviceTools() => IsDeviceToolsEnabled;
+    private bool CanNavigateToSettings() => FeatureFlags.Settings;
+    private bool CanNavigateToAbout() => FeatureFlags.About;
 
-    private void SetInitialView()
+
+    private void HandleSettingsChanged(object? sender, EventArgs e)
     {
-        if (FeatureFlags.Decompile)
+        OnPropertyChanged(nameof(IsDeviceToolsEnabled));
+        NavigateToDeviceToolsCommand.NotifyCanExecuteChanged();
+
+        if (IsDeviceToolsSelected && !CanNavigateToDeviceTools())
+        {
+            NavigateToFirstAvailableEnabledTab();
+        }
+    }
+
+    private void NavigateToFirstAvailableEnabledTab()
+    {
+        if (CanNavigateToDecompile())
         {
             NavigateToDecompile();
         }
-        else if (FeatureFlags.BuildApk)
+        else if (CanNavigateToBuild())
         {
             NavigateToBuild();
         }
-        else if (FeatureFlags.PatchApk)
+        else if (CanNavigateToPatch())
         {
             NavigateToPatch();
         }
-        else if (FeatureFlags.ApkAnalyser)
+        else if (CanNavigateToAnalyser())
         {
             NavigateToAnalyser();
         }
-        else if (FeatureFlags.DeviceTools)
-        {
-            NavigateToDeviceTools();
-        }
-        else if (FeatureFlags.Settings)
+        else if (CanNavigateToSettings())
         {
             NavigateToSettings();
         }
-        else if (FeatureFlags.About)
+        else if (CanNavigateToAbout())
+        {
+            NavigateToAbout();
+        }
+        else
+        {
+            CurrentView = "No features are enabled.";
+            SelectedMenu = string.Empty;
+        }
+    }
+
+    private void SetInitialView()
+    {
+        if (CanNavigateToDecompile())
+        {
+            NavigateToDecompile();
+        }
+        else if (CanNavigateToBuild())
+        {
+            NavigateToBuild();
+        }
+        else if (CanNavigateToPatch())
+        {
+            NavigateToPatch();
+        }
+        else if (CanNavigateToAnalyser())
+        {
+            NavigateToAnalyser();
+        }
+        else if (CanNavigateToDeviceTools())
+        {
+            NavigateToDeviceTools();
+        }
+        else if (CanNavigateToSettings())
+        {
+            NavigateToSettings();
+        }
+        else if (CanNavigateToAbout())
         {
             NavigateToAbout();
         }

@@ -11,12 +11,14 @@ namespace PulseAPK.Core.Services
         public string AdbPath { get; set; } = string.Empty;
         public string SelectedLanguage { get; set; } = "en-US";
         public string ThemeMode { get; set; } = "dark_mode";
+        public bool IsDeviceToolsEnabled { get; set; } = false;
     }
 
     public interface ISettingsService
     {
         AppSettings Settings { get; }
         string SettingsDirectory { get; }
+        event EventHandler? SettingsChanged;
         void Save();
     }
 
@@ -29,6 +31,7 @@ namespace PulseAPK.Core.Services
         private readonly string _legacySettingsFilePath;
 
         public AppSettings Settings { get; private set; }
+        public event EventHandler? SettingsChanged;
         public string SettingsDirectory { get; }
 
         public SettingsService()
@@ -100,6 +103,7 @@ namespace PulseAPK.Core.Services
         public void Save()
         {
             Save(Settings);
+            SettingsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void Save(AppSettings settings)
