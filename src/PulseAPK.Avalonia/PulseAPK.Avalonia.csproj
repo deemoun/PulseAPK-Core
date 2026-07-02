@@ -34,6 +34,7 @@
   <ItemGroup>
     <AvaloniaResource Include="..\..\Resources\CyberUnpack.ico" Link="Assets\CyberUnpack.ico" />
     <AvaloniaResource Include="..\..\Resources\CyberUnpack.png" Link="Assets\CyberUnpack.png" />
+    <AvaloniaResource Include="..\..\Resources\PulseAPK.icns" Link="Assets\PulseAPK.icns" />
   </ItemGroup>
 
   <ItemGroup>
