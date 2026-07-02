@@ -23,6 +23,16 @@ publish_dir="${out_root}/publish"
 bundle_dir="${out_root}/${bundle_name}.app"
 archive_path="${out_root}/${bundle_name}-${rid}.tar.gz"
 
+version="${VERSION:-}"
+if [[ -z "${version}" ]]; then
+  version="$(sed -nE 's:^[[:space:]]*<Version>([^<]+)</Version>[[:space:]]*$:\1:p' "${project_path}" | head -n 1)"
+fi
+
+if [[ -z "${version}" ]]; then
+  version="1.0.0"
+  echo "Unable to determine project version; falling back to ${version}." >&2
+fi
+
 if ! command -v dotnet >/dev/null 2>&1; then
   echo "dotnet is required but was not found in PATH." >&2
   exit 1
@@ -111,9 +121,9 @@ cat > "${bundle_contents}/Info.plist" <<PLIST
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
-  <string>1.0.0</string>
+  <string>${version}</string>
   <key>CFBundleVersion</key>
-  <string>1.0.0</string>
+  <string>${version}</string>
   <key>LSMinimumSystemVersion</key>
   <string>11.0</string>
   <key>NSHighResolutionCapable</key>
