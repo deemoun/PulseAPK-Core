@@ -67,7 +67,9 @@ public class DecompileViewModelTests
         }
 
         public AppSettings Settings { get; }
-        public void Save() { }
+        public string SettingsDirectory => Environment.CurrentDirectory;
+        public event EventHandler? SettingsChanged;
+        public void Save() => SettingsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private sealed class TestDialogService : IDialogService
