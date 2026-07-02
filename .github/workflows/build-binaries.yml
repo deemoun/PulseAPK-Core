@@ -45,3 +45,25 @@ jobs:
             artifacts/windows/win-x64/publish/*.exe
             artifacts/windows/win-x64/PulseAPK-win-x64.zip
           if-no-files-found: error
+
+  build-macos-arm64:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build macOS arm64 app bundle
+        run: RID=osx-arm64 ./scripts/build-macos-binary.sh
+
+      - name: Upload macOS arm64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseAPK-osx-arm64-app
+          path: artifacts/macos/osx-arm64/PulseAPK-osx-arm64.tar.gz
+          if-no-files-found: error
