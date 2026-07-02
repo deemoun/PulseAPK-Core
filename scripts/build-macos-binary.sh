@@ -13,7 +13,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 
 config="${CONFIGURATION:-Release}"
-rid="${RID:-osx-x64}"
+rid="${RID:-osx-arm64}"
 app_name="${APP_NAME:-PulseAPK}"
 bundle_name="${APP_BUNDLE_NAME:-PulseAPK}"
 app_exe="${app_name}"
@@ -28,8 +28,8 @@ if ! command -v dotnet >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ "${rid}" != osx-* ]]; then
-  echo "RID must target macOS (for example 'osx-x64' or 'osx-arm64'). Received '${rid}'." >&2
+if [[ "${rid}" != "osx-arm64" ]]; then
+  echo "PulseAPK macOS releases are arm64 only. Set RID=osx-arm64 (received '${rid}')." >&2
   exit 1
 fi
 
