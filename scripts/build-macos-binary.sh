@@ -11,6 +11,8 @@ umask 077
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
+macos_icon_path="${repo_root}/Resources/PulseAPK.icns"
+macos_icon_name="PulseAPK.icns"
 
 config="${CONFIGURATION:-Release}"
 rid="${RID:-osx-arm64}"
@@ -50,6 +52,11 @@ fi
 
 if [[ ! "${bundle_name}" =~ ^[A-Za-z0-9._-]+$ ]]; then
   echo "APP_BUNDLE_NAME contains unsupported characters. Allowed: letters, digits, '.', '_' and '-'." >&2
+  exit 1
+fi
+
+if [[ ! -f "${macos_icon_path}" ]]; then
+  echo "macOS icon '${macos_icon_path}' was not found." >&2
   exit 1
 fi
 
@@ -97,6 +104,7 @@ bundle_resources="${bundle_contents}/Resources"
 
 mkdir -p "${bundle_macos}" "${bundle_resources}"
 cp -a "${publish_dir}/." "${bundle_macos}/"
+cp "${macos_icon_path}" "${bundle_resources}/${macos_icon_name}"
 chmod +x "${bundle_macos}/${app_exe}"
 
 # PDB files can include local source paths and machine/user details.
@@ -114,6 +122,8 @@ cat > "${bundle_contents}/Info.plist" <<PLIST
   <string>${app_exe}</string>
   <key>CFBundleIdentifier</key>
   <string>com.pulseapk.${bundle_name,,}</string>
+  <key>CFBundleIconFile</key>
+  <string>${macos_icon_name}</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
