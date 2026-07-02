@@ -104,9 +104,21 @@
                                 Command="{Binding BrowseAdbCommand}"
                                 Width="110" />
                     </Grid>
+                </StackPanel>
+            </Border>
 
-                    <CheckBox Content="Enable Device Tools"
-                              IsChecked="{Binding IsDeviceToolsEnabled}" />
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Beta Features"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource CyberAccentBrush}" />
+
+                    <ToggleSwitch Content="Device Tools"
+                                  IsChecked="{Binding IsDeviceToolsEnabled}" />
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchBetaWarning]}"
+                               Classes="helper-text"
+                               TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </StackPanel>
