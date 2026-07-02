@@ -132,6 +132,17 @@ cat > "${bundle_contents}/Info.plist" <<PLIST
 </plist>
 PLIST
 
+if command -v codesign >/dev/null 2>&1; then
+  echo "Ad-hoc signing macOS app bundle: ${bundle_dir}"
+  codesign --force --deep --sign - "${bundle_dir}"
+  codesign --verify --deep --strict "${bundle_dir}"
+elif [[ "$(uname -s)" == "Darwin" ]]; then
+  echo "codesign is required to sign macOS app bundles on Darwin but was not found in PATH." >&2
+  exit 1
+else
+  echo "Warning: codesign was not found in PATH; skipping macOS app bundle signing." >&2
+fi
+
 if command -v tar >/dev/null 2>&1; then
   rm -f "${archive_path}"
   (
