@@ -32,6 +32,9 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private bool _isDownloadingTools;
+
+    [ObservableProperty]
+    private bool _isDeviceToolsEnabled;
     
     [ObservableProperty]
     private LanguageItem _selectedLanguage;
@@ -71,6 +74,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _ubersignPath = _settingsService.Settings.UbersignPath;
         _adbPath = _settingsService.Settings.AdbPath;
         _selectedLanguage = _localizationService.CurrentLanguage;
+        _isDeviceToolsEnabled = _settingsService.Settings.IsDeviceToolsEnabled;
 
         RefreshThemeModes(_settingsService.Settings.ThemeMode);
         _localizationService.PropertyChanged += OnLocalizationChanged;
@@ -98,6 +102,12 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _ = RefreshAdbPathWatermarkAsync();
     }
     
+    partial void OnIsDeviceToolsEnabledChanged(bool value)
+    {
+        _settingsService.Settings.IsDeviceToolsEnabled = value;
+        _settingsService.Save();
+    }
+
     partial void OnSelectedLanguageChanged(LanguageItem value)
     {
         if (value != null && value.Code != _localizationService.CurrentLanguage.Code)
