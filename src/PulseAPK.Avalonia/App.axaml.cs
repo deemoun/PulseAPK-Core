@@ -46,6 +46,7 @@ public partial class App : Application
     {
         // Core Services
         services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IAppLogService, AppLogService>();
         services.AddSingleton<IToolRepository, ToolRepository>();
         services.AddHttpClient<IToolDownloadService, ToolDownloadService>();
         services.AddSingleton(LocalizationService.Instance);

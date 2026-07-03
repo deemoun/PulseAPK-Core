@@ -12,7 +12,11 @@ namespace PulseAPK.Core.Services
 {
     public class ApktoolRunner
     {
+        private const int ProcessTailLineCount = 20;
+        private const int ProcessTailMaxCharacters = 8000;
+
         private readonly ISettingsService _settingsService;
+        private readonly IAppLogService? _appLogService;
 
         public event Action<string>? OutputDataReceived;
 
@@ -21,9 +25,10 @@ namespace PulseAPK.Core.Services
         {
         }
 
-        public ApktoolRunner(ISettingsService settingsService)
+        public ApktoolRunner(ISettingsService settingsService, IAppLogService? appLogService = null)
         {
             _settingsService = settingsService;
+            _appLogService = appLogService;
         }
 
         public async Task<ApktoolRunResult> RunDecompileAsync(string apkPath, string outputDir, bool decodeResources, bool decodeSources, bool keepOriginalManifest, bool forceOverwrite = false, CancellationToken cancellationToken = default)
@@ -71,12 +76,14 @@ namespace PulseAPK.Core.Services
                 throw new FileNotFoundException($"Apktool path '{apktoolPath}' does not exist.");
             }
 
+            var executableMode = GetExecutableMode(apktoolPath);
             var startInfo = CreateStartInfo(apktoolPath, arguments);
             var stdoutLines = new List<string>();
             var stderrLines = new List<string>();
             var lineSyncRoot = new object();
 
             using var process = new Process { StartInfo = startInfo };
+            _appLogService?.LogInfo("ApktoolRunner", $"Starting apktool process. mode={executableMode}; argumentCount={arguments.Count}; timestamp={DateTimeOffset.UtcNow:O}");
 
             process.OutputDataReceived += (sender, e) =>
             {
@@ -106,26 +113,75 @@ namespace PulseAPK.Core.Services
                 }
             };
 
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-
             try
             {
-                await process.WaitForExitAsync(cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                if (!process.HasExited)
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
+                try
                 {
-                    process.Kill(entireProcessTree: true);
-                    await process.WaitForExitAsync();
+                    await process.WaitForExitAsync(cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    if (!process.HasExited)
+                    {
+                        process.Kill(entireProcessTree: true);
+                        await process.WaitForExitAsync();
+                    }
+
+                    LogProcessCompletion(executableMode, process.HasExited ? process.ExitCode : null, canceled: true, stdoutLines, stderrLines);
+                    throw;
                 }
 
+                LogProcessCompletion(executableMode, process.ExitCode, canceled: false, stdoutLines, stderrLines);
+                return new ApktoolRunResult(process.ExitCode, stdoutLines.ToArray(), stderrLines.ToArray());
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _appLogService?.LogError("ApktoolRunner", $"Apktool process failed. mode={executableMode}; stdoutTail={FormatTail(stdoutLines)}; stderrTail={FormatTail(stderrLines)}", ex);
                 throw;
             }
+        }
 
-            return new ApktoolRunResult(process.ExitCode, stdoutLines.ToArray(), stderrLines.ToArray());
+
+        private void LogProcessCompletion(string executableMode, int? exitCode, bool canceled, IReadOnlyList<string> stdoutLines, IReadOnlyList<string> stderrLines)
+        {
+            _appLogService?.LogInfo(
+                "ApktoolRunner",
+                $"Apktool process completed. mode={executableMode}; exitCode={(exitCode.HasValue ? exitCode.Value.ToString() : "unknown")}; canceled={canceled}; stdoutTail={FormatTail(stdoutLines)}; stderrTail={FormatTail(stderrLines)}");
+        }
+
+        private static string GetExecutableMode(string apktoolPath)
+        {
+            var extension = Path.GetExtension(apktoolPath);
+            if (string.Equals(extension, ".jar", StringComparison.OrdinalIgnoreCase))
+            {
+                return "java -jar";
+            }
+
+            if ((string.Equals(extension, ".bat", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(extension, ".cmd", StringComparison.OrdinalIgnoreCase))
+                && OperatingSystem.IsWindows())
+            {
+                return ".bat/.cmd";
+            }
+
+            return "direct executable";
+        }
+
+        private static string FormatTail(IReadOnlyList<string> lines)
+        {
+            if (lines.Count == 0)
+            {
+                return "<empty>";
+            }
+
+            var tail = string.Join("\n", lines.Skip(Math.Max(0, lines.Count - ProcessTailLineCount)));
+            return tail.Length <= ProcessTailMaxCharacters
+                ? tail
+                : tail[^ProcessTailMaxCharacters..];
         }
 
         private static ProcessStartInfo CreateStartInfo(string apktoolPath, IReadOnlyList<string> arguments)

@@ -64,6 +64,7 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
     private readonly IDialogService _dialogService;
     private readonly IDispatcherService _dispatcherService;
     private readonly ISystemService _systemService;
+    private readonly IAppLogService? _appLogService;
 
     public bool IsHintVisible => string.IsNullOrEmpty(ApkPath);
 
@@ -73,7 +74,8 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
         ApktoolRunner apktoolRunner,
         IDialogService dialogService,
         IDispatcherService dispatcherService,
-        ISystemService systemService)
+        ISystemService systemService,
+        IAppLogService? appLogService = null)
     {
         _filePickerService = filePickerService;
         _settingsService = settingsService;
@@ -81,6 +83,7 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
         _dialogService = dialogService;
         _dispatcherService = dispatcherService;
         _systemService = systemService;
+        _appLogService = appLogService;
         
         _consoleLog = Properties.Resources.WaitingForCommand;
 
@@ -236,6 +239,10 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
         }
 
         var forceOverwrite = false;
+
+        _appLogService?.LogInfo(
+            "Decompile",
+            $"Decompile requested. timestamp={DateTimeOffset.UtcNow:O}; apkFile={Path.GetFileName(ApkPath)}; outputDir={normalizedOutputDir}; decodeResources={DecodeResources}; decodeSources={DecodeSources}; keepOriginalManifest={KeepOriginalManifest}; extractToApkFolder={ExtractToApkFolder}");
 
         if (Directory.Exists(normalizedOutputDir))
         {
