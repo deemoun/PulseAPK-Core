@@ -42,7 +42,7 @@ public class AvaloniaDialogService : IDialogService
             ContentMessage = message,
             ButtonDefinitions = buttons,
             Icon = icon,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            WindowStartupLocation = WindowStartupLocation.CenterScreen,
             CanResize = true,
             Width = 420,
             MaxWidth = 720
