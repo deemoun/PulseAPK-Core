@@ -65,7 +65,7 @@ jobs:
       # - APPLE_APP_SPECIFIC_PASSWORD: App-specific password for the Apple ID.
       # If MACOS_CODESIGN_IDENTITY is omitted, the build script falls back to ad-hoc signing.
       # If all Apple notarization secrets are present, the ZIP is notarized and the ticket is stapled before upload.
-      - name: Build macOS arm64 app bundle
+      - name: Build macOS arm64 ZIP
         env:
           MACOS_CODESIGN_IDENTITY: ${{ secrets.MACOS_CODESIGN_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}

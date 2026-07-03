@@ -237,7 +237,7 @@ if [[ "${notarize_requested}" == "true" ]]; then
 fi
 
 create_zip "${zip_path}"
-echo "macOS app bundle ZIP created: ${zip_path}"
+echo "macOS ZIP package created: ${zip_path}"
 
 echo "macOS app bundle created: ${bundle_dir}"
 echo "Executable entry point: ${bundle_macos}/${app_exe}"
