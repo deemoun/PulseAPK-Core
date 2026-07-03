@@ -110,7 +110,20 @@ namespace PulseAPK.Core.Services
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            await process.WaitForExitAsync(cancellationToken);
+            try
+            {
+                await process.WaitForExitAsync(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                if (!process.HasExited)
+                {
+                    process.Kill(entireProcessTree: true);
+                    await process.WaitForExitAsync();
+                }
+
+                throw;
+            }
 
             return new ApktoolRunResult(process.ExitCode, stdoutLines.ToArray(), stderrLines.ToArray());
         }
