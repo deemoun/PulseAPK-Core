@@ -12,6 +12,7 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsHintVisible))]
+    [NotifyCanExecuteChangedFor(nameof(RunDecompileCommand))]
     private string _apkPath = string.Empty;
 
     [ObservableProperty]
@@ -24,9 +25,11 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
     private bool _keepOriginalManifest;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RunDecompileCommand))]
     private bool _extractToApkFolder;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RunDecompileCommand))]
     private string? _outputFolder;
 
     [ObservableProperty]
@@ -327,7 +330,19 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
 
     private bool CanRunDecompile()
     {
-        return !IsRunning;
+        if (IsRunning || string.IsNullOrWhiteSpace(ApkPath) || !File.Exists(ApkPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            return !string.IsNullOrWhiteSpace(ResolveOutputDirectory());
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException or IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 
     private string BuildCommandPreview()
