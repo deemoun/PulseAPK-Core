@@ -36,7 +36,7 @@
 
 [PulseAPK Patching functionality overview](https://youtu.be/iu-LOHj5QVM)
 
-PulseAPK is organized into a single-window workflow with top navigation for each tool: **Decompile**, **Build**, **Patch APK**, **Analyser**, **Settings**, and **About**. Each section focuses on one stage of the APK lifecycle so you can move from decoding to analysis, patching, and signing without leaving the app.
+PulseAPK is organized into a single-window workflow with a left sidebar for each tool: **Decompile**, **Build APK**, **Patch APK**, **Analyser**, **Settings**, and **About**. The optional **Device Tools** tab can be enabled from **Settings** when you want ADB-assisted workflows. Each section focuses on one stage of the APK lifecycle so you can move from decoding to analysis, patching, device interaction, rebuilding, and signing without leaving the app.
 
 ## Screenshots
 
@@ -65,9 +65,11 @@ PulseAPK is organized into a single-window workflow with top navigation for each
 - **🛡️ Static Security Analysis**: Automatically scan Smali code for vulnerabilities, including root detection, emulator checks, hardcoded credentials, and insecure SQL/HTTP usage.
 - **⚙️ Dynamic Rule Engine**: Fully customizable analysis rules via `smali_analysis_rules.json`. Modify detection patterns on the fly without restarting the application. Uses caching for optimal performance.
 - **🚀 Modern UI/UX**: A responsive, dark-themed interface designed for efficiency, with real-time console feedback.
-- **📦 Complete Workflow**: Decompile, Analyze, Edit, Recompile, and Sign APKs in one unified environment.
+- **📦 Complete Workflow**: Decompile, Analyze, Patch, Recompile, and Sign APKs in one unified environment.
+- **🧩 APK Patching**: Automate Frida gadget injection, manifest updates, dex validation, architecture selection, and optional output signing from the patching workspace.
+- **📱 Optional Device Tools**: Enable ADB workflows for connected devices, including APK install, launch, app maintenance, package lookup, screenshots, screen recording, logcat presets, and custom shell/ADB commands.
 - **⚡ Safe & Robust**: Includes intelligent validation and crash prevention mechanisms to protect your workspace and data.
-- **🔧 Fully Configurable**: Manage tool paths (Java, Apktool), workspace settings, and analysis parameters with ease.
+- **🔧 Fully Configurable**: Manage tool paths (Java, Apktool, Uber APK Signer, ADB), language, theme, beta features, workspace settings, and analysis parameters with ease.
 
 ## Advanced Capabilities
 
@@ -82,17 +84,20 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
 
 ### APK Management
 - **Decompile**: Select an APK, choose decode options (resources, sources, manifest handling), and extract to an output folder or the APK’s own folder.
-- **Build**: Recompile from a project folder, set output name and location, toggle AAPT2, and optionally sign the APK in one step.
-- **Patch APK**: Use the dedicated patcher tab to automate APK patching workflows, including Frida setup with one-click **Inject frida-gadget** support.
+- **Build APK**: Recompile from a project folder, set output name and location, toggle AAPT2, and optionally sign the APK in one step with Uber APK Signer.
+- **Patch APK**: Use the dedicated patcher tab to automate APK patching workflows, including Frida setup with one-click **Inject frida-gadget** support, architecture-aware gadget placement, manifest updates, dex validation controls, and optional output signing.
 - **Analyser**: Point to a decompiled project folder, run the Smali analysis, and export the report when needed.
+- **Settings**: Configure language, dark/light theme, Apktool, Uber APK Signer, ADB path detection, and beta feature visibility. Settings are stored in the user app-data folder instead of the application directory.
+- **Device Tools**: Optional beta tab for ADB-backed device work. When enabled in **Settings**, PulseAPK auto-detects ADB from the configured path, `ADB_PATH`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `~/Android/Sdk/platform-tools`, or `PATH`; then it can refresh devices, install APKs, detect package/activity metadata with `aapt`, launch apps/activities, force-stop, clear data, uninstall, open Android app settings, copy APKs from a device, capture screenshots, record the screen, run logcat/package presets, and execute custom shell or raw ADB arguments.
 
 ## Prerequisites
 
 1.  **Java Runtime Environment (JRE)**: Required for `apktool`. Ensure `java` is in your system `PATH`.
 2.  **Apktool**: You can download `apktool.jar` directly from PulseAPK by pressing the download button in **Settings**, or provide it manually from [ibotpeaches.github.io](https://ibotpeaches.github.io/Apktool/).
 3.  **Ubersign (Uber APK Signer)**: Required for signing rebuilt APKs. You can download the latest `uber-apk-signer.jar` automatically in **Settings**, or still provide it manually from the [GitHub releases](https://github.com/patrickfav/uber-apk-signer/releases).
-4.  **.NET 8.0 Runtime**: Required to run PulseAPK on supported platforms (Windows, Linux, and macOS).
-5.  **macOS hosts**: PulseAPK macOS release artifacts target Apple Silicon only (`osx-arm64`). Intel/x64 macOS builds are not produced.
+4.  **.NET 8.0 SDK/Runtime**: Required when building or running from source with `dotnet build` / `dotnet run`. Published desktop artifacts are built as self-contained packages where the platform build supports it.
+5.  **ADB / Android SDK platform-tools (optional)**: Required only for the beta **Device Tools** tab. PulseAPK can auto-detect `adb` from Settings, `ADB_PATH`, Android SDK environment variables, the default user SDK folder, or your system `PATH`. `aapt` from Android SDK build-tools enables APK package/activity detection.
+6.  **macOS hosts**: Release artifacts target Apple Silicon only (`osx-arm64`) and produce a self-contained `.app` bundle in a ZIP. Intel/x64 macOS builds are not produced by the release scripts. The generated bundle declares macOS 11.0 or newer as its minimum system version.
 
 ## Quick Start Guide
 
@@ -111,9 +116,11 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
 
 2.  **Setup**
     - Open **Settings**.
-    - Link your `apktool.jar` and `uber-apk-signer.jar` paths.
+    - Link your `apktool.jar` and `uber-apk-signer.jar` paths, or use the built-in download buttons.
+    - Configure **ADB Path** only if auto-detection does not find your Android platform-tools installation.
+    - Choose language and dark/light theme preferences.
+    - Enable **Device Tools** under **Beta Features** if you need connected-device workflows.
     - PulseAPK will display the Java runtime it detects from your environment variables.
-    - Use the built-in download shortcuts if you need to grab dependencies quickly.
 
 3.  **Analyze an APK**
     - **Decompile** your target APK using the Decompile tab.
@@ -127,13 +134,18 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
     - Use the **Build** tab to recompile into a new APK.
     - Toggle signing during the build step to sign the output APK.
 
+5.  **Use Device Tools (optional beta)**
+    - Open **Settings** and enable **Device Tools**.
+    - Make sure `adb` is available through **ADB Path**, `ADB_PATH`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `~/Android/Sdk/platform-tools`, or `PATH`.
+    - Connect a device with USB debugging enabled, refresh the device list, and choose a workflow such as install APK, launch/manage app, copy APK from device, screenshot, screen recording, presets, or custom shell/ADB commands.
+
 ## Technical Architecture
 
 PulseAPK utilizes a clean MVVM (Model-View-ViewModel) architecture:
 
 - **Core**: .NET 8.0, Avalonia (cross-platform UI).
 - **Analysis**: Custom Regex-based static analysis engine with hot-reloadable rules.
-- **Services**: Dedicated services for Apktool interaction, file system monitoring, and settings management.
+- **Services**: Dedicated services for Apktool interaction, patch orchestration, Android Debug Bridge integration, file system monitoring, tool downloads, and settings management.
 
 ## License
 
