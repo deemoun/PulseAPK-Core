@@ -189,8 +189,19 @@ public partial class DecompileViewModel : ObservableObject
 
         SetConsoleLog(Properties.Resources.StartingApktool);
 
-        var outputDir = ResolveOutputDirectory();
-        var normalizedOutputDir = Path.GetFullPath(outputDir);
+        string normalizedOutputDir;
+
+        try
+        {
+            var outputDir = ResolveOutputDirectory();
+            normalizedOutputDir = Path.GetFullPath(outputDir);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException or IOException or UnauthorizedAccessException)
+        {
+            AppendLog($"{Properties.Resources.DecompileFailed}: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"The selected output folder is invalid: {ex.Message}", "Invalid output folder");
+            return;
+        }
 
         if (IsHighRiskOutputDirectory(normalizedOutputDir))
         {

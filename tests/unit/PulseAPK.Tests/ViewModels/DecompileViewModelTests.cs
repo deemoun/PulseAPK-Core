@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using PulseAPK.Core.Abstractions;
 using PulseAPK.Core.Services;
@@ -42,6 +43,32 @@ public class DecompileViewModelTests
         Assert.Contains(dialogService.Warnings, warning => warning.message.Contains("apktool", StringComparison.OrdinalIgnoreCase));
     }
 
+
+    [Fact]
+    public async Task RunCommand_ShowsError_WhenOutputFolderIsInvalid()
+    {
+        var apktoolPath = Path.GetTempFileName();
+        var apkPath = Path.GetTempFileName();
+
+        try
+        {
+            var dialogService = new TestDialogService();
+            var viewModel = CreateViewModel(apktoolPath: apktoolPath, dialogService: dialogService);
+            viewModel.ApkPath = apkPath;
+            viewModel.OutputFolder = "invalid\0folder";
+
+            await viewModel.RunDecompileCommand.ExecuteAsync(null);
+
+            Assert.True(viewModel.RunDecompileCommand.CanExecute(null));
+            Assert.Contains(dialogService.Errors, error => error.title == "Invalid output folder");
+        }
+        finally
+        {
+            File.Delete(apktoolPath);
+            File.Delete(apkPath);
+        }
+    }
+
     private static DecompileViewModel CreateViewModel(string apktoolPath, TestDialogService? dialogService = null)
     {
         return new DecompileViewModel(
@@ -75,6 +102,7 @@ public class DecompileViewModelTests
     private sealed class TestDialogService : IDialogService
     {
         public List<(string message, string? title)> Warnings { get; } = new();
+        public List<(string message, string? title)> Errors { get; } = new();
 
         public Task ShowInfoAsync(string message, string? title = null) => Task.CompletedTask;
 
@@ -84,7 +112,11 @@ public class DecompileViewModelTests
             return Task.CompletedTask;
         }
 
-        public Task ShowErrorAsync(string message, string? title = null) => Task.CompletedTask;
+        public Task ShowErrorAsync(string message, string? title = null)
+        {
+            Errors.Add((message, title));
+            return Task.CompletedTask;
+        }
 
         public Task<bool> ShowQuestionAsync(string message, string? title = null) => Task.FromResult(false);
     }
