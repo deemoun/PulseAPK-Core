@@ -24,7 +24,7 @@ app_exe="${app_name}"
 out_root="${repo_root}/artifacts/macos/${rid}"
 publish_dir="${out_root}/publish"
 bundle_dir="${out_root}/${bundle_name}.app"
-archive_path="${out_root}/${bundle_name}-${rid}.tar.gz"
+zip_path="${out_root}/${bundle_name}-${rid}.zip"
 bundle_identifier_name="$(printf '%s' "${bundle_name}" | tr '[:upper:]' '[:lower:]')"
 
 version="${VERSION:-}"
@@ -59,6 +59,11 @@ fi
 
 if [[ ! -f "${macos_icon_path}" ]]; then
   echo "macOS icon '${macos_icon_path}' was not found." >&2
+  exit 1
+fi
+
+if ! command -v zip >/dev/null 2>&1; then
+  echo "zip is required but was not found in PATH." >&2
   exit 1
 fi
 
@@ -170,24 +175,12 @@ else
   echo "Warning: codesign was not found in PATH; skipping macOS app bundle signing." >&2
 fi
 
-if command -v tar >/dev/null 2>&1; then
-  rm -f "${archive_path}"
-  (
-    cd "${out_root}"
-    COPYFILE_DISABLE=1 tar -czf "${archive_path}" "${bundle_name}.app"
-  )
-  echo "macOS app bundle archive created: ${archive_path}"
-elif command -v zip >/dev/null 2>&1; then
-  zip_path="${archive_path%.tar.gz}.zip"
-  rm -f "${zip_path}"
-  (
-    cd "${out_root}"
-    zip -r "${zip_path}" "${bundle_name}.app"
-  )
-  echo "macOS app bundle archive created: ${zip_path}"
-else
-  echo "tar/zip not found. Skipping archive creation."
-fi
+rm -f "${zip_path}"
+(
+  cd "${out_root}"
+  COPYFILE_DISABLE=1 zip -r "${zip_path}" "${bundle_name}.app"
+)
+echo "macOS app bundle ZIP created: ${zip_path}"
 
 echo "macOS app bundle created: ${bundle_dir}"
 echo "Executable entry point: ${bundle_macos}/${app_exe}"
