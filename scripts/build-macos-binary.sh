@@ -80,7 +80,7 @@ dotnet publish "${project_path}" \
   ${app_version:+-p:InformationalVersion="${app_version}"} \
   /p:UseAppHost=true \
   /p:PublishSingleFile=true \
-  /p:IncludeNativeLibrariesForSelfExtract=true \
+  /p:IncludeNativeLibrariesForSelfExtract=false \
   /p:EnableCompressionInSingleFile=true \
   -o "${publish_dir}"
 
@@ -114,6 +114,13 @@ bundle_macos="${bundle_contents}/MacOS"
 bundle_resources="${bundle_contents}/Resources"
 
 mkdir -p "${bundle_macos}" "${bundle_resources}"
+
+# Copy the complete publish output into the .app bundle. macOS single-file
+# publish still emits native runtime/Avalonia binaries when
+# IncludeNativeLibrariesForSelfExtract=false, and Finder launches only the
+# bundle entry point. Keeping every published sidecar inside Contents/MacOS
+# makes the .app self-contained so users do not need the separate publish
+# directory next to it.
 cp -a "${publish_dir}/." "${bundle_macos}/"
 cp "${macos_icon_path}" "${bundle_resources}/${macos_icon_file}"
 chmod +x "${bundle_macos}/${app_exe}"
