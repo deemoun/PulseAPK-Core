@@ -1,12 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <Version>1.2.8</Version>
-    <InformationalVersion>$(Version)</InformationalVersion>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <PathMap>$(MSBuildProjectDirectory)=/src</PathMap>
@@ -33,6 +31,9 @@
 
   <ItemGroup>
     <AvaloniaResource Include="..\..\Resources\CyberUnpack.ico" Link="Assets\CyberUnpack.ico" />
+    <AvaloniaResource Include="..\..\Resources\CyberUnpack.png" Link="Assets\CyberUnpack.png" />
+    <AvaloniaResource Include="..\..\Resources\PulseAPK.png" Link="Assets\PulseAPK.png" />
+    <AvaloniaResource Include="..\..\Resources\PulseAPK.icns" Link="Assets\PulseAPK.icns" />
   </ItemGroup>
 
   <ItemGroup>

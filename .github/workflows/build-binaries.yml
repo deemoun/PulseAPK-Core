@@ -2,6 +2,11 @@ name: Build Binaries
 
 on:
   workflow_dispatch:
+    inputs:
+      app-version:
+        description: "App version to stamp into the build"
+        required: true
+        default: "1.2.8"
 
 jobs:
   build:
@@ -25,9 +30,13 @@ jobs:
           sudo mv appimagetool /usr/local/bin/appimagetool
 
       - name: Build Linux AppImage
+        env:
+          APP_VERSION: ${{ inputs.app-version }}
         run: ./scripts/build-appimage.sh
 
       - name: Build Windows binaries
+        env:
+          APP_VERSION: ${{ inputs.app-version }}
         run: ./scripts/build-windows-exe.sh
 
       - name: Upload Linux AppImage artifact
@@ -44,4 +53,39 @@ jobs:
           path: |
             artifacts/windows/win-x64/publish/*.exe
             artifacts/windows/win-x64/PulseAPK-win-x64.zip
+          if-no-files-found: error
+
+  build-macos-arm64:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # Optional production signing/notarization secrets:
+      # - MACOS_CODESIGN_IDENTITY: Developer ID Application certificate identity installed in the runner keychain.
+      # - APPLE_ID: Apple Developer account email used by notarytool.
+      # - APPLE_TEAM_ID: Apple Developer team ID.
+      # - APPLE_APP_SPECIFIC_PASSWORD: App-specific password for the Apple ID.
+      # If MACOS_CODESIGN_IDENTITY is omitted, the build script falls back to ad-hoc signing.
+      # If all Apple notarization secrets are present, the ZIP is notarized and the ticket is stapled before upload.
+      - name: Build macOS arm64 ZIP
+        env:
+          MACOS_CODESIGN_IDENTITY: ${{ secrets.MACOS_CODESIGN_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APP_VERSION: ${{ inputs.app-version }}
+        run: RID=osx-arm64 ./scripts/build-macos-binary.sh
+
+      - name: Upload macOS arm64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseAPK-osx-arm64-zip
+          path: artifacts/macos/osx-arm64/PulseAPK-osx-arm64.zip
           if-no-files-found: error

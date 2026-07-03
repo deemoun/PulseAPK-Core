@@ -4,61 +4,123 @@
              xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
              x:Class="PulseAPK.Avalonia.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
-    <StackPanel Spacing="12" Margin="20">
-        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SettingsHeader]}"
-                   FontSize="24"
-                   FontWeight="SemiBold" />
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="16" Margin="20">
+            <StackPanel Spacing="6">
+                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SettingsHeader]}"
+                           Classes="page-title" />
+                <Border Width="86"
+                        Height="3"
+                        HorizontalAlignment="Left"
+                        Background="{DynamicResource CyberAccentSecondaryBrush}"
+                        CornerRadius="2" />
+            </StackPanel>
 
-        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[LanguageLabel]}"
-                   FontWeight="SemiBold" />
-        <ComboBox ItemsSource="{Binding AvailableLanguages}"
-                  SelectedItem="{Binding SelectedLanguage}"
-                  Width="260">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Appearance"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource CyberAccentBrush}" />
 
-        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ThemeLabel]}"
-                   FontWeight="SemiBold" />
-        <ComboBox ItemsSource="{Binding AvailableThemeModes}"
-                  SelectedItem="{Binding SelectedThemeMode}"
-                  Width="260">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[LanguageLabel]}"
+                               FontWeight="SemiBold" />
+                    <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                              SelectedItem="{Binding SelectedLanguage}"
+                              Width="260"
+                              HorizontalAlignment="Left">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
 
-        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ApktoolPath]}"
-                   FontWeight="SemiBold" />
-        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-            <TextBox Text="{Binding ApktoolPath}" />
-            <Button Grid.Column="1"
-                    Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
-                    Command="{Binding BrowseApktoolCommand}"
-                    Width="110" />
-            <Button Grid.Column="2"
-                    Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DownloadApktoolButton]}"
-                    Command="{Binding DownloadApktoolCommand}"
-                    Width="150" />
-        </Grid>
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ThemeLabel]}"
+                               FontWeight="SemiBold" />
+                    <ComboBox ItemsSource="{Binding AvailableThemeModes}"
+                              SelectedItem="{Binding SelectedThemeMode}"
+                              Width="260"
+                              HorizontalAlignment="Left">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+            </Border>
 
-        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[UbersignPath]}"
-                   FontWeight="SemiBold" />
-        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-            <TextBox Text="{Binding UbersignPath}" />
-            <Button Grid.Column="1"
-                    Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
-                    Command="{Binding BrowseUbersignCommand}"
-                    Width="110" />
-            <Button Grid.Column="2"
-                    Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DownloadUbersignerButton]}"
-                    Command="{Binding DownloadUbersignerCommand}"
-                    Width="150" />
-        </Grid>
-    </StackPanel>
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Toolchain"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource CyberAccentBrush}" />
+
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ApktoolPath]}"
+                               FontWeight="SemiBold" />
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                        <TextBox Text="{Binding ApktoolPath}" />
+                        <Button Grid.Column="1"
+                                Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                                Command="{Binding BrowseApktoolCommand}"
+                                Width="110" />
+                        <Button Grid.Column="2"
+                                Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DownloadApktoolButton]}"
+                                Command="{Binding DownloadApktoolCommand}"
+                                Width="150" />
+                    </Grid>
+
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[UbersignPath]}"
+                               FontWeight="SemiBold" />
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                        <TextBox Text="{Binding UbersignPath}" />
+                        <Button Grid.Column="1"
+                                Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                                Command="{Binding BrowseUbersignCommand}"
+                                Width="110" />
+                        <Button Grid.Column="2"
+                                Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DownloadUbersignerButton]}"
+                                Command="{Binding DownloadUbersignerCommand}"
+                                Width="150" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Android Debug Bridge"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource CyberAccentBrush}" />
+
+                    <TextBlock Text="ADB Path"
+                               FontWeight="SemiBold" />
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <TextBox Text="{Binding AdbPath}" Watermark="{Binding AdbPathWatermark}" />
+                        <Button Grid.Column="1"
+                                Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
+                                Command="{Binding BrowseAdbCommand}"
+                                Width="110" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Beta Features"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource CyberAccentBrush}" />
+
+                    <ToggleSwitch Content="Device Tools"
+                                  IsChecked="{Binding IsDeviceToolsEnabled}" />
+                    <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchBetaWarning]}"
+                               Classes="helper-text"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

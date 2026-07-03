@@ -8,14 +8,17 @@ namespace PulseAPK.Core.Services
     {
         public string ApktoolPath { get; set; } = "apktool.jar";
         public string UbersignPath { get; set; } = string.Empty;
+        public string AdbPath { get; set; } = string.Empty;
         public string SelectedLanguage { get; set; } = "en-US";
         public string ThemeMode { get; set; } = "dark_mode";
+        public bool IsDeviceToolsEnabled { get; set; } = false;
     }
 
     public interface ISettingsService
     {
         AppSettings Settings { get; }
         string SettingsDirectory { get; }
+        event EventHandler? SettingsChanged;
         void Save();
     }
 
@@ -26,8 +29,10 @@ namespace PulseAPK.Core.Services
 
         private readonly string _settingsFilePath;
         private readonly string _legacySettingsFilePath;
+        private bool _lastSavedIsDeviceToolsEnabled;
 
         public AppSettings Settings { get; private set; }
+        public event EventHandler? SettingsChanged;
         public string SettingsDirectory { get; }
 
         public SettingsService()
@@ -38,6 +43,7 @@ namespace PulseAPK.Core.Services
             _settingsFilePath = Path.Combine(settingsFolder, SettingsFileName);
             _legacySettingsFilePath = Path.Combine(baseDirectory, SettingsFileName);
             Settings = LoadSettings();
+            _lastSavedIsDeviceToolsEnabled = Settings.IsDeviceToolsEnabled;
         }
 
         private static string ResolveSettingsFolder(string baseDirectory)
@@ -98,7 +104,15 @@ namespace PulseAPK.Core.Services
 
         public void Save()
         {
+            var didDeviceToolsSettingChange = _lastSavedIsDeviceToolsEnabled != Settings.IsDeviceToolsEnabled;
+
             Save(Settings);
+
+            if (didDeviceToolsSettingChange)
+            {
+                _lastSavedIsDeviceToolsEnabled = Settings.IsDeviceToolsEnabled;
+                SettingsChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private void Save(AppSettings settings)

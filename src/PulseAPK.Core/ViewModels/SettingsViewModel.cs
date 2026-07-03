@@ -13,6 +13,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly IDialogService _dialogService;
     private readonly IToolRepository _toolRepository;
     private readonly IToolDownloadService _toolDownloadService;
+    private readonly AdbService _adbService;
     private readonly LocalizationService _localizationService;
     private readonly IThemeService _themeService;
     private bool _disposed;
@@ -24,7 +25,16 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private string _ubersignPath;
 
     [ObservableProperty]
+    private string _adbPath;
+
+    [ObservableProperty]
+    private string _adbPathWatermark = "Auto-detect if empty";
+
+    [ObservableProperty]
     private bool _isDownloadingTools;
+
+    [ObservableProperty]
+    private bool _isDeviceToolsEnabled;
     
     [ObservableProperty]
     private LanguageItem _selectedLanguage;
@@ -47,6 +57,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         IDialogService dialogService,
         IToolRepository toolRepository,
         IToolDownloadService toolDownloadService,
+        AdbService adbService,
         LocalizationService localizationService,
         IThemeService themeService)
     {
@@ -55,17 +66,21 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _dialogService = dialogService;
         _toolRepository = toolRepository;
         _toolDownloadService = toolDownloadService;
+        _adbService = adbService;
         _localizationService = localizationService;
         _themeService = themeService;
 
         _apktoolPath = _settingsService.Settings.ApktoolPath;
         _ubersignPath = _settingsService.Settings.UbersignPath;
+        _adbPath = _settingsService.Settings.AdbPath;
         _selectedLanguage = _localizationService.CurrentLanguage;
+        _isDeviceToolsEnabled = _settingsService.Settings.IsDeviceToolsEnabled;
 
         RefreshThemeModes(_settingsService.Settings.ThemeMode);
         _localizationService.PropertyChanged += OnLocalizationChanged;
 
         NormalizeManagedToolPathsIfMissing();
+        _ = RefreshAdbPathWatermarkAsync();
     }
 
     partial void OnApktoolPathChanged(string value)
@@ -79,7 +94,20 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _settingsService.Settings.UbersignPath = value;
         _settingsService.Save();
     }
+
+    partial void OnAdbPathChanged(string value)
+    {
+        _settingsService.Settings.AdbPath = value;
+        _settingsService.Save();
+        _ = RefreshAdbPathWatermarkAsync();
+    }
     
+    partial void OnIsDeviceToolsEnabledChanged(bool value)
+    {
+        _settingsService.Settings.IsDeviceToolsEnabled = value;
+        _settingsService.Save();
+    }
+
     partial void OnSelectedLanguageChanged(LanguageItem value)
     {
         if (value != null && value.Code != _localizationService.CurrentLanguage.Code)
@@ -119,6 +147,16 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         if (file != null)
         {
             UbersignPath = file;
+        }
+    }
+
+    [RelayCommand]
+    private async Task BrowseAdb()
+    {
+        var file = await _filePickerService.OpenFileAsync("ADB|adb;adb.exe|All Files (*.*)|*.*");
+        if (file != null)
+        {
+            AdbPath = file;
         }
     }
 
@@ -216,6 +254,25 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     }
 
 
+    private async Task RefreshAdbPathWatermarkAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(AdbPath))
+        {
+            AdbPathWatermark = "Auto-detect if empty";
+            return;
+        }
+
+        var detectedPath = await _adbService.ResolveAdbPathAsync();
+        if (!string.IsNullOrWhiteSpace(AdbPath))
+        {
+            return;
+        }
+
+        AdbPathWatermark = string.IsNullOrWhiteSpace(detectedPath)
+            ? "Auto-detect if empty"
+            : detectedPath;
+    }
+
     private void OnLocalizationChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == "Item[]" || e.PropertyName == string.Empty)
@@ -255,3 +312,21 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 }
 
 public sealed record ThemeModeItem(string Key, string Name);
+
+internal static class CommandLogFormatter
+{
+    public static string FormatCommandResult(PulseAPK.Core.Models.AdbCommandResult result)
+    {
+        var output = string.Join(
+            Environment.NewLine,
+            new[] { result.StandardOutput, result.StandardError }
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => value.TrimEnd()));
+
+        return string.Join(
+            Environment.NewLine,
+            $"Command: {result.CommandText}",
+            "Output:",
+            string.IsNullOrWhiteSpace(output) ? "(empty)" : output);
+    }
+}

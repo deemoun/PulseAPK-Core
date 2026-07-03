@@ -5,17 +5,19 @@
              x:Class="PulseAPK.Avalonia.Views.AnalyserView"
              x:DataType="vm:AnalyserViewModel">
     <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="16" Margin="20">
-        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AnalyserHeader]}"
-                   FontSize="24"
-                   FontWeight="SemiBold" />
+        <StackPanel Spacing="6">
+            <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[AnalyserHeader]}"
+                       Classes="page-title" />
+            <Border Width="86"
+                    Height="3"
+                    HorizontalAlignment="Left"
+                    Background="{DynamicResource CyberAccentSecondaryBrush}"
+                    CornerRadius="2" />
+        </StackPanel>
 
         <Border Grid.Row="1"
-                Background="{DynamicResource CardBackgroundBrush}"
-                BorderBrush="{DynamicResource CardBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="6"
-                Padding="12">
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                Classes="card">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                 <StackPanel Spacing="6">
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SelectProjectFolder]}"
                                FontWeight="SemiBold" />
@@ -25,8 +27,7 @@
                              IsTabStop="False"
                              IsHitTestVisible="False" />
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[BrowseProjectFolderTip]}"
-                               FontSize="12"
-                               Opacity="0.7"
+                               Classes="helper-text"
                                IsVisible="{Binding IsHintVisible}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
@@ -39,6 +40,7 @@
                             Padding="16,0" />
                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[RunAnalysis]}"
                             Command="{Binding RunAnalysisCommand}"
+                            Classes="primary-action"
                             MinWidth="120"
                             Height="38"
                             FontSize="14"
@@ -48,24 +50,45 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="2"
-                Background="{DynamicResource MainBackgroundBrush}"
-                BorderBrush="{DynamicResource ConsoleBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="6"
-                Padding="12">
-            <Grid RowDefinitions="Auto,*" RowSpacing="8">
-                <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}"
-                           FontWeight="SemiBold" />
-                <TextBox Grid.Row="1"
-                         Text="{Binding ConsoleLog}"
-                         IsReadOnly="True"
-                         AcceptsReturn="True"
-                         TextWrapping="Wrap"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         VerticalAlignment="Stretch" />
-            </Grid>
-        </Border>
+        <Expander Grid.Row="2"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  IsExpanded="False">
+            <Expander.Header>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                    <Border Classes="console-header-dot"
+                            VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}"
+                               Classes="console-title"
+                               VerticalAlignment="Center" />
+                    <Border Grid.Column="2"
+                            Classes="live-log-pill"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="LIVE LOG"
+                                   Classes="live-log-pill-text" />
+                    </Border>
+                </Grid>
+            </Expander.Header>
+            <Border Classes="console-card compact"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                    <Border Classes="console-divider" />
+                    <TextBox Grid.Row="1"
+                             Text="{Binding ConsoleLog}"
+                             IsReadOnly="True"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Stretch"
+                             Classes="terminal-output"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             MinHeight="260" />
+                </Grid>
+            </Border>
+        </Expander>
 
         <Button Grid.Row="3"
                 Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SaveReport]}"

@@ -8,6 +8,7 @@ project_relpath="src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 app_name="PulseAPK"
 entry_exe="PulseAPK"
 config="${CONFIGURATION:-Release}"
+app_version="${APP_VERSION:-}"
 rid="${RID:-linux-x64}"
 
 out_root="${repo_root}/artifacts/linux/${rid}"
@@ -67,6 +68,8 @@ dotnet publish "${project_path}" \
   -c "${config}" \
   -r "${rid}" \
   --self-contained true \
+  ${app_version:+-p:Version="${app_version}"} \
+  ${app_version:+-p:InformationalVersion="${app_version}"} \
   -p:DebugType=None \
   -p:DebugSymbols=false \
   /p:PublishSingleFile=false \

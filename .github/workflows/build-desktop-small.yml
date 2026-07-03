@@ -2,6 +2,11 @@ name: Build Small Desktop Release
 
 on:
   workflow_dispatch:
+    inputs:
+      app-version:
+        description: "App version to stamp into the build"
+        required: true
+        default: "1.2.8"
 
 jobs:
   build:
@@ -16,49 +21,21 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Bump patch version
-        shell: pwsh
-        run: |
-          $csprojPath = "PulseAPK.csproj"
-          $content = Get-Content $csprojPath -Raw
-
-          if ($content -notmatch '<Version>(?<version>[^<]+)</Version>') {
-            Write-Error "Version element not found in $csprojPath"
-            exit 1
-          }
-
-          $current = $Matches.version
-          try {
-            $version = [System.Version]::Parse($current)
-          }
-          catch {
-            Write-Error "Version '$current' is not a valid version string"
-            exit 1
-          }
-
-          if ($version.Build -lt 0) {
-            Write-Error "Version '$current' must contain at least three segments (e.g. 1.0.0)"
-            exit 1
-          }
-
-          $newPatch = $version.Build + 1
-          $newVersion = "{0}.{1}.{2}" -f $version.Major, $version.Minor, $newPatch
-
-          $updated = $content -replace "<Version>$current</Version>", "<Version>$newVersion</Version>"
-          Set-Content -Path $csprojPath -Value $updated
-
-          Write-Output "Bumped version from $current to $newVersion"
-
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore PulseAPK.sln
 
       - name: Build
-        run: dotnet build PulseAPK.csproj --configuration Release --no-restore
+        run: >-
+          dotnet build src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj
+          --configuration Release
+          --no-restore
+          -p:Version="${{ inputs.app-version }}"
+          -p:InformationalVersion="${{ inputs.app-version }}"
 
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: PulseAPK-windows-x64
-          path: bin/Release/net8.0-windows/PulseAPK.exe
+          path: src/PulseAPK.Avalonia/bin/Release/net8.0-windows/PulseAPK.exe
           if-no-files-found: error

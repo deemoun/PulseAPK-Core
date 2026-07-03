@@ -1,7 +1,8 @@
 param(
     [string]$Configuration = $(if ($env:CONFIGURATION) { $env:CONFIGURATION } else { "Release" }),
     [string]$Rid = $(if ($env:RID) { $env:RID } else { "win-x64" }),
-    [string]$AppName = $(if ($env:APP_NAME) { $env:APP_NAME } else { "PulseAPK" })
+    [string]$AppName = $(if ($env:APP_NAME) { $env:APP_NAME } else { "PulseAPK" }),
+    [string]$AppVersion = $(if ($env:APP_VERSION) { $env:APP_VERSION } else { "" })
 )
 
 $ErrorActionPreference = "Stop"
@@ -30,10 +31,17 @@ if (Test-Path $publishDir) {
 }
 New-Item -Path $publishDir -ItemType Directory -Force | Out-Null
 
+$versionProperties = @()
+if ($AppVersion) {
+    $versionProperties += "-p:Version=$AppVersion"
+    $versionProperties += "-p:InformationalVersion=$AppVersion"
+}
+
 & dotnet publish $projectPath `
     -c $Configuration `
     -r $Rid `
     --self-contained true `
+    @versionProperties `
     /p:UseAppHost=true `
     /p:PublishSingleFile=true `
     /p:IncludeNativeLibrariesForSelfExtract=true `

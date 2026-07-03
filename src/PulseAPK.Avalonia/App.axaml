@@ -6,24 +6,287 @@
 
     <Application.Styles>
         <FluentTheme />
+
+        <Style Selector="Button">
+            <Setter Property="Background" Value="{DynamicResource CyberCardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="14,8" />
+        </Style>
+
+        <Style Selector="Button:pointerover">
+            <Setter Property="Background" Value="{DynamicResource CyberPointerOverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+        </Style>
+
+
+        <Style Selector="Button:pressed">
+            <Setter Property="Background" Value="{DynamicResource CyberButtonPressedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberWarningBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
+
+        <Style Selector="Button.primary-action">
+            <Setter Property="Background" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberPrimaryButtonForegroundBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="Button.primary-action:pointerover">
+            <Setter Property="Background" Value="{DynamicResource CyberPointerOverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+        </Style>
+
+        <Style Selector="Button.primary-action:pressed">
+            <Setter Property="Background" Value="{DynamicResource CyberButtonPressedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberPressedButtonForegroundBrush}" />
+        </Style>
+
+        <Style Selector="Button:focus">
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberFocusBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1.5" />
+        </Style>
+
+        <Style Selector="Button.primary-action:focus">
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberFocusBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1.5" />
+        </Style>
+
+        <Style Selector="Button:disabled">
+            <Setter Property="Background" Value="{DynamicResource CyberDisabledButtonBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberDisabledButtonBorderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberDisabledButtonForegroundBrush}" />
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="{DynamicResource CyberCardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberCardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+            <Setter Property="Padding" Value="10,7" />
+        </Style>
+
+
+        <Style Selector="TextBox.terminal-output">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="FontFamily" Value="Consolas, Menlo, Monaco, 'Courier New', monospace" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="SelectionBrush" Value="{DynamicResource CyberAccentMutedBrush}" />
+            <Setter Property="SelectionForegroundBrush" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
+
+        <Style Selector="TextBox.terminal-output:pointerover">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
+
+        <Style Selector="TextBox.terminal-output:focus">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberFocusBorderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
+
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource CyberCardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberCardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+            <Setter Property="Padding" Value="10,7" />
+        </Style>
+
+        <Style Selector="ListBox">
+            <Setter Property="Background" Value="{DynamicResource CyberCardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberCardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+        </Style>
+
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource CyberCardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="20" />
+        </Style>
+
+        <Style Selector="Border.card.compact">
+            <Setter Property="Padding" Value="16" />
+        </Style>
+
+        <Style Selector="Border.console-card">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1,1.5,1,1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="16" />
+        </Style>
+
+        <Style Selector="Border.console-card.compact">
+            <Setter Property="Padding" Value="14" />
+        </Style>
+
+        <Style Selector="Border.console-header-dot">
+            <Setter Property="Width" Value="8" />
+            <Setter Property="Height" Value="8" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Background" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+        </Style>
+
+        <Style Selector="Border.console-divider">
+            <Setter Property="Height" Value="1" />
+            <Setter Property="Background" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="Opacity" Value="0.65" />
+        </Style>
+
+        <Style Selector="Border.live-log-pill">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="8,3" />
+        </Style>
+
+        <Style Selector="TextBlock.console-title">
+            <Setter Property="Foreground" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="TextBlock.live-log-pill-text">
+            <Setter Property="Foreground" Value="{DynamicResource CyberConsoleForegroundBrush}" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="Border.neon-pill">
+            <Setter Property="Background" Value="{DynamicResource CyberConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CyberAccentSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BoxShadow" Value="{DynamicResource CyberNeonPillBoxShadow}" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="14,6" />
+        </Style>
+
+        <Style Selector="TextBlock.page-title">
+            <Setter Property="Foreground" Value="{DynamicResource CyberAccentBrush}" />
+            <Setter Property="FontSize" Value="28" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="TextBlock.helper-text">
+            <Setter Property="Foreground" Value="{DynamicResource CyberHelperTextBrush}" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
     </Application.Styles>
 
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#202020" />
-                    <SolidColorBrush x:Key="MainBackgroundBrush" Color="#121212" />
-                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#1B1B1B" />
-                    <SolidColorBrush x:Key="CardBorderBrush" Color="#3C3C3C" />
-                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#2E2E2E" />
+                    <SolidColorBrush x:Key="CyberBackgroundBrush" Color="#05070D" />
+                    <SolidColorBrush x:Key="CyberSidebarBrush" Color="#080B12" />
+                    <SolidColorBrush x:Key="CyberCardBrush" Color="#0C101A" />
+                    <SolidColorBrush x:Key="CyberCardBorderBrush" Color="#1C2A40" />
+                    <SolidColorBrush x:Key="CyberAccentBrush" Color="#00D9FF" />
+                    <SolidColorBrush x:Key="CyberAccentSecondaryBrush" Color="#7A2CFF" />
+                    <SolidColorBrush x:Key="CyberWarningBrush" Color="#FFB000" />
+                    <SolidColorBrush x:Key="CyberConsoleBackgroundBrush" Color="#03060B" />
+                    <SolidColorBrush x:Key="CyberConsoleForegroundBrush" Color="#39FF88" />
+                    <SolidColorBrush x:Key="CyberAccentMutedBrush" Color="#0A2636" />
+                    <SolidColorBrush x:Key="CyberAccentPressedBrush" Color="#122B3D" />
+                    <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#20104A" />
+                    <SolidColorBrush x:Key="CyberPointerOverBrush" Color="#111827" />
+                    <SolidColorBrush x:Key="CyberSelectedBrush" Color="#20104A" />
+                    <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#7A2CFF" />
+                    <SolidColorBrush x:Key="CyberSelectedForegroundBrush" Color="#F4F7FF" />
+                    <SolidColorBrush x:Key="CyberPrimaryButtonForegroundBrush" Color="#03111A" />
+                    <SolidColorBrush x:Key="CyberPressedButtonForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CyberFocusBorderBrush" Color="#FFB000" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#0A111C" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#17485C" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#6FE7FF" />
+                    <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#91A3C2" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineBackgroundBrush" Color="#052415" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineBorderBrush" Color="#39FF88" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineTextBrush" Color="#ECFDF5" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineBackgroundBrush" Color="#2A0710" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineBorderBrush" Color="#FF174D" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineTextBrush" Color="#FFB3C1" />
+                    <SolidColorBrush x:Key="CyberDestructiveForegroundBrush" Color="#FFB3C1" />
+                    <SolidColorBrush x:Key="CyberDestructivePointerOverForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CyberDestructivePointerOverBrush" Color="#10131F" />
+                    <SolidColorBrush x:Key="CyberDestructivePressedBrush" Color="#14070D" />
+                    <BoxShadows x:Key="CyberCardBoxShadow">0 0 0 0 #00000000</BoxShadows>
+                    <BoxShadows x:Key="CyberConsoleCardBoxShadow">0 0 0 0 #00000000</BoxShadows>
+                    <BoxShadows x:Key="CyberNeonPillBoxShadow">0 0 10 0 #557A2CFF</BoxShadows>
+
+                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#080B12" />
+                    <SolidColorBrush x:Key="MainBackgroundBrush" Color="#05070D" />
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#0C101A" />
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#1C2A40" />
+                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#00D9FF" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#F3F3F3" />
-                    <SolidColorBrush x:Key="MainBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CyberBackgroundBrush" Color="#F7FAFF" />
+                    <SolidColorBrush x:Key="CyberSidebarBrush" Color="#EEF4FF" />
+                    <SolidColorBrush x:Key="CyberCardBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CyberCardBorderBrush" Color="#B8D8E6" />
+                    <SolidColorBrush x:Key="CyberAccentBrush" Color="#007C91" />
+                    <SolidColorBrush x:Key="CyberAccentSecondaryBrush" Color="#B0007C" />
+                    <SolidColorBrush x:Key="CyberWarningBrush" Color="#C8321A" />
+                    <SolidColorBrush x:Key="CyberConsoleBackgroundBrush" Color="#F0FBFF" />
+                    <SolidColorBrush x:Key="CyberConsoleForegroundBrush" Color="#006E3A" />
+                    <SolidColorBrush x:Key="CyberAccentMutedBrush" Color="#DDF8FF" />
+                    <SolidColorBrush x:Key="CyberAccentPressedBrush" Color="#FCE0F6" />
+                    <SolidColorBrush x:Key="CyberButtonPressedBrush" Color="#FFD7F7" />
+                    <SolidColorBrush x:Key="CyberPointerOverBrush" Color="#EAF7FF" />
+                    <SolidColorBrush x:Key="CyberSelectedBrush" Color="#FFC1EF" />
+                    <SolidColorBrush x:Key="CyberSelectedBorderBrush" Color="#B0007C" />
+                    <SolidColorBrush x:Key="CyberSelectedForegroundBrush" Color="#6F004F" />
+                    <SolidColorBrush x:Key="CyberPrimaryButtonForegroundBrush" Color="#001B22" />
+                    <SolidColorBrush x:Key="CyberPressedButtonForegroundBrush" Color="#101018" />
+                    <SolidColorBrush x:Key="CyberFocusBorderBrush" Color="#7A4D00" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBrush" Color="#E8FAFF" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonBorderBrush" Color="#58BCD1" />
+                    <SolidColorBrush x:Key="CyberDisabledButtonForegroundBrush" Color="#007C91" />
+                    <SolidColorBrush x:Key="CyberHelperTextBrush" Color="#52677A" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineBackgroundBrush" Color="#E5FFF1" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineBorderBrush" Color="#008A4B" />
+                    <SolidColorBrush x:Key="CyberStatusOnlineTextBrush" Color="#003D23" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineBackgroundBrush" Color="#FFE8EE" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineBorderBrush" Color="#B00025" />
+                    <SolidColorBrush x:Key="CyberStatusOfflineTextBrush" Color="#7A001A" />
+                    <SolidColorBrush x:Key="CyberDestructiveForegroundBrush" Color="#B00025" />
+                    <SolidColorBrush x:Key="CyberDestructivePointerOverForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CyberDestructivePointerOverBrush" Color="#B00025" />
+                    <SolidColorBrush x:Key="CyberDestructivePressedBrush" Color="#7A001A" />
+                    <BoxShadows x:Key="CyberCardBoxShadow">0 0 0 0 #00000000</BoxShadows>
+                    <BoxShadows x:Key="CyberConsoleCardBoxShadow">0 0 0 0 #00000000</BoxShadows>
+                    <BoxShadows x:Key="CyberNeonPillBoxShadow">0 0 8 0 #33B0007C</BoxShadows>
+
+                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#EEF4FF" />
+                    <SolidColorBrush x:Key="MainBackgroundBrush" Color="#F7FAFF" />
                     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="CardBorderBrush" Color="#DADADA" />
-                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#CDCDCD" />
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#B8D8E6" />
+                    <SolidColorBrush x:Key="ConsoleBorderBrush" Color="#007C91" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>

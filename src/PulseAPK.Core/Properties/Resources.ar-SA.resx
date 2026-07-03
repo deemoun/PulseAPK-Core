@@ -302,7 +302,7 @@
     <value>اسم APK</value>
   </data>
   <data name="ConsoleLog" xml:space="preserve">
-    <value>سجل وحدة التحكم</value>
+    <value>Terminal</value>
   </data>
   <data name="ApkPathPlaceholder" xml:space="preserve">
     <value>سيتم عرض المسار بعد اختيار ملف APK.</value>
@@ -363,5 +363,354 @@
   </data>
   <data name="PatchScriptInjectFridaGadget" xml:space="preserve">
     <value>Inject gadget and custom script</value>
+  </data>
+  <data name="DeviceToolsHeader" xml:space="preserve">
+    <value>Device Tools</value>
+  </data>
+  <data name="DeviceToolsSubtitle" xml:space="preserve">
+    <value>Install APKs, launch activities, and run common ADB shell commands.</value>
+  </data>
+  <data name="DeviceToolsConnection" xml:space="preserve">
+    <value>Connection</value>
+  </data>
+  <data name="DeviceToolsSelectDeviceHelp" xml:space="preserve">
+    <value>Select a connected Android device for APK and shell tools.</value>
+  </data>
+  <data name="DeviceToolsRefreshDevices" xml:space="preserve">
+    <value>Refresh Devices</value>
+  </data>
+  <data name="DeviceToolsAdbPath" xml:space="preserve">
+    <value>ADB path</value>
+  </data>
+  <data name="DeviceToolsChooseWorkflow" xml:space="preserve">
+    <value>Choose a workflow</value>
+  </data>
+  <data name="DeviceToolsWorkflowHelp" xml:space="preserve">
+    <value>Switch between install, launch, app management, and shell tools.</value>
+  </data>
+  <data name="DeviceToolsInstallApkPackage" xml:space="preserve">
+    <value>Install APK Package</value>
+  </data>
+  <data name="DeviceToolsInstallApkHelp" xml:space="preserve">
+    <value>Select an APK file, install it to the active device, or read package metadata from it.</value>
+  </data>
+  <data name="DeviceToolsApkFile" xml:space="preserve">
+    <value>APK file</value>
+  </data>
+  <data name="DeviceToolsApkPathWatermark" xml:space="preserve">
+    <value>/path/to/app.apk</value>
+  </data>
+  <data name="DeviceToolsInstallApk" xml:space="preserve">
+    <value>Install APK</value>
+  </data>
+  <data name="DeviceToolsDetectPackage" xml:space="preserve">
+    <value>Detect Package</value>
+  </data>
+  <data name="DeviceToolsClearApkSelection" xml:space="preserve">
+    <value>Clear APK Selection</value>
+  </data>
+  <data name="DeviceToolsConnectDeviceHint" xml:space="preserve">
+    <value>Connect a usable Android device to enable these actions.</value>
+  </data>
+  <data name="DeviceToolsLaunchInstalledApp" xml:space="preserve">
+    <value>Launch an Installed App</value>
+  </data>
+  <data name="DeviceToolsLaunchHelp" xml:space="preserve">
+    <value>Enter a package, optionally choose an activity, then launch or inspect the current foreground activity.</value>
+  </data>
+  <data name="DeviceToolsPackageName" xml:space="preserve">
+    <value>Package name</value>
+  </data>
+  <data name="DeviceToolsPackageWatermark" xml:space="preserve">
+    <value>com.example.app</value>
+  </data>
+  <data name="DeviceToolsActivity" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="DeviceToolsActivityWatermark" xml:space="preserve">
+    <value>.MainActivity or full class name</value>
+  </data>
+  <data name="DeviceToolsDetectedActivities" xml:space="preserve">
+    <value>Detected activities</value>
+  </data>
+  <data name="DeviceToolsLaunchApp" xml:space="preserve">
+    <value>Launch App</value>
+  </data>
+  <data name="DeviceToolsLaunchActivity" xml:space="preserve">
+    <value>Launch Activity</value>
+  </data>
+  <data name="DeviceToolsCurrentActivity" xml:space="preserve">
+    <value>Current Activity</value>
+  </data>
+  <data name="DeviceToolsClear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="DeviceToolsPackageRequiredHint" xml:space="preserve">
+    <value>Enter a package name to continue.</value>
+  </data>
+  <data name="DeviceToolsManageInstalledApp" xml:space="preserve">
+    <value>Manage Installed App</value>
+  </data>
+  <data name="DeviceToolsManageHelp" xml:space="preserve">
+    <value>Target a package, then stop it, reset data, remove it, or inspect package details.</value>
+  </data>
+  <data name="DeviceToolsForceStop" xml:space="preserve">
+    <value>Force Stop</value>
+  </data>
+  <data name="DeviceToolsClearData" xml:space="preserve">
+    <value>Clear Data</value>
+  </data>
+  <data name="DeviceToolsUninstall" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="DeviceToolsSearchPackage" xml:space="preserve">
+    <value>Search Package</value>
+  </data>
+  <data name="DeviceToolsAppPath" xml:space="preserve">
+    <value>App Path</value>
+  </data>
+  <data name="DeviceToolsUtilities" xml:space="preserve">
+    <value>Utilities</value>
+  </data>
+  <data name="DeviceToolsPackageUtilitiesHelp" xml:space="preserve">
+    <value>Non-destructive shortcuts for the selected device and package.</value>
+  </data>
+  <data name="DeviceToolsOpenAppSettings" xml:space="preserve">
+    <value>Open App Settings</value>
+  </data>
+  <data name="DeviceToolsCopyApkFromDevice" xml:space="preserve">
+    <value>Copy APK from Device</value>
+  </data>
+  <data name="DeviceToolsLogcatForPackage" xml:space="preserve">
+    <value>Logcat for Package</value>
+  </data>
+  <data name="DeviceToolsRunAdbShellCommands" xml:space="preserve">
+    <value>Run ADB Shell Commands</value>
+  </data>
+  <data name="DeviceToolsShellHelp" xml:space="preserve">
+    <value>Run a preset command, or type shell/raw ADB arguments for the selected device.</value>
+  </data>
+  <data name="DeviceToolsPreset" xml:space="preserve">
+    <value>Preset</value>
+  </data>
+  <data name="DeviceToolsRunPreset" xml:space="preserve">
+    <value>Run Preset</value>
+  </data>
+  <data name="DeviceToolsCommand" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="DeviceToolsCommandWatermark" xml:space="preserve">
+    <value>getprop ro.product.model</value>
+  </data>
+  <data name="DeviceToolsRunShell" xml:space="preserve">
+    <value>Run Shell</value>
+  </data>
+  <data name="DeviceToolsRunAdbArgs" xml:space="preserve">
+    <value>Run ADB Args</value>
+  </data>
+  <data name="DeviceToolsRunAdbArgsTip" xml:space="preserve">
+    <value>Runs the text as raw adb arguments after the selected device (-s &lt;serial&gt;). Example: devices -l or shell getprop ro.product.model.</value>
+  </data>
+  <data name="DeviceToolsScreenUtilitiesHelp" xml:space="preserve">
+    <value>Capture the screen or record a short MP4 without modifying app data.</value>
+  </data>
+  <data name="DeviceToolsScreenshot" xml:space="preserve">
+    <value>Screenshot</value>
+  </data>
+  <data name="DeviceToolsStartScreenRecord" xml:space="preserve">
+    <value>Start Screen Record</value>
+  </data>
+  <data name="DeviceToolsStopScreenRecord" xml:space="preserve">
+    <value>Stop Screen Record</value>
+  </data>
+  <data name="DeviceToolsRecordingActiveHint" xml:space="preserve">
+    <value>Recording is active on the selected device until you stop it.</value>
+  </data>
+  <data name="DeviceToolsCommandOutput" xml:space="preserve">
+    <value>Command output</value>
+  </data>
+  <data name="DeviceToolsCommandOutputHelp" xml:space="preserve">
+    <value>Latest command output appears below.</value>
+  </data>
+  <data name="MenuDeviceTools" xml:space="preserve">
+    <value>Device Tools</value>
+  </data>
+  <data name="DeviceToolsPresetModel" xml:space="preserve">
+    <value>Model</value>
+  </data>
+  <data name="DeviceToolsPresetAndroidRelease" xml:space="preserve">
+    <value>Android Release</value>
+  </data>
+  <data name="DeviceToolsPresetSdk" xml:space="preserve">
+    <value>SDK</value>
+  </data>
+  <data name="DeviceToolsPresetCpuAbi" xml:space="preserve">
+    <value>CPU ABI</value>
+  </data>
+  <data name="DeviceToolsPresetListPackages" xml:space="preserve">
+    <value>List Packages</value>
+  </data>
+  <data name="DeviceToolsPresetThirdPartyPackages" xml:space="preserve">
+    <value>Third-Party Packages</value>
+  </data>
+  <data name="DeviceToolsPresetSearchPackage" xml:space="preserve">
+    <value>Search Package</value>
+  </data>
+  <data name="DeviceToolsPresetAppPath" xml:space="preserve">
+    <value>App Path</value>
+  </data>
+  <data name="DeviceToolsPresetCurrentActivity" xml:space="preserve">
+    <value>Current Activity</value>
+  </data>
+  <data name="DeviceToolsPresetReboot" xml:space="preserve">
+    <value>Reboot</value>
+  </data>
+  <data name="DeviceToolsPresetAdbRoot" xml:space="preserve">
+    <value>ADB Root</value>
+  </data>
+  <data name="DeviceToolsPresetAdbRemount" xml:space="preserve">
+    <value>ADB Remount</value>
+  </data>
+  <data name="DeviceToolsPresetLogcatForPackage" xml:space="preserve">
+    <value>Logcat for Package</value>
+  </data>
+  <data name="DeviceToolsModeInstallApk" xml:space="preserve">
+    <value>Install APK</value>
+  </data>
+  <data name="DeviceToolsModeLaunch" xml:space="preserve">
+    <value>Launch</value>
+  </data>
+  <data name="DeviceToolsModeManageApp" xml:space="preserve">
+    <value>Manage App</value>
+  </data>
+  <data name="DeviceToolsModeShell" xml:space="preserve">
+    <value>Shell</value>
+  </data>
+  <data name="DeviceToolsAdbChecking" xml:space="preserve">
+    <value>ADB: checking...</value>
+  </data>
+  <data name="DeviceToolsAdbFound" xml:space="preserve">
+    <value>ADB: found</value>
+  </data>
+  <data name="DeviceToolsAdbNotFound" xml:space="preserve">
+    <value>ADB: not found</value>
+  </data>
+  <data name="DeviceToolsAdbNotChecked" xml:space="preserve">
+    <value>ADB: not checked</value>
+  </data>
+  <data name="DeviceToolsCheckingDevices" xml:space="preserve">
+    <value>Checking devices...</value>
+  </data>
+  <data name="DeviceToolsNoConnectedDevices" xml:space="preserve">
+    <value>No Android device connected. Connect a device and enable USB debugging.</value>
+  </data>
+  <data name="DeviceToolsScreenRecordInProgress" xml:space="preserve">
+    <value>Recording in progress. Tap Stop Screen Record to end the adb shell screenrecord session, then PulseAPK will pull the MP4.</value>
+  </data>
+  <data name="DeviceToolsScreenRecordReady" xml:space="preserve">
+    <value>Start Screen Record runs adb shell screenrecord and saves the pulled MP4 after you stop it.</value>
+  </data>
+  <data name="MenuPatch" xml:space="preserve">
+    <value>تصحيح APK</value>
+  </data>
+  <data name="PatchBetaWarning" xml:space="preserve">
+    <value>وظيفة تجريبية. استخدمها على مسؤوليتك الخاصة</value>
+  </data>
+  <data name="PatchAddCustomScript" xml:space="preserve">
+    <value>إضافة سكربت مخصص</value>
+  </data>
+  <data name="PatchScriptSampleInjection" xml:space="preserve">
+    <value>حقن تجريبي</value>
+  </data>
+  <data name="PatchScriptSampleInjectionInfo" xml:space="preserve">
+    <value>يضيف الحقن التجريبي مساعد سجل smali فقط؛ ولا يتم تحميل أي مكتبة أصلية.</value>
+  </data>
+  <data name="PatchErrorSelectApk" xml:space="preserve">
+    <value>يرجى تحديد ملف APK لتصحيحه.</value>
+  </data>
+  <data name="PatchErrorMissingApkTitle" xml:space="preserve">
+    <value>ملف APK مفقود</value>
+  </data>
+  <data name="PatchDangerousDexConfirmation" xml:space="preserve">
+    <value>قد يؤدي استبدال كل ملفات dex إلى تجاهل تغييرات smali المحقونة. تابع فقط إذا كنت تفهم هذا الخطر.</value>
+  </data>
+  <data name="PatchDangerousDexTitle" xml:space="preserve">
+    <value>استبدال dex خطير</value>
+  </data>
+  <data name="PatchLogDangerousDexCancelled" xml:space="preserve">
+    <value>[WARN] ألغى المستخدم استبدال dex الخطير.</value>
+  </data>
+  <data name="PatchLogStartingPipeline" xml:space="preserve">
+    <value>بدء مسار التصحيح...</value>
+  </data>
+  <data name="PatchLogScriptProfile" xml:space="preserve">
+    <value>[INFO] ملف السكربت: {0}</value>
+  </data>
+  <data name="PatchLogRunSummary" xml:space="preserve">
+    <value>تصحيح '{0}' -&gt; '{1}' (sign={2}, decodeRes={3}, decodeSrc={4}, aapt2={5}, dexMode={6})</value>
+  </data>
+  <data name="PatchLogCreated" xml:space="preserve">
+    <value>تم إنشاء APK المصحح: {0}</value>
+  </data>
+  <data name="PatchInfoCompleteMessage" xml:space="preserve">
+    <value>اكتمل التصحيح بنجاح.
+الإخراج: {0}</value>
+  </data>
+  <data name="PatchInfoCompleteTitle" xml:space="preserve">
+    <value>اكتمل التصحيح</value>
+  </data>
+  <data name="PatchErrorFailedMessage" xml:space="preserve">
+    <value>فشل التصحيح. راجع إخراج وحدة التحكم للتفاصيل.</value>
+  </data>
+  <data name="PatchErrorFailedTitle" xml:space="preserve">
+    <value>فشل التصحيح</value>
+  </data>
+  <data name="PatchPreviewHeader" xml:space="preserve">
+    <value>معاينة التصحيح:</value>
+  </data>
+  <data name="PatchPreviewInputApk" xml:space="preserve">
+    <value>APK الإدخال: {0}</value>
+  </data>
+  <data name="PatchPreviewSelectApk" xml:space="preserve">
+    <value>&lt;اختر apk&gt;</value>
+  </data>
+  <data name="PatchPreviewOutputApk" xml:space="preserve">
+    <value>APK الإخراج: {0}</value>
+  </data>
+  <data name="PatchPreviewOutputApkPlaceholder" xml:space="preserve">
+    <value>&lt;apk الإخراج&gt;</value>
+  </data>
+  <data name="PatchPreviewDecodeResources" xml:space="preserve">
+    <value>فك ترميز الموارد: {0}</value>
+  </data>
+  <data name="PatchPreviewDecodeSources" xml:space="preserve">
+    <value>فك ترميز المصادر: {0}</value>
+  </data>
+  <data name="PatchPreviewUseAapt2" xml:space="preserve">
+    <value>استخدام AAPT2: {0}</value>
+  </data>
+  <data name="PatchPreviewScriptProfile" xml:space="preserve">
+    <value>ملف السكربت: {0}</value>
+  </data>
+  <data name="PatchPreviewInjectAllArchitectures" xml:space="preserve">
+    <value>الحقن لكل المعماريات: {0}</value>
+  </data>
+  <data name="PatchPreviewSkipDexValidation" xml:space="preserve">
+    <value>تخطي التحقق من DEX: {0}</value>
+  </data>
+  <data name="PatchPreviewAddCustomScript" xml:space="preserve">
+    <value>إضافة سكربت مخصص: {0}</value>
+  </data>
+  <data name="PatchPreviewDexPreservation" xml:space="preserve">
+    <value>الحفاظ على Dex: {0}</value>
+  </data>
+  <data name="PatchPreviewSignOutput" xml:space="preserve">
+    <value>توقيع الإخراج: {0}</value>
+  </data>
+  <data name="DeviceToolsDeviceOnline" xml:space="preserve">
+    <value>الجهاز: متصل</value>
+  </data>
+  <data name="DeviceToolsDeviceOffline" xml:space="preserve">
+    <value>الجهاز: غير متصل</value>
   </data>
 </root>

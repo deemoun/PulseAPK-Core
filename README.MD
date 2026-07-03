@@ -92,6 +92,7 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
 2.  **Apktool**: You can download `apktool.jar` directly from PulseAPK by pressing the download button in **Settings**, or provide it manually from [ibotpeaches.github.io](https://ibotpeaches.github.io/Apktool/).
 3.  **Ubersign (Uber APK Signer)**: Required for signing rebuilt APKs. You can download the latest `uber-apk-signer.jar` automatically in **Settings**, or still provide it manually from the [GitHub releases](https://github.com/patrickfav/uber-apk-signer/releases).
 4.  **.NET 8.0 Runtime**: Required to run PulseAPK on supported platforms (Windows, Linux, and macOS).
+5.  **macOS hosts**: PulseAPK macOS release artifacts target Apple Silicon only (`osx-arm64`). Intel/x64 macOS builds are not produced.
 
 ## Quick Start Guide
 
@@ -100,6 +101,13 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
     dotnet build
     dotnet run
     ```
+
+    To create the macOS Apple Silicon app bundle artifact:
+    ```bash
+    RID=osx-arm64 ./scripts/build-macos-binary.sh
+    ```
+
+    The macOS build uses ad-hoc signing by default for local and test builds. For production signing, install a Developer ID Application certificate in the macOS keychain and set `MACOS_CODESIGN_IDENTITY` to that certificate identity before running the script. To notarize the generated ZIP and staple the notarization ticket to the `.app` before the final ZIP is created, also set `APPLE_ID`, `APPLE_TEAM_ID`, and `APPLE_APP_SPECIFIC_PASSWORD`. GitHub Actions release builds read these values from repository secrets with the same names: `MACOS_CODESIGN_IDENTITY`, `APPLE_ID`, `APPLE_TEAM_ID`, and `APPLE_APP_SPECIFIC_PASSWORD`.
 
 2.  **Setup**
     - Open **Settings**.

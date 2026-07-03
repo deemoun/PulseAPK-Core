@@ -25,20 +25,52 @@ public class SystemService : ISystemService
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Process.Start("explorer.exe", path);
+                StartDetached("explorer.exe", path);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                Process.Start("xdg-open", path);
+                StartDetached("xdg-open", path, suppressStandardError: true);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Process.Start("open", path);
+                StartDetached("open", path);
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to open path '{path}': {ex.Message}");
         }
+    }
+
+    private static void StartDetached(string fileName, string argument, bool suppressStandardError = false)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = fileName,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+
+        startInfo.ArgumentList.Add(argument);
+
+        if (suppressStandardError)
+        {
+            startInfo.RedirectStandardError = true;
+        }
+
+        var process = Process.Start(startInfo);
+        if (process is null)
+            return;
+
+        if (!suppressStandardError)
+        {
+            process.Dispose();
+            return;
+        }
+
+        process.EnableRaisingEvents = true;
+        process.ErrorDataReceived += static (_, _) => { };
+        process.Exited += static (sender, _) => ((Process)sender!).Dispose();
+        process.BeginErrorReadLine();
     }
 }
