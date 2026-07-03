@@ -21,7 +21,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          current=$(grep -Po '(?<=<Version>)[^<]+' src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj)
+          current=$(grep -Po '<Version[^>]*>\K[^<]+' Directory.Build.props)
           IFS='.' read -r major minor patch <<< "$current"
           next_patch=$((patch + 1))
           next_version="${major}.${minor}.${next_patch}"
@@ -29,27 +29,12 @@ jobs:
           echo "current=${current}" >> "$GITHUB_OUTPUT"
           echo "next=${next_version}" >> "$GITHUB_OUTPUT"
 
-      - name: Update project version
+      - name: Update centralized version
         shell: bash
         run: |
           next="${{ steps.version.outputs.next }}"
           current="${{ steps.version.outputs.current }}"
-          sed -i "s#<Version>${current}</Version>#<Version>${next}</Version>#" src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj
-
-      - name: Update About window fallback version
-        shell: python
-        run: |
-          from pathlib import Path
-
-          next_version = "${{ steps.version.outputs.next }}"
-          current_version = "${{ steps.version.outputs.current }}"
-
-          about_vm = Path("ViewModels/AboutViewModel.cs")
-          content = about_vm.read_text()
-          updated = content.replace(f'?? "{current_version}"', f'?? "{next_version}"')
-          if content == updated:
-            raise SystemExit("Failed to update AboutViewModel fallback version")
-          about_vm.write_text(updated)
+          sed -i -E "s#(<Version[^>]*>)${current}(</Version>)#\1${next}\2#" Directory.Build.props
 
       - name: Create version bump pull request
         uses: peter-evans/create-pull-request@v6
