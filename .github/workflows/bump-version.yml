@@ -21,7 +21,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          current=$(grep -Po '(?<=<Version>)[^<]+' PulseAPK.csproj)
+          current=$(grep -Po '(?<=<Version>)[^<]+' src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj)
           IFS='.' read -r major minor patch <<< "$current"
           next_patch=$((patch + 1))
           next_version="${major}.${minor}.${next_patch}"
@@ -34,7 +34,7 @@ jobs:
         run: |
           next="${{ steps.version.outputs.next }}"
           current="${{ steps.version.outputs.current }}"
-          sed -i "s#<Version>${current}</Version>#<Version>${next}</Version>#" PulseAPK.csproj
+          sed -i "s#<Version>${current}</Version>#<Version>${next}</Version>#" src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj
 
       - name: Update About window fallback version
         shell: python
