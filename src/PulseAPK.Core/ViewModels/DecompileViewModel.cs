@@ -196,6 +196,12 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
         try
         {
             var outputDir = ResolveOutputDirectory();
+            if (string.IsNullOrWhiteSpace(outputDir))
+            {
+                await _dialogService.ShowErrorAsync("Unable to derive an output folder from the selected APK. Choose an output folder and try again.", "Invalid output folder");
+                return;
+            }
+
             normalizedOutputDir = Path.GetFullPath(outputDir);
         }
         catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException or IOException or UnauthorizedAccessException)
@@ -382,7 +388,13 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
             return string.Empty;
         }
 
-        return Path.Combine(Path.GetDirectoryName(apkPath)!, Path.GetFileNameWithoutExtension(apkPath));
+        var apkDirectory = Path.GetDirectoryName(apkPath);
+        if (string.IsNullOrWhiteSpace(apkDirectory))
+        {
+            apkDirectory = Directory.GetCurrentDirectory();
+        }
+
+        return Path.Combine(apkDirectory, Path.GetFileNameWithoutExtension(apkPath));
     }
 
     private static bool IsHighRiskOutputDirectory(string outputDir)
