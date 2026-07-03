@@ -64,20 +64,10 @@ namespace PulseAPK.Core.Services
 
         private async Task<ApktoolRunResult> RunProcessAsync(IReadOnlyList<string> arguments, CancellationToken cancellationToken)
         {
-            var apktoolPath = SanitizePathArgument(_settingsService.Settings.ApktoolPath);
-
-            if (string.IsNullOrWhiteSpace(apktoolPath))
-            {
-                throw new FileNotFoundException("Apktool path has not been configured.");
-            }
-
-            if (!File.Exists(apktoolPath))
-            {
-                throw new FileNotFoundException($"Apktool path '{apktoolPath}' does not exist.");
-            }
+            var apktoolPath = ResolveConfiguredApktoolPath(_settingsService.Settings.ApktoolPath, _settingsService.SettingsDirectory);
 
             var executableMode = GetExecutableMode(apktoolPath);
-            var startInfo = CreateStartInfo(apktoolPath, arguments);
+            var startInfo = CreateStartInfo(apktoolPath, arguments, _settingsService.SettingsDirectory);
             var stdoutLines = new List<string>();
             var stderrLines = new List<string>();
             var lineSyncRoot = new object();
@@ -184,8 +174,9 @@ namespace PulseAPK.Core.Services
                 : tail[^ProcessTailMaxCharacters..];
         }
 
-        private static ProcessStartInfo CreateStartInfo(string apktoolPath, IReadOnlyList<string> arguments)
+        private static ProcessStartInfo CreateStartInfo(string apktoolPath, IReadOnlyList<string> arguments, string settingsDirectory)
         {
+            var workingDirectory = ResolveProcessWorkingDirectory(settingsDirectory);
             var extension = Path.GetExtension(apktoolPath);
             var isJar = string.Equals(extension, ".jar", StringComparison.OrdinalIgnoreCase);
             var isBatchFile = string.Equals(extension, ".bat", StringComparison.OrdinalIgnoreCase)
@@ -199,7 +190,8 @@ namespace PulseAPK.Core.Services
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = workingDirectory
                 };
 
                 startInfo.ArgumentList.Add("-jar");
@@ -222,7 +214,8 @@ namespace PulseAPK.Core.Services
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = workingDirectory
                 };
             }
 
@@ -232,7 +225,8 @@ namespace PulseAPK.Core.Services
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WorkingDirectory = workingDirectory
             };
 
             foreach (var argument in arguments)
@@ -241,6 +235,55 @@ namespace PulseAPK.Core.Services
             }
 
             return defaultStartInfo;
+        }
+
+        public static string ResolveConfiguredApktoolPath(string? configuredPath, string settingsDirectory)
+        {
+            var apktoolPath = SanitizePathArgument(configuredPath);
+
+            if (string.IsNullOrWhiteSpace(apktoolPath))
+            {
+                throw new FileNotFoundException("Apktool path has not been configured.");
+            }
+
+            foreach (var candidate in EnumerateApktoolPathCandidates(apktoolPath, settingsDirectory))
+            {
+                if (File.Exists(candidate))
+                {
+                    return Path.GetFullPath(candidate);
+                }
+            }
+
+            throw new FileNotFoundException($"Apktool path '{apktoolPath}' does not exist.");
+        }
+
+        private static IEnumerable<string> EnumerateApktoolPathCandidates(string apktoolPath, string settingsDirectory)
+        {
+            if (Path.IsPathFullyQualified(apktoolPath))
+            {
+                yield return apktoolPath;
+                yield break;
+            }
+
+            yield return Path.Combine(Environment.CurrentDirectory, apktoolPath);
+            yield return Path.Combine(AppContext.BaseDirectory, apktoolPath);
+
+            if (!string.IsNullOrWhiteSpace(settingsDirectory))
+            {
+                yield return Path.Combine(settingsDirectory, apktoolPath);
+                yield return Path.Combine(settingsDirectory, "tools", apktoolPath);
+            }
+        }
+
+        private static string ResolveProcessWorkingDirectory(string settingsDirectory)
+        {
+            if (!string.IsNullOrWhiteSpace(settingsDirectory))
+            {
+                Directory.CreateDirectory(settingsDirectory);
+                return settingsDirectory;
+            }
+
+            return Path.GetTempPath();
         }
 
         private static string SanitizePathArgument(string? path)

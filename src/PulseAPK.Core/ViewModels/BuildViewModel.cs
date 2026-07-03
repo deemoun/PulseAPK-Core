@@ -147,7 +147,17 @@ public partial class BuildViewModel : ObservableObject
         }
 
         var apktoolPath = _settingsService.Settings.ApktoolPath?.Trim();
-         if (string.IsNullOrWhiteSpace(apktoolPath) || !File.Exists(apktoolPath))
+         if (string.IsNullOrWhiteSpace(apktoolPath))
+        {
+            await _dialogService.ShowErrorAsync(string.Format(Properties.Resources.Error_InvalidApktoolPath, apktoolPath), Properties.Resources.SettingsHeader);
+            return;
+        }
+
+        try
+        {
+            ApktoolRunner.ResolveConfiguredApktoolPath(apktoolPath, _settingsService.SettingsDirectory);
+        }
+        catch (FileNotFoundException)
         {
             await _dialogService.ShowErrorAsync(string.Format(Properties.Resources.Error_InvalidApktoolPath, apktoolPath), Properties.Resources.SettingsHeader);
             return;
