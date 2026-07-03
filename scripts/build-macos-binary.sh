@@ -151,6 +151,16 @@ cat > "${bundle_contents}/Info.plist" <<PLIST
   <string>11.0</string>
   <key>NSHighResolutionCapable</key>
   <true/>
+  <key>NSDesktopFolderUsageDescription</key>
+  <string>PulseAPK needs access to APK files and output folders you select on the Desktop so it can decompile and rebuild APK projects.</string>
+  <key>NSDocumentsFolderUsageDescription</key>
+  <string>PulseAPK needs access to APK files and output folders you select in Documents so it can decompile and rebuild APK projects.</string>
+  <key>NSDownloadsFolderUsageDescription</key>
+  <string>PulseAPK needs access to APK files and output folders you select in Downloads so it can decompile and rebuild APK projects.</string>
+  <key>NSRemovableVolumesUsageDescription</key>
+  <string>PulseAPK needs access to APK files and output folders you select on removable volumes so it can decompile and rebuild APK projects.</string>
+  <key>NSNetworkVolumesUsageDescription</key>
+  <string>PulseAPK needs access to APK files and output folders you select on network volumes so it can decompile and rebuild APK projects.</string>
 </dict>
 </plist>
 PLIST
