@@ -9,7 +9,7 @@
         x:Class="PulseAPK.Avalonia.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="{Binding WindowTitle}"
-        Icon="/Assets/CyberUnpack.ico"
+        Icon="/Assets/PulseAPK.png"
         Width="1280"
         Height="800"
         MinWidth="1100"

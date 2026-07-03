@@ -12,7 +12,8 @@ umask 077
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 macos_icon_path="${repo_root}/Resources/PulseAPK.icns"
-macos_icon_name="PulseAPK.icns"
+macos_icon_name="PulseAPK"
+macos_icon_file="${macos_icon_name}.icns"
 
 config="${CONFIGURATION:-Release}"
 rid="${RID:-osx-arm64}"
@@ -24,6 +25,7 @@ out_root="${repo_root}/artifacts/macos/${rid}"
 publish_dir="${out_root}/publish"
 bundle_dir="${out_root}/${bundle_name}.app"
 archive_path="${out_root}/${bundle_name}-${rid}.tar.gz"
+bundle_identifier_name="$(printf '%s' "${bundle_name}" | tr '[:upper:]' '[:lower:]')"
 
 version="${VERSION:-}"
 if [[ -z "${version}" ]]; then
@@ -104,7 +106,7 @@ bundle_resources="${bundle_contents}/Resources"
 
 mkdir -p "${bundle_macos}" "${bundle_resources}"
 cp -a "${publish_dir}/." "${bundle_macos}/"
-cp "${macos_icon_path}" "${bundle_resources}/${macos_icon_name}"
+cp "${macos_icon_path}" "${bundle_resources}/${macos_icon_file}"
 chmod +x "${bundle_macos}/${app_exe}"
 
 # PDB files can include local source paths and machine/user details.
@@ -121,9 +123,11 @@ cat > "${bundle_contents}/Info.plist" <<PLIST
   <key>CFBundleExecutable</key>
   <string>${app_exe}</string>
   <key>CFBundleIdentifier</key>
-  <string>com.pulseapk.${bundle_name,,}</string>
+  <string>com.pulseapk.${bundle_identifier_name}</string>
   <key>CFBundleIconFile</key>
   <string>${macos_icon_name}</string>
+  <key>CFBundleDisplayName</key>
+  <string>${bundle_name}</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
@@ -141,6 +145,19 @@ cat > "${bundle_contents}/Info.plist" <<PLIST
 </dict>
 </plist>
 PLIST
+
+if command -v plutil >/dev/null 2>&1; then
+  plutil -lint "${bundle_contents}/Info.plist" >/dev/null
+fi
+
+if [[ ! -s "${bundle_resources}/${macos_icon_file}" ]]; then
+  echo "Expected macOS icon '${bundle_resources}/${macos_icon_file}' was not copied into the app bundle." >&2
+  exit 1
+fi
+
+# Refresh bundle metadata after writing Info.plist and the icon so Finder/Dock
+# pick up the icon when the freshly built app is launched.
+touch "${bundle_dir}" "${bundle_contents}/Info.plist" "${bundle_resources}/${macos_icon_file}"
 
 if command -v codesign >/dev/null 2>&1; then
   echo "Ad-hoc signing macOS app bundle: ${bundle_dir}"
