@@ -8,7 +8,7 @@ using Properties = PulseAPK.Core.Properties;
 
 namespace PulseAPK.Core.ViewModels;
 
-public partial class DecompileViewModel : ObservableObject
+public partial class DecompileViewModel : ObservableObject, IDisposable
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsHintVisible))]
@@ -37,6 +37,7 @@ public partial class DecompileViewModel : ObservableObject
     private bool _isRunning;
 
     private bool _isConsolePreviewActive = true;
+    private bool _disposed;
 
     private readonly IFilePickerService _filePickerService;
     private readonly ISettingsService _settingsService;
@@ -260,6 +261,11 @@ public partial class DecompileViewModel : ObservableObject
 
     private void OnOutputDataReceived(string message)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         if (!_dispatcherService.CheckAccess())
         {
             _dispatcherService.InvokeAsync(() => AppendLog(message));
@@ -415,6 +421,17 @@ public partial class DecompileViewModel : ObservableObject
             : basePath + Path.DirectorySeparatorChar;
 
         return candidatePath.StartsWith(basePathWithSeparator, comparison);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _apktoolRunner.OutputDataReceived -= OnOutputDataReceived;
+        _disposed = true;
     }
 
     private static string NormalizePath(string path)
