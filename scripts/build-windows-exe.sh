@@ -5,6 +5,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project_path="${repo_root}/src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj"
 
 config="${CONFIGURATION:-Release}"
+app_version="${APP_VERSION:-}"
 rid="${RID:-win-x64}"
 app_name="${APP_NAME:-PulseAPK}"
 app_exe="${app_name}.exe"
@@ -32,6 +33,8 @@ dotnet publish "${project_path}" \
   -c "${config}" \
   -r "${rid}" \
   --self-contained true \
+  ${app_version:+-p:Version="${app_version}"} \
+  ${app_version:+-p:InformationalVersion="${app_version}"} \
   /p:UseAppHost=true \
   /p:PublishSingleFile=true \
   /p:IncludeNativeLibrariesForSelfExtract=true \

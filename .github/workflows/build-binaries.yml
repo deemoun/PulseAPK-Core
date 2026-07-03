@@ -2,6 +2,11 @@ name: Build Binaries
 
 on:
   workflow_dispatch:
+    inputs:
+      app-version:
+        description: "App version to stamp into the build"
+        required: true
+        default: "1.2.8"
 
 jobs:
   build:
@@ -25,9 +30,13 @@ jobs:
           sudo mv appimagetool /usr/local/bin/appimagetool
 
       - name: Build Linux AppImage
+        env:
+          APP_VERSION: ${{ inputs.app-version }}
         run: ./scripts/build-appimage.sh
 
       - name: Build Windows binaries
+        env:
+          APP_VERSION: ${{ inputs.app-version }}
         run: ./scripts/build-windows-exe.sh
 
       - name: Upload Linux AppImage artifact
@@ -71,6 +80,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APP_VERSION: ${{ inputs.app-version }}
         run: RID=osx-arm64 ./scripts/build-macos-binary.sh
 
       - name: Upload macOS arm64 artifact

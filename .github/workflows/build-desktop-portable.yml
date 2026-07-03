@@ -2,6 +2,11 @@ name: Build Portable Desktop Release
 
 on:
   workflow_dispatch:
+    inputs:
+      app-version:
+        description: "App version to stamp into the build"
+        required: true
+        default: "1.2.8"
 
 jobs:
   build:
@@ -20,16 +25,23 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: >-
+          dotnet build src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj
+          --configuration Release
+          --no-restore
+          -p:Version="${{ inputs.app-version }}"
+          -p:InformationalVersion="${{ inputs.app-version }}"
 
       - name: Publish
         run: >-
-          dotnet publish PulseAPK.csproj
+          dotnet publish src/PulseAPK.Avalonia/PulseAPK.Avalonia.csproj
           --configuration Release
           --runtime win-x64
           --self-contained true
           -p:PublishSingleFile=true
           -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:Version="${{ inputs.app-version }}"
+          -p:InformationalVersion="${{ inputs.app-version }}"
           --output "${{ github.workspace }}\\publish"
 
       - name: Upload artifacts

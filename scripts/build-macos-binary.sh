@@ -20,6 +20,7 @@ rid="${RID:-osx-arm64}"
 app_name="${APP_NAME:-PulseAPK}"
 bundle_name="${APP_BUNDLE_NAME:-PulseAPK}"
 app_exe="${app_name}"
+app_version="${APP_VERSION:-}"
 
 out_root="${repo_root}/artifacts/macos/${rid}"
 publish_dir="${out_root}/publish"
@@ -28,7 +29,7 @@ zip_path="${out_root}/${bundle_name}-${rid}.zip"
 notary_zip_path="${out_root}/${bundle_name}-${rid}-notary.zip"
 bundle_identifier_name="$(printf '%s' "${bundle_name}" | tr '[:upper:]' '[:lower:]')"
 
-version="${VERSION:-}"
+version="${APP_VERSION:-${VERSION:-}}"
 if [[ -z "${version}" ]]; then
   version="$(sed -nE 's:^[[:space:]]*<Version>([^<]+)</Version>[[:space:]]*$:\1:p' "${project_path}" | head -n 1)"
 fi
@@ -75,6 +76,8 @@ dotnet publish "${project_path}" \
   -c "${config}" \
   -r "${rid}" \
   --self-contained true \
+  ${app_version:+-p:Version="${app_version}"} \
+  ${app_version:+-p:InformationalVersion="${app_version}"} \
   /p:UseAppHost=true \
   /p:PublishSingleFile=true \
   /p:IncludeNativeLibrariesForSelfExtract=true \
