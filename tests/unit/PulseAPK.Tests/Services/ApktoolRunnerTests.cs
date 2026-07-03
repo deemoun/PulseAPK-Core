@@ -104,6 +104,58 @@ public class ApktoolRunnerTests
         }
     }
 
+
+    [Fact]
+    public async Task RunBuildAsync_ResolvesRelativeApktoolFromManagedToolsDirectoryAndUsesSettingsWorkingDirectory()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return;
+        }
+
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"pulseapk-tests-{Guid.NewGuid():N}");
+        var settingsDirectory = Path.Combine(tempRoot, "settings");
+        var toolsDirectory = Path.Combine(settingsDirectory, "tools");
+        Directory.CreateDirectory(toolsDirectory);
+
+        var fakeApktoolPath = Path.Combine(toolsDirectory, "apktool");
+        var capturedArgsPath = Path.Combine(tempRoot, "captured-args.txt");
+        var capturedWorkingDirectoryPath = Path.Combine(tempRoot, "captured-working-directory.txt");
+        var projectDir = Path.Combine(tempRoot, "decompiled");
+        var outputApk = Path.Combine(tempRoot, "compiled", "decompiled.apk");
+
+        Directory.CreateDirectory(projectDir);
+        Directory.CreateDirectory(Path.GetDirectoryName(outputApk)!);
+
+        var escapedArgsPath = capturedArgsPath.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        var escapedWorkingDirectoryPath = capturedWorkingDirectoryPath.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        var script = $"#!/usr/bin/env bash\nprintf '%s\n' \"$@\" > \"{escapedArgsPath}\"\npwd > \"{escapedWorkingDirectoryPath}\"\nexit 0\n";
+        File.WriteAllText(fakeApktoolPath, script);
+        MakeExecutable(fakeApktoolPath);
+
+        try
+        {
+            var settings = new TestSettingsService("apktool", settingsDirectory);
+            var runner = new ApktoolRunner(settings);
+
+            var exitCode = await runner.RunBuildAsync(projectDir, outputApk, useAapt2: false);
+
+            Assert.Equal(0, exitCode);
+            Assert.Equal(settingsDirectory, File.ReadAllText(capturedWorkingDirectoryPath).Trim());
+
+            var args = File.ReadAllLines(capturedArgsPath);
+
+            Assert.Equal(new[] { "b", projectDir, "-o", outputApk }, args);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
     private static void MakeExecutable(string path)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -120,8 +172,11 @@ public class ApktoolRunnerTests
 
     private sealed class TestSettingsService : ISettingsService
     {
-        public TestSettingsService(string apktoolPath)
+        private readonly string _settingsDirectory;
+
+        public TestSettingsService(string apktoolPath, string? settingsDirectory = null)
         {
+            _settingsDirectory = settingsDirectory ?? Environment.CurrentDirectory;
             Settings = new AppSettings
             {
                 ApktoolPath = apktoolPath
@@ -129,7 +184,7 @@ public class ApktoolRunnerTests
         }
 
         public AppSettings Settings { get; }
-        public string SettingsDirectory => Environment.CurrentDirectory;
+        public string SettingsDirectory => _settingsDirectory;
         public event EventHandler? SettingsChanged;
 
         public void Save() => SettingsChanged?.Invoke(this, EventArgs.Empty);

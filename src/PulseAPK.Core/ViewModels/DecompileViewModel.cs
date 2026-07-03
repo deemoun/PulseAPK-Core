@@ -203,7 +203,11 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
             return;
         }
 
-        if (!File.Exists(apktoolPath))
+        try
+        {
+            ApktoolRunner.ResolveConfiguredApktoolPath(apktoolPath, _settingsService.SettingsDirectory);
+        }
+        catch (FileNotFoundException)
         {
             await _dialogService.ShowErrorAsync(string.Format(Properties.Resources.Error_InvalidApktoolPath, apktoolPath), Properties.Resources.Error_InvalidApkFile);
             RunDecompileCommand.NotifyCanExecuteChanged();
