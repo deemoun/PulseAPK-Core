@@ -1,10 +1,10 @@
-name: Build Binaries (Draft Release)
+name: Build Binaries
 
 on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-linux-windows:
@@ -63,26 +63,3 @@ jobs:
           name: PulseAPK-osx-arm64-release-assets
           path: artifacts/macos/osx-arm64/PulseAPK-osx-arm64.zip
           if-no-files-found: error
-
-  draft-release:
-    needs:
-      - build-linux-windows
-      - build-macos-arm64
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download release artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: release-assets
-
-      - name: Create draft release with binary assets
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ci-build-${{ github.run_id }}
-          name: CI Build ${{ github.run_number }}
-          draft: true
-          files: |
-            release-assets/PulseAPK-linux-windows-release-assets/PulseAPK-linux-x64.AppImage
-            release-assets/PulseAPK-linux-windows-release-assets/PulseAPK-win-x64.exe
-            release-assets/PulseAPK-osx-arm64-release-assets/PulseAPK-osx-arm64.zip
