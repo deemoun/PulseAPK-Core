@@ -58,7 +58,19 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      # Optional production signing/notarization secrets:
+      # - MACOS_CODESIGN_IDENTITY: Developer ID Application certificate identity installed in the runner keychain.
+      # - APPLE_ID: Apple Developer account email used by notarytool.
+      # - APPLE_TEAM_ID: Apple Developer team ID.
+      # - APPLE_APP_SPECIFIC_PASSWORD: App-specific password for the Apple ID.
+      # If MACOS_CODESIGN_IDENTITY is omitted, the build script falls back to ad-hoc signing.
+      # If all Apple notarization secrets are present, the ZIP is notarized and the ticket is stapled before upload.
       - name: Build macOS arm64 app bundle
+        env:
+          MACOS_CODESIGN_IDENTITY: ${{ secrets.MACOS_CODESIGN_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
         run: RID=osx-arm64 ./scripts/build-macos-binary.sh
 
       - name: Upload macOS arm64 artifact

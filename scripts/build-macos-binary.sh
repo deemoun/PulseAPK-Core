@@ -25,6 +25,7 @@ out_root="${repo_root}/artifacts/macos/${rid}"
 publish_dir="${out_root}/publish"
 bundle_dir="${out_root}/${bundle_name}.app"
 zip_path="${out_root}/${bundle_name}-${rid}.zip"
+notary_zip_path="${out_root}/${bundle_name}-${rid}-notary.zip"
 bundle_identifier_name="$(printf '%s' "${bundle_name}" | tr '[:upper:]' '[:lower:]')"
 
 version="${VERSION:-}"
@@ -164,9 +165,47 @@ fi
 # pick up the icon when the freshly built app is launched.
 touch "${bundle_dir}" "${bundle_contents}/Info.plist" "${bundle_resources}/${macos_icon_file}"
 
+codesign_identity="${MACOS_CODESIGN_IDENTITY:-}"
+notarize_requested=false
+if [[ -n "${APPLE_ID:-}" || -n "${APPLE_TEAM_ID:-}" || -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]]; then
+  notarize_requested=true
+fi
+
+create_zip() {
+  local destination="$1"
+
+  rm -f "${destination}"
+  (
+    cd "${out_root}"
+    COPYFILE_DISABLE=1 zip -r "${destination}" "${bundle_name}.app"
+  )
+}
+
+if [[ "${notarize_requested}" == "true" ]]; then
+  missing_notarization_vars=()
+  [[ -n "${APPLE_ID:-}" ]] || missing_notarization_vars+=("APPLE_ID")
+  [[ -n "${APPLE_TEAM_ID:-}" ]] || missing_notarization_vars+=("APPLE_TEAM_ID")
+  [[ -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]] || missing_notarization_vars+=("APPLE_APP_SPECIFIC_PASSWORD")
+
+  if [[ ${#missing_notarization_vars[@]} -gt 0 ]]; then
+    printf 'Notarization was requested, but these variables are missing: %s\n' "${missing_notarization_vars[*]}" >&2
+    exit 1
+  fi
+
+  if [[ -z "${codesign_identity}" ]]; then
+    echo "Notarization requires MACOS_CODESIGN_IDENTITY; ad-hoc signed apps cannot be notarized." >&2
+    exit 1
+  fi
+fi
+
 if command -v codesign >/dev/null 2>&1; then
-  echo "Ad-hoc signing macOS app bundle: ${bundle_dir}"
-  codesign --force --deep --sign - "${bundle_dir}"
+  if [[ -n "${codesign_identity}" ]]; then
+    echo "Signing macOS app bundle with identity '${codesign_identity}': ${bundle_dir}"
+    codesign --force --deep --options runtime --timestamp --sign "${codesign_identity}" "${bundle_dir}"
+  else
+    echo "Ad-hoc signing macOS app bundle: ${bundle_dir}"
+    codesign --force --deep --sign - "${bundle_dir}"
+  fi
   codesign --verify --deep --strict "${bundle_dir}"
 elif [[ "$(uname -s)" == "Darwin" ]]; then
   echo "codesign is required to sign macOS app bundles on Darwin but was not found in PATH." >&2
@@ -175,11 +214,29 @@ else
   echo "Warning: codesign was not found in PATH; skipping macOS app bundle signing." >&2
 fi
 
-rm -f "${zip_path}"
-(
-  cd "${out_root}"
-  COPYFILE_DISABLE=1 zip -r "${zip_path}" "${bundle_name}.app"
-)
+if [[ "${notarize_requested}" == "true" ]]; then
+  if ! command -v xcrun >/dev/null 2>&1; then
+    echo "xcrun is required for macOS notarization but was not found in PATH." >&2
+    exit 1
+  fi
+
+  echo "Creating notarization ZIP: ${notary_zip_path}"
+  create_zip "${notary_zip_path}"
+
+  echo "Submitting macOS app bundle ZIP for notarization."
+  xcrun notarytool submit "${notary_zip_path}" \
+    --apple-id "${APPLE_ID}" \
+    --team-id "${APPLE_TEAM_ID}" \
+    --password "${APPLE_APP_SPECIFIC_PASSWORD}" \
+    --wait
+
+  echo "Stapling notarization ticket to app bundle: ${bundle_dir}"
+  xcrun stapler staple "${bundle_dir}"
+  xcrun stapler validate "${bundle_dir}"
+  rm -f "${notary_zip_path}"
+fi
+
+create_zip "${zip_path}"
 echo "macOS app bundle ZIP created: ${zip_path}"
 
 echo "macOS app bundle created: ${bundle_dir}"
