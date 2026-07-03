@@ -114,13 +114,14 @@ bundle_macos="${bundle_contents}/MacOS"
 bundle_resources="${bundle_contents}/Resources"
 
 mkdir -p "${bundle_macos}" "${bundle_resources}"
+# PDB files can include local source paths and machine/user details.
+# Exclude them from distributable artifacts by default before copying the
+# publish output into every distributable package location.
+find "${publish_dir}" -maxdepth 1 -type f \( -name '*.pdb' -o -name '*.dbg' \) -delete
+
 cp -a "${publish_dir}/." "${bundle_macos}/"
 cp "${macos_icon_path}" "${bundle_resources}/${macos_icon_file}"
 chmod +x "${bundle_macos}/${app_exe}"
-
-# PDB files can include local source paths and machine/user details.
-# Exclude them from distributable artifacts by default.
-find "${bundle_macos}" -maxdepth 1 -type f \( -name '*.pdb' -o -name '*.dbg' \) -delete
 
 cat > "${bundle_contents}/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -190,7 +191,7 @@ create_zip() {
   rm -f "${destination}"
   (
     cd "${out_root}"
-    COPYFILE_DISABLE=1 zip -r "${destination}" "${bundle_name}.app"
+    COPYFILE_DISABLE=1 zip -r "${destination}" "${bundle_name}.app" "publish"
   )
 }
 
