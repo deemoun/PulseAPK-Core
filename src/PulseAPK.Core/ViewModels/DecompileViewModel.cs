@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -297,6 +298,11 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
 
     private void OnOutputDataReceived(string message)
     {
+        QueueLogAppend(message);
+    }
+
+    private void QueueLogAppend(string message)
+    {
         if (_disposed)
         {
             return;
@@ -383,8 +389,13 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
 
         if (!_dispatcherService.CheckAccess())
         {
-            _dispatcherService.InvokeAsync(() =>
+            _ = InvokeDispatcherSafelyAsync(() =>
             {
+                if (_disposed)
+                {
+                    return;
+                }
+
                 if (ShouldApplyLogFlush(logVersion, cancellationToken))
                 {
                     ConsoleLog = logText;
@@ -394,6 +405,18 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
         else if (ShouldApplyLogFlush(logVersion, cancellationToken))
         {
             ConsoleLog = logText;
+        }
+    }
+
+    private async Task InvokeDispatcherSafelyAsync(Action action)
+    {
+        try
+        {
+            await _dispatcherService.InvokeAsync(action);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to dispatch decompile log update: {ex}");
         }
     }
 
