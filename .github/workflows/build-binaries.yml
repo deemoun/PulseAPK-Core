@@ -64,6 +64,6 @@ jobs:
       - name: Upload macOS arm64 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PulseAPK-osx-arm64-app
-          path: artifacts/macos/osx-arm64/PulseAPK-osx-arm64.tar.gz
+          name: PulseAPK-osx-arm64-zip
+          path: artifacts/macos/osx-arm64/PulseAPK-osx-arm64.zip
           if-no-files-found: error
