@@ -1,6 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using PulseAPK.Core.Abstractions;
 using PulseAPK.Core.Services;
 using PulseAPK.Core.Utils;
@@ -10,6 +13,17 @@ namespace PulseAPK.Core.ViewModels;
 
 public partial class DecompileViewModel : ObservableObject, IDisposable
 {
+    private const int MaxLogCharacters = 900_000;
+    private const int LogTrimTargetCharacters = 850_000;
+    private const int LogFlushDelayMilliseconds = 150;
+
+    private readonly Queue<string> _logLines = new();
+    private readonly object _logLock = new();
+    private int _logCharCount;
+    private bool _logFlushScheduled;
+    private long _logVersion;
+    private CancellationTokenSource? _logFlushCancellationTokenSource;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsHintVisible))]
     [NotifyCanExecuteChangedFor(nameof(RunDecompileCommand))]
@@ -288,34 +302,126 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
             return;
         }
 
-        if (!_dispatcherService.CheckAccess())
-        {
-            _dispatcherService.InvokeAsync(() => AppendLog(message));
-        }
-        else
-        {
-            AppendLog(message);
-        }
+        AppendLog(message);
     }
 
     private void AppendLog(string message)
     {
         _isConsolePreviewActive = false;
 
-        if (string.IsNullOrWhiteSpace(ConsoleLog) || ConsoleLog == "Waiting for command...")
+        lock (_logLock)
         {
-            ConsoleLog = message;
-        }
-        else
-        {
-            ConsoleLog += $"{Environment.NewLine}{message}";
+            var sanitized = message ?? string.Empty;
+            _logLines.Enqueue(sanitized);
+            _logCharCount += sanitized.Length;
+
+            TrimLogIfNeeded();
+            _logVersion++;
+            ScheduleLogFlushLocked();
         }
     }
 
     private void SetConsoleLog(string message)
     {
         _isConsolePreviewActive = false;
-        ConsoleLog = message;
+
+        lock (_logLock)
+        {
+            _logLines.Clear();
+            _logCharCount = 0;
+
+            var sanitized = message ?? string.Empty;
+            _logLines.Enqueue(sanitized);
+            _logCharCount = sanitized.Length;
+            _logVersion++;
+
+            ScheduleLogFlushLocked();
+        }
+    }
+
+    private void ScheduleLogFlushLocked()
+    {
+        if (_disposed || _logFlushScheduled)
+        {
+            return;
+        }
+
+        _logFlushCancellationTokenSource ??= new CancellationTokenSource();
+        var cancellationToken = _logFlushCancellationTokenSource.Token;
+        _logFlushScheduled = true;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(LogFlushDelayMilliseconds, cancellationToken);
+                FlushLog(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }, cancellationToken);
+    }
+
+    private void FlushLog(CancellationToken cancellationToken)
+    {
+        string logText;
+        long logVersion;
+
+        lock (_logLock)
+        {
+            if (_disposed || cancellationToken.IsCancellationRequested)
+            {
+                _logFlushScheduled = false;
+                return;
+            }
+
+            logText = string.Join(Environment.NewLine, _logLines);
+            logVersion = _logVersion;
+            _logFlushScheduled = false;
+        }
+
+        if (!_dispatcherService.CheckAccess())
+        {
+            _dispatcherService.InvokeAsync(() =>
+            {
+                if (ShouldApplyLogFlush(logVersion, cancellationToken))
+                {
+                    ConsoleLog = logText;
+                }
+            });
+        }
+        else if (ShouldApplyLogFlush(logVersion, cancellationToken))
+        {
+            ConsoleLog = logText;
+        }
+    }
+
+    private bool ShouldApplyLogFlush(long logVersion, CancellationToken cancellationToken)
+    {
+        lock (_logLock)
+        {
+            return !_disposed
+                && !cancellationToken.IsCancellationRequested
+                && logVersion == _logVersion;
+        }
+    }
+
+    private void TrimLogIfNeeded()
+    {
+        var newlineLength = Environment.NewLine.Length;
+        var totalCharacters = _logCharCount + ((_logLines.Count - 1) * newlineLength);
+        if (totalCharacters <= MaxLogCharacters)
+        {
+            return;
+        }
+
+        while (_logLines.Count > 0 && totalCharacters > LogTrimTargetCharacters)
+        {
+            var removed = _logLines.Dequeue();
+            _logCharCount -= removed.Length;
+            totalCharacters = _logCharCount + ((_logLines.Count - 1) * newlineLength);
+        }
     }
 
     private void UpdateCommandPreview()
@@ -470,11 +576,21 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
             return;
         }
 
+        _disposed = true;
+
         _activeDecompileCancellationTokenSource?.Cancel();
         _activeDecompileCancellationTokenSource?.Dispose();
         _activeDecompileCancellationTokenSource = null;
+
+        lock (_logLock)
+        {
+            _logFlushCancellationTokenSource?.Cancel();
+            _logFlushCancellationTokenSource?.Dispose();
+            _logFlushCancellationTokenSource = null;
+            _logFlushScheduled = false;
+        }
+
         _apktoolRunner.OutputDataReceived -= OnOutputDataReceived;
-        _disposed = true;
     }
 
     private static string NormalizePath(string path)
