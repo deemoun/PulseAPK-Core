@@ -42,13 +42,18 @@ jobs:
           APP_VERSION: ${{ inputs.app-version }}
         run: OUTPUT_EXE_NAME=PulseAPK-win-x64.exe CREATE_ZIP=false ./scripts/build-windows-exe.sh
 
-      - name: Upload Linux and Windows artifacts
+      - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PulseAPK-linux-windows-release-assets
-          path: |
-            artifacts/linux/linux-x64/PulseAPK-linux-x64.AppImage
-            artifacts/windows/win-x64/publish/PulseAPK-win-x64.exe
+          name: PulseAPK-linux-x64-release-asset
+          path: artifacts/linux/linux-x64/PulseAPK-linux-x64.AppImage
+          if-no-files-found: error
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseAPK-win-x64-release-asset
+          path: artifacts/windows/win-x64/publish/PulseAPK-win-x64.exe
           if-no-files-found: error
 
   build-macos-arm64:
