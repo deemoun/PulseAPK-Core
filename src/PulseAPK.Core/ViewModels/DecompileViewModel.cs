@@ -38,6 +38,7 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
 
     private bool _isConsolePreviewActive = true;
     private bool _disposed;
+    private CancellationTokenSource? _activeDecompileCancellationTokenSource;
 
     private readonly IFilePickerService _filePickerService;
     private readonly ISettingsService _settingsService;
@@ -230,10 +231,12 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
         }
 
         IsRunning = true;
+        var cancellationTokenSource = new CancellationTokenSource();
+        _activeDecompileCancellationTokenSource = cancellationTokenSource;
 
         try
         {
-            var decompileResult = await _apktoolRunner.RunDecompileAsync(ApkPath, normalizedOutputDir, DecodeResources, DecodeSources, KeepOriginalManifest, forceOverwrite);
+            var decompileResult = await _apktoolRunner.RunDecompileAsync(ApkPath, normalizedOutputDir, DecodeResources, DecodeSources, KeepOriginalManifest, forceOverwrite, cancellationTokenSource.Token);
             var exitCode = decompileResult.ExitCode;
 
             if (exitCode == 0)
@@ -247,6 +250,10 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
                 await _dialogService.ShowErrorAsync(Properties.Resources.DecompileFailed);
             }
         }
+        catch (OperationCanceledException)
+        {
+            AppendLog("Decompile canceled.");
+        }
         catch (Exception ex)
         {
             AppendLog($"{Properties.Resources.DecompileFailed}: {ex.Message}");
@@ -254,6 +261,12 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
         }
         finally
         {
+            if (ReferenceEquals(_activeDecompileCancellationTokenSource, cancellationTokenSource))
+            {
+                _activeDecompileCancellationTokenSource = null;
+            }
+
+            cancellationTokenSource.Dispose();
             IsRunning = false;
             RunDecompileCommand.NotifyCanExecuteChanged();
         }
@@ -430,6 +443,9 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
             return;
         }
 
+        _activeDecompileCancellationTokenSource?.Cancel();
+        _activeDecompileCancellationTokenSource?.Dispose();
+        _activeDecompileCancellationTokenSource = null;
         _apktoolRunner.OutputDataReceived -= OnOutputDataReceived;
         _disposed = true;
     }
