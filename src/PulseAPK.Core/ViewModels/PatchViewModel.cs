@@ -56,7 +56,7 @@ public partial class PatchViewModel : ObservableObject
     private DexPreservationOption _selectedDexPreservationOption = new("Disabled (default)", DexPreservationMode.Disabled);
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSampleInjectionProfileSelected))]
+    [NotifyPropertyChangedFor(nameof(IsSampleInjectionProfileSelected), nameof(UsesGadgetScript))]
     private ScriptInjectionOption _selectedScriptInjectionOption;
 
     [ObservableProperty]
@@ -82,6 +82,8 @@ public partial class PatchViewModel : ObservableObject
 
     public IReadOnlyList<ScriptInjectionOption> ScriptInjectionOptions { get; }
     
+    public bool UsesGadgetScript => SelectedScriptInjectionOption.Profile is ScriptInjectionProfile.FridaGadget or ScriptInjectionProfile.FridaListener;
+
     public bool IsSampleInjectionProfileSelected => SelectedScriptInjectionOption.Profile == ScriptInjectionProfile.SampleInjection;
 
     public PatchViewModel(
@@ -281,7 +283,7 @@ public partial class PatchViewModel : ObservableObject
             AppendLog(string.Format(L("PatchLogScriptProfile"), SelectedScriptInjectionOption.Label));
             AppendLog($"Resolved ScriptFilePath: {request.ScriptFilePath ?? "<none>"}");
             AppendLog($"Resolved ConfigFilePath: {request.ConfigFilePath ?? "<none>"}");
-            AppendLog($"Effective config interaction.path: {GetEffectiveConfigInteractionPath(request.ConfigFilePath) ?? "<none>"}");
+            AppendLog($"Input config interaction.path: {GetEffectiveConfigInteractionPath(request.ConfigFilePath) ?? "<none>"}");
 
             var result = await _patchPipelineService.RunAsync(request);
 
@@ -314,7 +316,8 @@ public partial class PatchViewModel : ObservableObject
                     AppendLog($"[ERROR] {error}");
                 }
 
-                await _dialogService.ShowErrorAsync(L("PatchErrorFailedMessage"), L("PatchErrorFailedTitle"));
+                var pathFailure = result.StageSummaries.FirstOrDefault(stage => stage.Stage == "script-path-verification" && !stage.Success);
+                await _dialogService.ShowErrorAsync(pathFailure?.Message ?? L("PatchErrorFailedMessage"), L("PatchErrorFailedTitle"));
             }
         }
         catch (Exception ex)

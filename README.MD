@@ -139,6 +139,10 @@ PulseAPK includes a built-in static analyzer that scans decompiled code for comm
     - Make sure `adb` is available through **ADB Path**, `ADB_PATH`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `~/Android/Sdk/platform-tools`, or `PATH`.
     - Connect a device with USB debugging enabled, refresh the device list, and choose a workflow such as install APK, launch/manage app, copy APK from device, screenshot, screen recording, presets, or custom shell/ADB commands.
 
+### Custom script selection on macOS
+
+The Patch APK screen selects a script by profile. For the Frida Gadget script profile, PulseAPK reads `script.js` from its per-user scripts folder, normally `~/Library/Application Support/PulseAPK/scripts/` on macOS. The listener profile uses `frida-listener.js` in the same folder. The Browse buttons on the Patch APK screen select the input APK and the output folder.
+
 ## Technical Architecture
 
 PulseAPK utilizes a clean MVVM (Model-View-ViewModel) architecture:

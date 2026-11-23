@@ -38,7 +38,10 @@ public sealed class ManifestPatchService : IManifestPatchService
             EnsureExtractNativeLibs(document, manager);
         }
 
-        EnsureApplicationClassName(document, manager);
+        if (request.DecodeSources)
+        {
+            EnsureApplicationClassName(document, manager);
+        }
 
         document.Save(manifestPath);
         return Task.FromResult<(bool Success, string? Error)>((true, null));

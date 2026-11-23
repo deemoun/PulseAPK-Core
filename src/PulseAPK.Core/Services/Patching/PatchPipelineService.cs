@@ -1,3 +1,5 @@
+using System.IO.Compression;
+using System.Text.Json;
 using PulseAPK.Core.Abstractions.Patching;
 using PulseAPK.Core.Models;
 using System.Text.RegularExpressions;
@@ -338,6 +340,22 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 result.StageSummaries.Add(new PatchStageSummary("dex-preservation", true, dexMessage));
             }
 
+            if (!string.IsNullOrWhiteSpace(request.ScriptFilePath) &&
+                request.ScriptInjectionProfile is ScriptInjectionProfile.FridaGadget or ScriptInjectionProfile.FridaListener)
+            {
+                var error = InspectCustomScriptPaths(rebuiltApkPath);
+                if (error != null)
+                {
+                    result.Errors.Add(error);
+                    result.StageSummaries.Add(new PatchStageSummary("script-path-verification", false, error));
+                    result.Verification = VerificationOutcome.Failed;
+                    result.SelectedArchitecture = architecture;
+                    if (!request.SignOutput)
+                        await PublishAsync(result, rebuiltApkPath, request.OutputApkPath, cancellationToken);
+                    return result;
+                }
+            }
+
             var finalArtifactPath = rebuiltApkPath;
             var finalOutputPath = request.OutputApkPath;
 
@@ -449,6 +467,43 @@ public sealed class PatchPipelineService : IPatchPipelineService
             {
                 Directory.Delete(cleanupDirectory, recursive: true);
             }
+        }
+    }
+
+    internal static string? InspectCustomScriptPaths(string apkPath)
+    {
+        try
+        {
+            using var archive = ZipFile.OpenRead(apkPath);
+            foreach (var abi in SupportedArchitectures)
+            {
+                var config = archive.GetEntry($"lib/{abi}/libfrida-gadget.config.so");
+                if (config == null) continue;
+                if (config.Length > 1024 * 1024)
+                    return $"Cannot verify custom script path: '{config.FullName}' exceeds 1 MiB.";
+
+                using var stream = config.Open();
+                using var json = JsonDocument.Parse(stream);
+                if (!json.RootElement.TryGetProperty("interaction", out var interaction) ||
+                    !interaction.TryGetProperty("type", out var type) || type.GetString() != "script" ||
+                    !interaction.TryGetProperty("path", out var pathProperty)) continue;
+
+                var configured = pathProperty.GetString() ?? "";
+                var relative = configured;
+                while (relative.StartsWith("./", StringComparison.Ordinal)) relative = relative[2..];
+                if (!relative.StartsWith("assets/", StringComparison.Ordinal)) continue;
+
+                var location = archive.GetEntry(relative) == null
+                    ? $"The APK also lacks '{relative}'."
+                    : $"The APK contains '{relative}' as an Android asset.";
+                return $"Custom script path mismatch ({abi}). '{config.FullName}' specifies '{configured}'. " +
+                    $"Missing installed file: <nativeLibraryDir>/{relative}. {location}";
+            }
+            return null;
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or JsonException or InvalidOperationException)
+        {
+            return $"Cannot verify custom script path in final APK: {ex.Message}";
         }
     }
 

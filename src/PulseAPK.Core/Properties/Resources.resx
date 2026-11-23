@@ -364,6 +364,9 @@
   <data name="PatchScriptSampleInjection" xml:space="preserve">
     <value>Sample injection</value>
   </data>
+  <data name="PatchScriptPathNotice" xml:space="preserve">
+    <value>Known issue: a script packaged in APK assets is missing at &lt;nativeLibraryDir&gt;/assets/frida/libfrida-gadget.script.so. PulseAPK checks the rebuilt APK and stops before signing if it detects this mismatch.</value>
+  </data>
   <data name="PatchScriptSampleInjectionInfo" xml:space="preserve">
     <value>Sample injection only adds a smali log helper; no native library is loaded.</value>
   </data>

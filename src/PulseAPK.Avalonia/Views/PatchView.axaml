@@ -102,6 +102,10 @@
                                 </ComboBox>
                             </StackPanel>
                         </Grid>
+                        <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptPathNotice]}"
+                                   TextWrapping="Wrap"
+                                   Classes="helper-text"
+                                   IsVisible="{Binding UsesGadgetScript}" />
                         <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[PatchScriptSampleInjectionInfo]}"
                                    Classes="helper-text"
                                    IsVisible="{Binding IsSampleInjectionProfileSelected}" />
