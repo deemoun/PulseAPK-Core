@@ -13,7 +13,7 @@ namespace PulseAPK.Core.Services
         public static readonly IReadOnlyList<string> SearchTypes = ["All supported text", ".smali", ".xml", ".json", ".txt", ".properties", ".java", ".kt", ".js", ".yaml", ".yml", ".html", ".css", ".csv", ".md", ".cfg", ".ini"];
 
         public Task<AnalysisResult> AnalyseProjectAsync(string projectPath, Action<string>? logCallback,
-            CancellationToken cancellationToken = default, Action<string>? progress = null)
+            CancellationToken cancellationToken = default, Action<string>? progress = null, bool includeLibraries = false)
         {
             var root = Path.GetFullPath(projectPath);
             return Task.Run(() =>
@@ -21,7 +21,7 @@ namespace PulseAPK.Core.Services
                 var warnings = new List<string>();
                 var rules = AnalysisRulesLoader.LoadRules(warnings.Add);
                 foreach (var warning in warnings) logCallback?.Invoke(warning);
-                var result = Scan(root, rules, logCallback, cancellationToken, progress);
+                var result = Scan(root, rules, logCallback, cancellationToken, progress, includeLibraries: includeLibraries);
                 result.RuleWarnings.AddRange(warnings);
                 return result;
             });
@@ -40,11 +40,12 @@ namespace PulseAPK.Core.Services
             });
         }
 
-        internal AnalysisResult Scan(string root, AnalysisRuleSet rules, Action<string>? log, CancellationToken token, Action<string>? progress = null, ProjectSearch? search = null, Action<Finding[]>? matches = null)
+        internal AnalysisResult Scan(string root, AnalysisRuleSet rules, Action<string>? log, CancellationToken token, Action<string>? progress = null, ProjectSearch? search = null, Action<Finding[]>? matches = null, bool includeLibraries = false)
         {
             if (!Directory.Exists(root)) throw new DirectoryNotFoundException(root);
             var result = new AnalysisResult();
-            result.LibraryPaths = rules.LibraryPaths.Where(path => !string.IsNullOrWhiteSpace(path)).ToArray();
+            includeLibraries = search?.IncludeLibraries ?? includeLibraries;
+            result.LibraryPaths = includeLibraries ? [] : rules.LibraryPaths.Where(path => !string.IsNullOrWhiteSpace(path)).ToArray();
             result.Rules = rules.Rules.Where(rule => rule != null).ToArray();
             var patterns = search == null ? BuildRegexCache(rules, warning =>
             {
@@ -88,7 +89,7 @@ namespace PulseAPK.Core.Services
                                 : entry.Extension.Equals(extension == Extensionless ? "" : extension, StringComparison.OrdinalIgnoreCase);
                             if (!supported) continue;
                             var relative = Path.GetRelativePath(root, entry.FullName);
-                            if (search?.IncludeLibraries != true && IsLibraryClass(relative, rules.LibraryPaths))
+                            if (!includeLibraries && IsLibraryClass(relative, rules.LibraryPaths))
                             {
                                 result.Excluded++;
                                 continue;

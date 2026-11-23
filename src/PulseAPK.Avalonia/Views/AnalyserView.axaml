@@ -27,6 +27,7 @@
                              IsReadOnly="True"
                              IsTabStop="False"
                              IsHitTestVisible="False" />
+                    <CheckBox Content="Include library paths" IsChecked="{Binding IncludeLibrariesInAnalysis}" IsEnabled="{Binding !IsRunning}" />
                     <TextBlock Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[BrowseProjectFolderTip]}"
                                Classes="helper-text"
                                IsVisible="{Binding IsHintVisible}" />

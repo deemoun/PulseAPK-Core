@@ -89,6 +89,7 @@ public partial class AnalyserViewModel : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(UsesCustomExtension))] private string _fileType = SmaliAnalyserService.SearchTypes[0];
     [ObservableProperty] private bool _matchCase;
     [ObservableProperty] private bool _includeLibraries;
+    [ObservableProperty] private bool _includeLibrariesInAnalysis;
     public ObservableCollection<SearchFileGroup> SearchFiles { get; } = [];
     [ObservableProperty] private string _searchStatus = "";
     [ObservableProperty] private object? _searchSelection;
@@ -159,7 +160,7 @@ public partial class AnalyserViewModel : ObservableObject
         VisibleFindings = _all.Where(f => (Category == null || Category == "All categories" || Category == f.Category)
             && (f.RelativePath.Contains(Query, StringComparison.OrdinalIgnoreCase)
                 || f.Context.Contains(Query, StringComparison.OrdinalIgnoreCase))).ToArray();
-        FindingCount = _all.Length == 0 ? "No findings" : $"{VisibleFindings.Length} of {_all.Length} findings";
+        FindingCount = _lastScan?.Scanned == 0 ? "No files scanned" : _all.Length == 0 ? "No findings" : $"{VisibleFindings.Length} of {_all.Length} findings";
         if (SelectedFinding != null && !VisibleFindings.Contains(SelectedFinding)) SelectedFinding = null;
     }
 
@@ -288,7 +289,7 @@ public partial class AnalyserViewModel : ObservableObject
         try
         {
             var result = await _analyserService.AnalyseProjectAsync(root, AppendLog, cancellationToken, progress: coverage =>
-                _dispatcherService.InvokeAsync(() => ScanStatus = coverage).GetAwaiter().GetResult());
+                _dispatcherService.InvokeAsync(() => ScanStatus = coverage).GetAwaiter().GetResult(), includeLibraries: IncludeLibrariesInAnalysis);
 
             AppendLog("");
             AppendLog("=== Analysis Results ===");
@@ -309,6 +310,10 @@ public partial class AnalyserViewModel : ObservableObject
             Category = "All categories";
             Filter();
             ScanStatus = $"{result.Status} · {result.Coverage}";
+            if (!result.Cancelled && result.Scanned == 0 && result.Excluded > 0 && result.Unreadable == 0 && result.Inaccessible == 0)
+            {
+                ScanStatus = $"All {result.Excluded} Smali files matched library exclusions. Select ‘Include library paths’ and run analysis again.";
+            }
             AppendLog(ScanStatus);
         }
         catch (Exception ex)

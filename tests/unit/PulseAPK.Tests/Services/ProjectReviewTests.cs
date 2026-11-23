@@ -9,6 +9,23 @@ public class ProjectReviewTests : IDisposable
     public void Dispose() => Directory.Delete(_root, true);
 
     [Fact]
+    public void AnalysisCanIncludeFilesUnderExcludedLibraryPaths()
+    {
+        var package = Directory.CreateDirectory(Path.Combine(_root, "smali", "com", "android", "example"));
+        File.WriteAllText(Path.Combine(package.FullName, "Example.smali"), "sample");
+        var rules = new AnalysisRuleSet { LibraryPaths = ["com/android"],
+            Rules = [new() { Category = "example", RegexPatterns = ["sample"] }] };
+        var analyser = new SmaliAnalyserService();
+        var filtered = analyser.Scan(_root, rules, null, default);
+        Assert.Equal(0, filtered.Scanned);
+        Assert.Equal(1, filtered.Excluded);
+        var included = analyser.Scan(_root, rules, null, default, includeLibraries: true);
+        Assert.Equal(1, included.Scanned);
+        Assert.Single(included.Findings);
+        Assert.Empty(included.LibraryPaths);
+    }
+
+    [Fact]
     public void InvalidOnlyCategoriesDoNotAppearActiveOrMatchEveryLine()
     {
         File.WriteAllText(Path.Combine(_root, "test.smali"), "ordinary sample");
