@@ -9,6 +9,23 @@ public class ProjectReviewTests : IDisposable
     public void Dispose() => Directory.Delete(_root, true);
 
     [Fact]
+    public void InvalidOnlyCategoriesDoNotAppearActiveOrMatchEveryLine()
+    {
+        File.WriteAllText(Path.Combine(_root, "test.smali"), "ordinary sample");
+        var rules = new AnalysisRuleSet { Rules =
+        [
+            new() { Category = "blank", RegexPatterns = [""] },
+            new() { Category = "broken", RegexPatterns = ["["] },
+            new() { Category = "working", RegexPatterns = ["sample"] }
+        ] };
+        var result = new SmaliAnalyserService().Scan(_root, rules, null, default);
+        Assert.Equal("working", Assert.Single(result.ActiveCategories));
+        Assert.Equal("working", Assert.Single(result.Findings).Category);
+        Assert.Equal(2, result.RuleWarnings.Count);
+        Assert.Contains("partial", result.Status);
+    }
+
+    [Fact]
     public void SearchBatchesAreBoundedAndCountAllMatchingLines()
     {
         var path = Path.Combine(_root, "Config");

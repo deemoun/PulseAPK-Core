@@ -71,49 +71,19 @@ namespace PulseAPK.Core.Services
             var startInfo = CreateStartInfo(apktoolPath, arguments, _settingsService.SettingsDirectory);
             var stdoutLines = new List<string>();
             var stderrLines = new List<string>();
-            var lineSyncRoot = new object();
-
             using var process = new Process { StartInfo = startInfo };
             _appLogService?.LogInfo("ApktoolRunner", $"Starting apktool process. mode={executableMode}; argumentCount={arguments.Count}; timestamp={DateTimeOffset.UtcNow:O}");
-
-            process.OutputDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    lock (lineSyncRoot)
-                    {
-                        stdoutLines.Add(e.Data);
-                    }
-
-                    OutputDataReceived?.Invoke(e.Data);
-                    Debug.WriteLine($"[INFO] {e.Data}");
-                }
-            };
-
-            process.ErrorDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    lock (lineSyncRoot)
-                    {
-                        stderrLines.Add(e.Data);
-                    }
-
-                    OutputDataReceived?.Invoke(e.Data);
-                    Debug.WriteLine($"[ERROR] {e.Data}");
-                }
-            };
 
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-
                 try
                 {
-                    await ProcessLifetime.WaitAsync(process, cancellationToken);
+                    await ProcessOutput.WaitAndDrainAsync(process,
+                        line => { stdoutLines.Add(line); OutputDataReceived?.Invoke(line); },
+                        line => { stderrLines.Add(line); OutputDataReceived?.Invoke(line); },
+                        cancellationToken);
                 }
                 catch (OperationCanceledException)
                 {

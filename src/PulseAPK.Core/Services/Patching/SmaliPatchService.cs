@@ -71,7 +71,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
             patched = EnsureImmediateLoadHelperMethod(patched);
         }
 
-        var lifecyclePatch = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor, profile);
+        var lifecyclePatch = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor, profile, out var alreadyApplied);
         if (lifecyclePatch is null)
         {
             return Task.FromResult<(bool Success, string? Error)>((false, "Unable to find an injection point in activity smali file."));
@@ -84,8 +84,13 @@ public sealed class SmaliPatchService : ISmaliPatchService
             return Task.FromResult<(bool Success, string? Error)>((false, "Patched smali references Frida helper methods that are missing static definitions."));
         }
 
-        if (ReferenceEquals(patched, originalContent) || patched == originalContent)
+        if (patched == originalContent)
         {
+            if (alreadyApplied)
+            {
+                return Task.FromResult<(bool Success, string? Error)>((true, null));
+            }
+
             if (profile != ScriptInjectionProfile.SampleInjection)
             {
                 return Task.FromResult<(bool Success, string? Error)>((false, $"{ActivityInjectionPointFailureWithApplicationPatchPrefix} Unable to find an injection point in activity smali file."));
@@ -532,8 +537,10 @@ public sealed class SmaliPatchService : ISmaliPatchService
         string methodName,
         string methodSignature,
         string superClassDescriptor,
-        ScriptInjectionProfile profile)
+        ScriptInjectionProfile profile,
+        out bool alreadyApplied)
     {
+        alreadyApplied = false;
         var helperMethodName = profile == ScriptInjectionProfile.SampleInjection
             ? "logSampleInjectionApplied"
             : methodName == "onResume" ? "loadFridaGadgetIfNeeded" : "loadFridaGadget";
@@ -545,6 +552,8 @@ public sealed class SmaliPatchService : ISmaliPatchService
             var body = match.Groups[2].Value;
             if (body.Contains(helperMethodName, StringComparison.Ordinal))
             {
+                var existingCall = $@"(?m)^[ \t]*invoke-static[ \t]+\{{\}},[ \t]*{Regex.Escape(classDescriptor)}->{helperMethodName}\(\)V[ \t]*(?:#.*)?\r?$";
+                alreadyApplied = Regex.IsMatch(body, existingCall);
                 return content;
             }
 

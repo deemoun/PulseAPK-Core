@@ -49,7 +49,8 @@ public partial class AnalyserViewModel : ObservableObject
     [ObservableProperty] private string[] _categories = ["All categories"];
     [ObservableProperty] private string? _category = "All categories";
     [ObservableProperty] private string _query = "";
-    [ObservableProperty] private Finding? _selectedFinding;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(SelectedFindingDescription))] private Finding? _selectedFinding;
+    public string SelectedFindingDescription => SelectedFinding?.Description ?? string.Empty;
     [ObservableProperty] private string _preview = "";
     [ObservableProperty] private string _findingCount = "";
     [ObservableProperty] private string _scanStatus = "";
@@ -293,29 +294,11 @@ public partial class AnalyserViewModel : ObservableObject
             AppendLog("=== Analysis Results ===");
             AppendLog("");
 
-            // Root Check Results
-            LogCategoryResult(result.ActiveCategories.Contains("root_check"), result.RootChecks, Properties.Resources.RootCheckFound, Properties.Resources.RootCheckNotFound);
-
-            AppendLog("");
-
-            // Emulator Check Results
-            LogCategoryResult(result.ActiveCategories.Contains("emulator_check"), result.EmulatorChecks, Properties.Resources.EmulatorCheckFound, Properties.Resources.EmulatorCheckNotFound);
-
-            AppendLog("");
-
-            // Hardcoded Credentials Results
-            LogCategoryResult(result.ActiveCategories.Contains("hardcoded_creds"), result.HardcodedCredentials, Properties.Resources.CredentialsFound, Properties.Resources.CredentialsNotFound);
-
-            AppendLog("");
-
-            // SQL Queries Results
-            LogCategoryResult(result.ActiveCategories.Contains("sql_query"), result.SqlQueries, Properties.Resources.SqlQueriesFound, Properties.Resources.SqlQueriesNotFound);
-
-            AppendLog("");
-
-            // HTTP/HTTPS URLs Results
-            LogCategoryResult(result.ActiveCategories.Contains("http_url"), result.HttpUrls, Properties.Resources.HttpUrlsFound, Properties.Resources.HttpUrlsNotFound);
-
+            // Log counts only; full source context belongs in the selectable findings view.
+            var counts = result.Findings.GroupBy(f => f.Category, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
+            foreach (var category in result.ActiveCategories.Order(StringComparer.Ordinal))
+                AppendLog($"{category}: {counts.GetValueOrDefault(category)} observed");
             AppendLog("");
             _lastScan = result;
             RuleInfo = "Excluded library paths: " + string.Join(", ", result.LibraryPaths) + Environment.NewLine
@@ -342,30 +325,6 @@ public partial class AnalyserViewModel : ObservableObject
         }
     }
     
-    private void LogCategoryResult(bool isActive, List<Finding> findings, string foundMsg, string notFoundMsg)
-    {
-        if (isActive)
-        {
-            if (findings.Any())
-            {
-                AppendLog(foundMsg);
-                AppendLog(Properties.Resources.FoundIn);
-                foreach (var finding in findings)
-                {
-                    AppendLog($"  - {finding.RelativePath} (Line {finding.LineNumber}): {finding.Context}");
-                }
-            }
-            else
-            {
-                AppendLog(notFoundMsg);
-            }
-        }
-        else
-        {
-            AppendLog("N/A");
-        }
-    }
-
     private bool CanRunAnalysis()
     {
         return !IsRunning && HasProject;

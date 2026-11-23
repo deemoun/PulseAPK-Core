@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:controls="clr-namespace:PulseAPK.Avalonia.Controls"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
              xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
@@ -73,7 +74,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <TextBlock Grid.Row="4" Text="{Binding SelectedFinding.Description}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="4" Text="{Binding SelectedFindingDescription}" TextWrapping="Wrap" />
                     <TextBox Grid.Row="5" IsReadOnly="True" AcceptsReturn="True" Text="{Binding Preview, Mode=OneWay}" />
                 </Grid>
             </TabItem>
@@ -123,7 +124,7 @@
                 <TextBox IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding RuleInfo, Mode=OneWay}" />
             </TabItem>
             <TabItem Header="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}">
-                <TextBox Text="{Binding ConsoleLog, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True"
+                <controls:TerminalOutput Text="{Binding ConsoleLog, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True"
                          Classes="terminal-output" ScrollViewer.VerticalScrollBarVisibility="Auto" />
             </TabItem>
         </TabControl>

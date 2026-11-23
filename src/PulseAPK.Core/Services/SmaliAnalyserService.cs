@@ -226,7 +226,7 @@ namespace PulseAPK.Core.Services
             for (var i = 0; i < rules.Rules.Count; i++)
             {
                 var rule = rules.Rules[i];
-                if (rule == null || string.IsNullOrWhiteSpace(rule.Category) || rule.RegexPatterns == null)
+                if (rule == null || string.IsNullOrWhiteSpace(rule.Category) || rule.RegexPatterns == null || rule.RegexPatterns.Count == 0)
                 {
                     logCallback?.Invoke($"Skipping invalid rule at position {i + 1}.");
                     continue;
@@ -240,6 +240,11 @@ namespace PulseAPK.Core.Services
 
                 foreach (var pattern in rule.RegexPatterns)
                 {
+                    if (string.IsNullOrWhiteSpace(pattern))
+                    {
+                        logCallback?.Invoke($"Skipping empty pattern in category '{category}'.");
+                        continue;
+                    }
                     try
                     {
                         compiledPatterns.Add((new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled, TimeSpan.FromMilliseconds(250)), rule));
@@ -251,6 +256,8 @@ namespace PulseAPK.Core.Services
                 }
             }
 
+            foreach (var category in cache.Where(pair => pair.Value.Count == 0).Select(pair => pair.Key).ToArray())
+                cache.Remove(category);
             return cache;
         }
 

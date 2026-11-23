@@ -226,6 +226,53 @@ public class DecompileViewModelTests
         finally { Directory.Delete(root, true); }
     }
 
+    [Fact]
+    public async Task DecompileDrainsBothOutputStreamsThroughTheLastLine()
+    {
+        var root = Directory.CreateTempSubdirectory("pulse-output-").FullName;
+        try
+        {
+            var runner = new ApktoolRunner(new TestSettingsService(MakeTool(root, "writer", "decode-output")));
+            int notifications = 0;
+            runner.OutputDataReceived += _ => Interlocked.Increment(ref notifications);
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            var result = await runner.RunDecompileAsync(Path.Combine(root, "input.apk"), root,
+                true, true, false, cancellationToken: timeout.Token);
+            Assert.Equal(0, result.ExitCode);
+            Assert.Equal(4097, result.Stdout.Count);
+            Assert.Equal(4097, result.Stderr.Count);
+            Assert.Equal(8194, notifications);
+            Assert.Equal("Decoded resource 4095 — ✓", result.Stdout[^2]);
+            Assert.Equal("last output", result.Stdout[^1]);
+            Assert.Equal("last diagnostic", result.Stderr[^1]);
+        }
+        finally { Directory.Delete(root, true); }
+    }
+
+    [Fact]
+    public async Task SigningDrainsBothPipesBeforeReportingSuccess()
+    {
+        var root = Directory.CreateTempSubdirectory("pulse-signer-output-").FullName;
+        try
+        {
+            var settings = new TestSettingsService("");
+            settings.Settings.UbersignPath = MakeTool(root, "writer", "sign-output");
+            var runner = new UbersignRunner(settings);
+            var messages = new System.Collections.Concurrent.ConcurrentBag<string>();
+            runner.OutputDataReceived += messages.Add;
+            var input = Path.Combine(root, "app.apk");
+            var signed = Path.Combine(root, "result.apk");
+            File.WriteAllText(input, "fixture");
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            Assert.Equal(0, await runner.RunSigningAsync(input, signed, timeout.Token));
+            Assert.Equal("signed", File.ReadAllText(signed));
+            Assert.Equal(8194, messages.Count);
+            Assert.Contains("last output", messages);
+            Assert.Contains("last diagnostic", messages);
+        }
+        finally { Directory.Delete(root, true); }
+    }
+
     private static async Task WaitForFile(string path)
     {
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));

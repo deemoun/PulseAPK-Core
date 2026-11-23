@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:controls="clr-namespace:PulseAPK.Avalonia.Controls"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
              xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
@@ -141,6 +142,8 @@
         <Expander Grid.Row="3"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
+                  VerticalContentAlignment="Stretch"
+                  HorizontalContentAlignment="Stretch"
                   IsExpanded="True">
             <Expander.Header>
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
@@ -162,7 +165,7 @@
                     Padding="10"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch">
-                <TextBox Text="{Binding ConsoleLog}"
+                <controls:TerminalOutput Text="{Binding ConsoleLog, Mode=OneWay}"
                          IsReadOnly="True"
                          AcceptsReturn="True"
                          TextWrapping="Wrap"

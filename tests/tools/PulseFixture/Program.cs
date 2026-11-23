@@ -10,6 +10,17 @@ switch (mode)
         using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15)))
             while (!File.Exists(Path.Combine(AppContext.BaseDirectory, "resume"))) await Task.Delay(10, timeout.Token);
         return 0;
+    case "sign-output":
+    case "decode-output":
+        for (int i = 0; i < 4096; i++)
+        {
+            Console.WriteLine($"Decoded resource {i} — ✓");
+            Console.Error.WriteLine($"Diagnostic for resource {i}");
+        }
+        if (mode == "sign-output") File.WriteAllText(Path.Combine(args[3], "app-signed.apk"), "signed");
+        Console.Write("last output");
+        Console.Error.Write("last diagnostic");
+        return 0;
     case "wait":
         File.WriteAllText(args[1] + ".pid", Environment.ProcessId.ToString());
         await Task.Delay(TimeSpan.FromSeconds(30));

@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:controls="clr-namespace:PulseAPK.Avalonia.Controls"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:PulseAPK.Core.ViewModels;assembly=PulseAPK.Core"
              xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
@@ -404,8 +405,8 @@
                                Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[DeviceToolsCommandOutputHelp]}"
                                Classes="helper-text" />
 
-                    <TextBox Grid.Row="2"
-                             Text="{Binding ConsoleLog}"
+                    <controls:TerminalOutput Grid.Row="2"
+                             Text="{Binding ConsoleLog, Mode=OneWay}"
                              IsReadOnly="True"
                              AcceptsReturn="True"
                              TextWrapping="Wrap"

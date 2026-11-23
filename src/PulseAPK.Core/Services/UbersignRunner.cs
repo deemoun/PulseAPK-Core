@@ -68,29 +68,10 @@ namespace PulseAPK.Core.Services
 
             using var process = new Process { StartInfo = startInfo };
 
-            process.OutputDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    OutputDataReceived?.Invoke(e.Data);
-                    Debug.WriteLine($"[UBERSIGN INFO] {e.Data}");
-                }
-            };
-
-            process.ErrorDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    OutputDataReceived?.Invoke(e.Data);
-                    Debug.WriteLine($"[UBERSIGN ERROR] {e.Data}");
-                }
-            };
-
+            cancellationToken.ThrowIfCancellationRequested();
             process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-
-            await ProcessLifetime.WaitAsync(process, cancellationToken);
+            void Forward(string line) => OutputDataReceived?.Invoke(line);
+            await ProcessOutput.WaitAndDrainAsync(process, Forward, Forward, cancellationToken);
 
             if (process.ExitCode != 0)
             {
