@@ -59,3 +59,18 @@ Use the repository scripts to validate distributable builds:
 - [ ] Build Linux AppImage using `scripts/build-appimage.sh`.
 - [ ] Build Windows binary using `scripts/build-windows-exe.sh` (bash) or `scripts/build-windows-exe.ps1` (PowerShell).
 
+
+## Real APK acceptance and performance
+
+The Release matrix configures the Android toolchain and exercises a resource-bearing APK through decode, literal search, rebuild, signing, signature verification and package identity verification. The fixture runs locally when all four environment variables below are set.
+
+| Variable | Local path |
+| --- | --- |
+| `PULSE_ANDROID_BUILD_TOOLS` | Android SDK Build Tools directory containing aapt2, dexdump and lib/apksigner.jar |
+| `PULSE_ANDROID_JAR` | Platform android.jar |
+| `PULSE_APKTOOL` | Apktool 3.0.2 JAR |
+| `PULSE_SIGNER` | Uber APK Signer 1.3.0 JAR |
+
+Use a JDK on PATH. Run `dotnet test PulseAPK.sln -c Release --filter FullyQualifiedName~AndroidWorkflowTests` for the real-tool checks. Missing toolchain configuration appears as a skip.
+
+For isolated search measurements run `dotnet test PulseAPK.sln -c Release --filter Category=Performance --logger "console;verbosity=detailed"`. This uses generated files, records process working set and service timings, and checks result counts and cancellation. Compare timings on the same machine and filesystem.

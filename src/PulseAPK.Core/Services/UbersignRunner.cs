@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using PulseAPK.Core.Utils;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +24,10 @@ namespace PulseAPK.Core.Services
 
         public event Action<string>? OutputDataReceived;
 
-        public async Task<int> RunSigningAsync(string inputApk, string signedOutputApk, CancellationToken cancellationToken = default)
+        public Task<int> RunSigningAsync(string inputApk, string signedOutputApk, CancellationToken cancellationToken = default)
+            => RunSigningAsync(inputApk, signedOutputApk, File.Exists(signedOutputApk), cancellationToken);
+
+        internal async Task<int> RunSigningAsync(string inputApk, string signedOutputApk, bool overwrite, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(inputApk))
             {
@@ -46,32 +50,21 @@ namespace PulseAPK.Core.Services
                 throw new FileNotFoundException($"Could not find 'ubersign.jar' (or executable) at '{ubersignPath}'.");
             }
 
-            var outputDirectory = Path.GetDirectoryName(signedOutputApk);
-            outputDirectory ??= Directory.GetCurrentDirectory();
-            Directory.CreateDirectory(outputDirectory);
-
-            // When providing an output directory, ubersign does not allow the overwrite flag.
-            var ubersignArguments = $"-a \"{inputApk}\" -o \"{outputDirectory}\" --allowResign";
-
-            var startInfo = isJar
-                ? new ProcessStartInfo
-                {
-                    FileName = "java",
-                    Arguments = $"-jar \"{ubersignPath}\" {ubersignArguments}",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-                : new ProcessStartInfo
-                {
-                    FileName = ubersignPath,
-                    Arguments = ubersignArguments,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
+            cancellationToken.ThrowIfCancellationRequested();
+            using var workspace = new OutputWorkspace(signedOutputApk);
+            var outputDirectory = workspace.DirectoryPath;
+            var startInfo = new ProcessStartInfo(isJar ? "java" : ubersignPath)
+            {
+                RedirectStandardOutput = true, RedirectStandardError = true,
+                UseShellExecute = false, CreateNoWindow = true
+            };
+            if (isJar)
+            {
+                startInfo.ArgumentList.Add("-jar");
+                startInfo.ArgumentList.Add(ubersignPath);
+            }
+            foreach (var argument in new[] { "-a", inputApk, "-o", outputDirectory, "--allowResign" })
+                startInfo.ArgumentList.Add(argument);
 
             using var process = new Process { StartInfo = startInfo };
 
@@ -97,7 +90,7 @@ namespace PulseAPK.Core.Services
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            await process.WaitForExitAsync(cancellationToken);
+            await ProcessLifetime.WaitAsync(process, cancellationToken);
 
             if (process.ExitCode != 0)
             {
@@ -112,11 +105,8 @@ namespace PulseAPK.Core.Services
                 return 1;
             }
 
-            if (!string.Equals(createdFile, signedOutputApk, StringComparison.OrdinalIgnoreCase))
-            {
-                File.Copy(createdFile, signedOutputApk, true);
-            }
-
+            cancellationToken.ThrowIfCancellationRequested();
+            OutputWorkspace.PublishFile(createdFile, signedOutputApk, overwrite);
             return process.ExitCode;
         }
 

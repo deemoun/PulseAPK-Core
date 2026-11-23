@@ -137,8 +137,8 @@ public partial class BuildViewModel : ObservableObject
 
     private bool CanBrowseOutputApk() => !string.IsNullOrWhiteSpace(OutputFolderPath);
 
-    [RelayCommand(CanExecute = nameof(CanRunBuild))]
-    private async Task RunBuild()
+    [RelayCommand(CanExecute = nameof(CanRunBuild), IncludeCancelCommand = true)]
+    private async Task RunBuild(CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(ProjectPath))
         {
@@ -163,48 +163,49 @@ public partial class BuildViewModel : ObservableObject
             return;
         }
 
-        if (File.Exists(OutputApkPath))
-        {
-             var result = await _dialogService.ShowQuestionAsync($"The output file '{OutputApkPath}' already exists. Overwrite?", "Confirm overwrite");
-             if (!result) return;
-        }
-
-        var signedApkPath = SignApk ? GetSignedApkPath(OutputApkPath) : string.Empty;
-        if (SignApk && !string.IsNullOrWhiteSpace(signedApkPath) && File.Exists(signedApkPath))
-        {
-            var result = await _dialogService.ShowQuestionAsync($"The signed output file '{signedApkPath}' already exists. Overwrite?", "Confirm overwrite");
-            if (!result) return;
-        }
-
-        SetConsoleLog(Properties.Resources.StartingApktool);
+        var project = ProjectPath;
+        var output = OutputApkPath;
+        var signed = SignApk ? GetSignedApkPath(output) : null;
+        var useAapt2 = UseAapt2;
+        bool saved = false;
         IsRunning = true;
-
         try
         {
-            var buildResult = await _apktoolRunner.RunBuildAsync(ProjectPath, OutputApkPath, UseAapt2);
-            var exitCode = buildResult.ExitCode;
+            var original = await DestinationSnapshot.CaptureAsync(output, token);
+            if (original.Fingerprint != null && !await _dialogService.ShowQuestionAsync($"Overwrite '{output}'?", "Confirm overwrite")) return;
+            var signedOriginal = signed == null ? null : await DestinationSnapshot.CaptureAsync(signed, token);
+            if (signedOriginal?.Fingerprint != null && !await _dialogService.ShowQuestionAsync($"Overwrite '{signed}'?", "Confirm overwrite")) return;
+            SetConsoleLog(Properties.Resources.StartingApktool);
+            using var workspace = new OutputWorkspace(output);
+            var staged = Path.Combine(workspace.DirectoryPath, Path.GetFileName(output));
+            var build = await _apktoolRunner.RunBuildAsync(project, staged, useAapt2, token);
+            if (build.ExitCode != 0) throw new IOException($"{Properties.Resources.BuildFailed} (exit code {build.ExitCode})");
+            token.ThrowIfCancellationRequested();
+            output = await original.PublishAsync(staged, output, false, AskToSaveCopy, token);
+            saved = true;
 
-            if (exitCode == 0)
+            if (signed != null)
             {
-                AppendLog(Properties.Resources.BuildSuccessful);
-
-                if (SignApk && !string.IsNullOrWhiteSpace(signedApkPath))
-                {
-                    await RunSigningAsync(OutputApkPath, signedApkPath);
-                }
-
-                 await _dialogService.ShowInfoAsync(Properties.Resources.BuildSuccessful);
+                var stagedSigned = Path.Combine(workspace.DirectoryPath, "signed-result.apk");
+                var code = await _ubersignRunner.RunSigningAsync(output, stagedSigned, false, token);
+                if (code != 0) throw new IOException($"Signer exited with code {code}. See the build log for details.");
+                signed = await signedOriginal!.PublishAsync(stagedSigned, signed, false, AskToSaveCopy, token);
             }
-            else
-            {
-                 AppendLog($"{Properties.Resources.BuildFailed} (Exit Code: {exitCode})");
-                 await _dialogService.ShowErrorAsync(Properties.Resources.BuildFailed);
-            }
+            string message = signed == null ? $"Built APK: {output}" : $"Built APK: {output}{Environment.NewLine}Signed APK: {signed}";
+            AppendLog(message);
+            await _dialogService.ShowInfoAsync(message);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            string message = saved ? $"Signing cancelled. Unsigned APK saved at {output}" : "Build cancelled.";
+            AppendLog(message);
+            await _dialogService.ShowInfoAsync(message);
         }
         catch (Exception ex)
         {
-            AppendLog($"{Properties.Resources.BuildFailed}: {ex.Message}");
-            await _dialogService.ShowErrorAsync(ex.Message);
+            string message = saved ? $"Unsigned APK saved at {output}{Environment.NewLine}Signing failed: {ex.Message}" : ex.Message;
+            AppendLog(message);
+            await _dialogService.ShowErrorAsync(message);
         }
         finally
         {
@@ -212,6 +213,8 @@ public partial class BuildViewModel : ObservableObject
             RunBuildCommand.NotifyCanExecuteChanged();
         }
     }
+
+    private Task<bool> AskToSaveCopy(string message) => _dialogService.ShowQuestionAsync(message, "Destination changed");
 
     private void OnOutputDataReceived(string message)
     {
@@ -363,30 +366,6 @@ public partial class BuildViewModel : ObservableObject
         }
 
         return OutputFolderPath;
-    }
-
-    private async Task RunSigningAsync(string inputApk, string signedApkPath)
-    {
-        AppendLog($"Signing APK via ubersign to '{signedApkPath}'...");
-
-        try
-        {
-            var exitCode = await _ubersignRunner.RunSigningAsync(inputApk, signedApkPath);
-
-            if (exitCode == 0)
-            {
-                AppendLog($"Signed APK created at '{signedApkPath}'.");
-            }
-            else
-            {
-                AppendLog($"Signing failed (Exit Code: {exitCode}).");
-            }
-        }
-        catch (Exception ex)
-        {
-            AppendLog($"Signing failed: {ex.Message}");
-            await _dialogService.ShowWarningAsync(ex.Message, "Signing failed");
-        }
     }
 
     private string GetSignedApkPath(string outputApkPath)

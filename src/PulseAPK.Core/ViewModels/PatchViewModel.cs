@@ -57,7 +57,7 @@ public partial class PatchViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSampleInjectionProfileSelected))]
-    private ScriptInjectionOption _selectedScriptInjectionOption = new("Inject gadget and custom script", ScriptInjectionProfile.FridaGadget);
+    private ScriptInjectionOption _selectedScriptInjectionOption;
 
     [ObservableProperty]
     private string _consoleLog;
@@ -72,6 +72,9 @@ public partial class PatchViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly LocalizationService _localizationService;
     private readonly ISystemService _systemService;
+
+    [ObservableProperty]
+    private string _outcomeSummary = string.Empty;
 
     public bool IsHintVisible => string.IsNullOrWhiteSpace(ApkPath);
 
@@ -114,8 +117,8 @@ public partial class PatchViewModel : ObservableObject
 
         _consoleLog = Properties.Resources.WaitingForCommand;
 
+        _selectedScriptInjectionOption = ScriptInjectionOptions[0];
         SelectedDexPreservationOption = DexPreservationOptions[0];
-        SelectedScriptInjectionOption = ScriptInjectionOptions[0];
 
         OutputFolderPath = EnsureCompiledDirectory();
         EnsureUserScriptTemplatesExist();
@@ -211,6 +214,7 @@ public partial class PatchViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanRunPatch))]
     private async Task RunPatch()
     {
+        OutcomeSummary = string.Empty;
         if (string.IsNullOrWhiteSpace(ApkPath))
         {
             await _dialogService.ShowWarningAsync(L("PatchErrorSelectApk"), L("PatchErrorMissingApkTitle"));
@@ -281,6 +285,12 @@ public partial class PatchViewModel : ObservableObject
 
             var result = await _patchPipelineService.RunAsync(request);
 
+            OutcomeSummary = string.Join(Environment.NewLine, new[]
+            {
+                result.OutputApkPath is { } path ? $"Saved APK: {path}" : "No APK saved",
+                $"Signing: {SigningLabel(result.Signing)}   Verification: {VerificationLabel(result.Verification)}"
+            }.Concat(result.Errors));
+
             foreach (var stage in result.StageSummaries)
             {
                 var icon = stage.Success ? "[OK]" : "[FAIL]";
@@ -309,6 +319,7 @@ public partial class PatchViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            OutcomeSummary = $"Run interrupted: {ex.Message}";
             AppendLog($"[ERROR] {ex.Message}");
             await _dialogService.ShowErrorAsync(ex.Message, L("PatchErrorFailedTitle"));
         }
@@ -318,6 +329,16 @@ public partial class PatchViewModel : ObservableObject
             RunPatchCommand.NotifyCanExecuteChanged();
         }
     }
+
+    private static string SigningLabel(SigningOutcome outcome) => outcome switch
+    {
+        SigningOutcome.NotStarted => "Not started",
+        SigningOutcome.NotRequested => "Not requested",
+        _ => outcome.ToString()
+    };
+
+    private static string VerificationLabel(VerificationOutcome outcome) =>
+        outcome == VerificationOutcome.NotRun ? "Not run" : outcome.ToString();
 
     private bool CanRunPatch()
     {

@@ -23,6 +23,9 @@ namespace PulseAPK.Core.Services
         [JsonPropertyName("description")]
         public string Description { get; set; } = string.Empty;
 
+        [JsonPropertyName("severity")]
+        public string Severity { get; set; } = "unspecified";
+
         [JsonPropertyName("regex_patterns")]
         public List<string> RegexPatterns { get; set; } = new();
     }
@@ -188,7 +191,9 @@ namespace PulseAPK.Core.Services
         /// If valid, returns loaded rules.
         /// If invalid/error, returns default rules (without overwriting the file, to preserve user edits).
         /// </summary>
-        public static object InitializeRules()
+        public static object InitializeRules() => LoadRules(null);
+
+        internal static AnalysisRuleSet LoadRules(Action<string>? warn)
         {
             var filePath = EnsureRulesFileExists();
 
@@ -200,17 +205,18 @@ namespace PulseAPK.Core.Services
                     PropertyNameCaseInsensitive = true
                 });
 
-                if (rules != null)
+                if (rules?.Rules != null && rules.LibraryPaths != null)
                 {
                     return rules;
                 }
             }
             catch (Exception)
             {
-                // Fallback to defaults.
+                // Preserve the user rules for repair.
                 // We intentionally do NOT overwrite the bad file here, so the user can fix their typo.
             }
 
+            warn?.Invoke("Could not load the configured analysis rules. Using built-in rules.");
             return GetDefaultRuleSet();
         }
 

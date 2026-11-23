@@ -35,10 +35,11 @@ namespace PulseAPK.Core.Services
         public event EventHandler? SettingsChanged;
         public string SettingsDirectory { get; }
 
-        public SettingsService()
+        public SettingsService() : this(ResolveSettingsFolder(), AppContext.BaseDirectory) { }
+
+        internal SettingsService(string settingsFolder, string baseDirectory, Action<string, string>? publish = null)
         {
-            var baseDirectory = AppContext.BaseDirectory;
-            var settingsFolder = ResolveSettingsFolder(baseDirectory);
+            _publish = publish ?? ((source, destination) => File.Move(source, destination, overwrite: true));
             SettingsDirectory = settingsFolder;
             _settingsFilePath = Path.Combine(settingsFolder, SettingsFileName);
             _legacySettingsFilePath = Path.Combine(baseDirectory, SettingsFileName);
@@ -46,7 +47,9 @@ namespace PulseAPK.Core.Services
             _lastSavedIsDeviceToolsEnabled = Settings.IsDeviceToolsEnabled;
         }
 
-        private static string ResolveSettingsFolder(string baseDirectory)
+        private readonly Action<string, string> _publish;
+
+        private static string ResolveSettingsFolder()
         {
             var appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             if (string.IsNullOrWhiteSpace(appDataDirectory))
@@ -118,7 +121,21 @@ namespace PulseAPK.Core.Services
         private void Save(AppSettings settings)
         {
             var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(_settingsFilePath, json);
+            var temporaryPath = Path.Combine(SettingsDirectory, $".settings-{Guid.NewGuid():N}.tmp");
+            var stream = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+            try
+            {
+                using (stream)
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.Write(json);
+                }
+                _publish(temporaryPath, _settingsFilePath);
+            }
+            finally
+            {
+                File.Delete(temporaryPath);
+            }
         }
     }
 }

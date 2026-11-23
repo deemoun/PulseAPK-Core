@@ -4,7 +4,7 @@
              xmlns:services="clr-namespace:PulseAPK.Core.Services;assembly=PulseAPK.Core"
              x:Class="PulseAPK.Avalonia.Views.PatchView"
              x:DataType="vm:PatchViewModel">
-    <Grid RowDefinitions="Auto,Auto,*"
+    <Grid RowDefinitions="Auto,Auto,Auto,*"
           RowSpacing="10"
           Margin="14">
         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
@@ -137,7 +137,8 @@
             </Grid>
         </Grid>
 
-        <Expander Grid.Row="2"
+        <SelectableTextBlock Grid.Row="2" Text="{Binding OutcomeSummary}" TextWrapping="Wrap" />
+        <Expander Grid.Row="3"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   IsExpanded="True">

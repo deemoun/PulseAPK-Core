@@ -1,4 +1,5 @@
-name: Build Binaries
+name: Build draft release
+run-name: PulseAPK v${{ inputs.app-version }} draft release
 
 on:
   workflow_dispatch:
@@ -6,13 +7,44 @@ on:
       app-version:
         description: "App version to stamp into the build"
         required: true
-        default: "1.2.8"
+        type: string
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: pulseapk-release-${{ inputs.app-version }}
+  cancel-in-progress: false
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate numeric release version
+        shell: bash
+        env:
+          VERSION: ${{ inputs.app-version }}
+        run: |
+          [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
+            echo "::error::Enter a numeric version such as 1.2.9, without a v prefix."
+            exit 1
+          }
+      - name: Refuse existing tag or release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ inputs.app-version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tags=$(gh api --paginate "repos/$GITHUB_REPOSITORY/tags?per_page=100" --jq '.[].name')
+          releases=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[].tag_name')
+          if grep -Fxq -- "$TAG" <<< "$tags" || grep -Fxq -- "$TAG" <<< "$releases"; then
+            echo "::error::Tag or release $TAG already exists."
+            exit 1
+          fi
+
   build-linux-windows:
+    needs: validate
     runs-on: ubuntu-latest
 
     steps:
@@ -57,6 +89,7 @@ jobs:
           if-no-files-found: error
 
   build-macos-arm64:
+    needs: validate
     runs-on: macos-latest
 
     steps:
@@ -92,6 +125,8 @@ jobs:
           if-no-files-found: error
 
   create-draft-release:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     needs: [build-linux-windows, build-macos-arm64]
 
@@ -103,13 +138,35 @@ jobs:
           path: release-assets
           merge-multiple: true
 
-      - name: Create draft release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          tag_name: v${{ inputs.app-version }}
-          name: PulseAPK v${{ inputs.app-version }}
-          files: |
-            release-assets/PulseAPK-linux-x64.AppImage
-            release-assets/PulseAPK-win-x64.exe
-            release-assets/PulseAPK-osx-arm64.zip
+      - name: Refuse existing tag or release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ inputs.app-version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tags=$(gh api --paginate "repos/$GITHUB_REPOSITORY/tags?per_page=100" --jq '.[].name')
+          releases=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[].tag_name')
+          if grep -Fxq -- "$TAG" <<< "$tags" || grep -Fxq -- "$TAG" <<< "$releases"; then
+            echo "::error::Tag or release $TAG already exists."
+            exit 1
+          fi
+
+      - name: Verify assets and create draft
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ inputs.app-version }}
+          SOURCE_SHA: ${{ github.sha }}
+        working-directory: release-assets
+        run: |
+          set -euo pipefail
+          assets=(PulseAPK-linux-x64.AppImage PulseAPK-win-x64.exe PulseAPK-osx-arm64.zip)
+          for asset in "${assets[@]}"; do
+            test -s "$asset" || { echo "::error::Missing or empty release asset $asset"; exit 1; }
+          done
+          unzip -tq PulseAPK-osx-arm64.zip
+          sha256sum "${assets[@]}" > SHA256SUMS.txt
+          gh release create "$TAG" "${assets[@]}" SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" --target "$SOURCE_SHA" --draft \
+            --title "PulseAPK $TAG" --generate-notes

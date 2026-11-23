@@ -1,3 +1,4 @@
+using PulseAPK.Core.Utils;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -105,22 +106,17 @@ namespace PulseAPK.Core.Services
 
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
 
                 try
                 {
-                    await process.WaitForExitAsync(cancellationToken);
+                    await ProcessLifetime.WaitAsync(process, cancellationToken);
                 }
                 catch (OperationCanceledException)
                 {
-                    if (!process.HasExited)
-                    {
-                        process.Kill(entireProcessTree: true);
-                        await process.WaitForExitAsync();
-                    }
-
                     LogProcessCompletion(executableMode, process.HasExited ? process.ExitCode : null, canceled: true, stdoutLines, stderrLines);
                     throw;
                 }

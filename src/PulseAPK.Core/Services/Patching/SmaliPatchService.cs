@@ -71,8 +71,13 @@ public sealed class SmaliPatchService : ISmaliPatchService
             patched = EnsureImmediateLoadHelperMethod(patched);
         }
 
-        patched = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor, profile);
-        patched = EnsureHelpersForReferencedCalls(patched, classDescriptor);
+        var lifecyclePatch = InjectCallIntoLifecycleMethod(patched, classDescriptor, lifecycleMethodName, lifecycleSignature, superClassDescriptor, profile);
+        if (lifecyclePatch is null)
+        {
+            return Task.FromResult<(bool Success, string? Error)>((false, "Unable to find an injection point in activity smali file."));
+        }
+
+        patched = EnsureHelpersForReferencedCalls(lifecyclePatch, classDescriptor);
 
         if (HasMissingStaticHelperForReferencedCalls(patched, classDescriptor))
         {
@@ -521,7 +526,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
         return content.Insert(endClassMatch.Index, method);
     }
 
-    private static string InjectCallIntoLifecycleMethod(
+    private static string? InjectCallIntoLifecycleMethod(
         string content,
         string classDescriptor,
         string methodName,
@@ -564,7 +569,7 @@ public sealed class SmaliPatchService : ISmaliPatchService
                 }
                 else
                 {
-                    return content;
+                    return null;
                 }
             }
 

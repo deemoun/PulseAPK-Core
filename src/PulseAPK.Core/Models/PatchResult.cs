@@ -1,7 +1,12 @@
 namespace PulseAPK.Core.Models;
 
+public enum SigningOutcome { NotStarted, NotRequested, Signed, Failed }
+public enum VerificationOutcome { NotRun, Skipped, Passed, Failed, Inconclusive }
+
 public sealed class PatchResult
 {
+    public SigningOutcome Signing { get; set; }
+    public VerificationOutcome Verification { get; set; }
     public bool Success { get; set; }
     public string? OutputApkPath { get; set; }
     public string? SelectedArchitecture { get; set; }

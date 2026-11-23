@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulseAPK.Core", "src\PulseA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulseAPK.Avalonia", "src\PulseAPK.Avalonia\PulseAPK.Avalonia.csproj", "{54574781-42E2-4A8E-851E-D9D7A5E984DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulseFixture", "tests\tools\PulseFixture\PulseFixture.csproj", "{360D6078-0CF5-442D-BF64-E9FA60890646}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,18 @@ Global
 		{54574781-42E2-4A8E-851E-D9D7A5E984DE}.Release|x64.Build.0 = Release|Any CPU
 		{54574781-42E2-4A8E-851E-D9D7A5E984DE}.Release|x86.ActiveCfg = Release|Any CPU
 		{54574781-42E2-4A8E-851E-D9D7A5E984DE}.Release|x86.Build.0 = Release|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Debug|x64.Build.0 = Debug|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Debug|x86.Build.0 = Debug|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Release|Any CPU.Build.0 = Release|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Release|x64.ActiveCfg = Release|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Release|x64.Build.0 = Release|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Release|x86.ActiveCfg = Release|Any CPU
+		{360D6078-0CF5-442D-BF64-E9FA60890646}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +84,7 @@ Global
 		{5619EBDC-484C-4F27-8D2D-2F3E24D6CCAD} = {9D556B49-86D1-93A7-9596-FFAAB74EC556}
 		{05720E8F-7852-40A5-86B0-AABB6A032BD3} = {7580A35C-1BCF-4711-8ACE-79441DD0EAF8}
 		{54574781-42E2-4A8E-851E-D9D7A5E984DE} = {7580A35C-1BCF-4711-8ACE-79441DD0EAF8}
+		{360D6078-0CF5-442D-BF64-E9FA60890646} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B12AE7FC-0BA9-4EBC-A3A1-1DA69FA86B8E}

@@ -16,10 +16,16 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <None Update="Fixtures/*.dex" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../tools/PulseFixture/PulseFixture.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\..\src\PulseAPK.Core\PulseAPK.Core.csproj" />
   </ItemGroup>
 
+  <Target Name="CopyProcessFixture" AfterTargets="Build">
+    <ItemGroup><ProcessFixture Include="$(MSBuildProjectDirectory)/../../tools/PulseFixture/bin/$(Configuration)/net8.0/PulseFixture*" /></ItemGroup>
+    <Copy SourceFiles="@(ProcessFixture)" DestinationFolder="$(TargetDir)ProcessFixture" />
+  </Target>
 </Project>

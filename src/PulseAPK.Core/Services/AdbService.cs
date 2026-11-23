@@ -1,3 +1,4 @@
+using PulseAPK.Core.Utils;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Text;
@@ -274,6 +275,7 @@ public sealed class AdbService
             timeoutSource.CancelAfter(timeout);
 
             using var process = new Process { StartInfo = startInfo };
+            cancellationToken.ThrowIfCancellationRequested();
             process.Start();
 
             var stdoutTask = process.StandardOutput.ReadToEndAsync(timeoutSource.Token);
@@ -281,14 +283,13 @@ public sealed class AdbService
 
             try
             {
-                await process.WaitForExitAsync(timeoutSource.Token);
+                await ProcessLifetime.WaitAsync(process, timeoutSource.Token);
                 var stdout = await stdoutTask;
                 var stderr = await stderrTask;
                 return new AdbCommandResult(executable, arguments, stdout, stderr, process.ExitCode, false);
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                TryKill(process);
                 var stdout = await ReadCompletedOrEmptyAsync(stdoutTask);
                 var stderr = await ReadCompletedOrEmptyAsync(stderrTask);
                 return new AdbCommandResult(executable, arguments, stdout, stderr + $"{Environment.NewLine}Command timed out.", -1, true);
@@ -312,20 +313,7 @@ public sealed class AdbService
         }
     }
 
-    private static void TryKill(Process process)
-    {
-        try
-        {
-            if (!process.HasExited)
-            {
-                process.Kill(entireProcessTree: true);
-            }
-        }
-        catch
-        {
-            // Best effort timeout cleanup.
-        }
-    }
+
 
     private static bool IsExplicitPath(string path)
     {

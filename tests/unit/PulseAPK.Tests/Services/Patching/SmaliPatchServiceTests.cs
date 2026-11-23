@@ -524,7 +524,7 @@ public class SmaliPatchServiceTests
         Directory.CreateDirectory(smaliPath);
 
         var file = Path.Combine(smaliPath, "SplashScreen.smali");
-        await File.WriteAllTextAsync(file, ".class public Lcom/app/damnvulnerablebank/SplashScreen;
+        await File.WriteAllTextAsync(file, @".class public Lcom/app/damnvulnerablebank/SplashScreen;
 .super Landroid/app/Activity;
 
 .method protected onCreate(Landroid/os/Bundle;)V
@@ -536,7 +536,7 @@ public class SmaliPatchServiceTests
 
 	.method private static loadFridaGadget()V
     .locals 1
-    const-string v0, "frida-gadget"
+    const-string v0, ""frida-gadget""
     invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
     return-void
 .end method

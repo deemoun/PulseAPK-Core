@@ -7,9 +7,13 @@ using Xunit;
 
 namespace PulseAPK.Tests.Services;
 
+[CollectionDefinition("Process environment", DisableParallelization = true)]
+public sealed class ProcessEnvironmentCollection { }
+
+[Collection("Process environment")]
 public class ApktoolRunnerTests
 {
-    [Fact]
+    [UnixFact]
     public async Task RunBuildAsync_StripsWrappingQuotesFromConfiguredAndArgumentPaths()
     {
         var tempRoot = Path.Combine(Path.GetTempPath(), $"pulseapk-tests-{Guid.NewGuid():N}");
@@ -38,9 +42,9 @@ public class ApktoolRunnerTests
             var settings = new TestSettingsService($"\"{fakeApktoolPath}\"");
             var runner = new ApktoolRunner(settings);
 
-            var exitCode = await runner.RunBuildAsync($"\"{projectDir}\"", $"\"{outputApk}\"", useAapt2: false);
+            var result = await runner.RunBuildAsync($"\"{projectDir}\"", $"\"{outputApk}\"", useAapt2: false);
 
-            Assert.Equal(0, exitCode);
+            Assert.Equal(0, result.ExitCode);
             Assert.True(File.Exists(capturedArgsPath));
 
             var args = File.ReadAllLines(capturedArgsPath);
@@ -57,14 +61,9 @@ public class ApktoolRunnerTests
         }
     }
 
-    [Fact]
+    [UnixFact]
     public async Task RunBuildAsync_UsesExecutableDirectlyWhenApktoolPathIsNotJar()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return;
-        }
-
         var tempRoot = Path.Combine(Path.GetTempPath(), $"pulseapk-tests-{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempRoot);
 
@@ -86,9 +85,9 @@ public class ApktoolRunnerTests
             var settings = new TestSettingsService(fakeApktoolPath);
             var runner = new ApktoolRunner(settings);
 
-            var exitCode = await runner.RunBuildAsync(projectDir, outputApk, useAapt2: true);
+            var result = await runner.RunBuildAsync(projectDir, outputApk, useAapt2: true);
 
-            Assert.Equal(0, exitCode);
+            Assert.Equal(0, result.ExitCode);
             Assert.True(File.Exists(capturedArgsPath));
 
             var args = File.ReadAllLines(capturedArgsPath);
@@ -105,14 +104,9 @@ public class ApktoolRunnerTests
     }
 
 
-    [Fact]
+    [UnixFact]
     public async Task RunBuildAsync_ResolvesRelativeApktoolFromManagedToolsDirectoryAndUsesSettingsWorkingDirectory()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return;
-        }
-
         var tempRoot = Path.Combine(Path.GetTempPath(), $"pulseapk-tests-{Guid.NewGuid():N}");
         var settingsDirectory = Path.Combine(tempRoot, "settings");
         var toolsDirectory = Path.Combine(settingsDirectory, "tools");
@@ -138,10 +132,11 @@ public class ApktoolRunnerTests
             var settings = new TestSettingsService("apktool", settingsDirectory);
             var runner = new ApktoolRunner(settings);
 
-            var exitCode = await runner.RunBuildAsync(projectDir, outputApk, useAapt2: false);
+            var result = await runner.RunBuildAsync(projectDir, outputApk, useAapt2: false);
 
-            Assert.Equal(0, exitCode);
-            Assert.Equal(settingsDirectory, File.ReadAllText(capturedWorkingDirectoryPath).Trim());
+            Assert.Equal(0, result.ExitCode);
+            var workingDirectory = File.ReadAllText(capturedWorkingDirectoryPath).Trim();
+            Assert.True(File.Exists(Path.Combine(workingDirectory, "tools", "apktool")));
 
             var args = File.ReadAllLines(capturedArgsPath);
 

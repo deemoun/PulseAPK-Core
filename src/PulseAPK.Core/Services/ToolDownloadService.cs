@@ -8,6 +8,8 @@ namespace PulseAPK.Core.Services;
 
 public sealed class ToolDownloadService : IToolDownloadService
 {
+    private static readonly SemaphoreSlim ApktoolGate = new(1);
+    private static readonly SemaphoreSlim SignerGate = new(1);
     private readonly HttpClient _httpClient;
     private readonly IToolRepository _toolRepository;
 
@@ -60,52 +62,60 @@ public sealed class ToolDownloadService : IToolDownloadService
         Func<string, string, string?>? checksumValueSelector,
         CancellationToken cancellationToken)
     {
-        if (_toolRepository.TryGetCachedToolPath(artifactFileName, out var cachedPath))
+        var gate = checksumFileName == null ? ApktoolGate : SignerGate;
+        await gate.WaitAsync(cancellationToken);
+        try
         {
-            return new ToolDownloadResult(cachedPath, Downloaded: false);
+            var artifactPath = _toolRepository.GetToolPath(artifactFileName);
+            var receipt = checksumFileName == null ? null : _toolRepository.GetToolPath(checksumFileName + ".verified");
+            if (_toolRepository.TryGetCachedToolPath(artifactFileName, out var cachedPath) &&
+                (receipt == null || (File.Exists(receipt) &&
+                    await File.ReadAllTextAsync(receipt, cancellationToken) == await ComputeSha256Async(cachedPath, cancellationToken))))
+                return new ToolDownloadResult(cachedPath, Downloaded: false);
+
+            var release = await GetLatestReleaseAsync(owner, repo, cancellationToken);
+            var asset = release.Assets.FirstOrDefault(a => assetPredicate(a.Name))
+                ?? throw new InvalidOperationException($"Could not find expected tool asset for {owner}/{repo} latest release.");
+            var temporary = artifactPath + $".{Guid.NewGuid():N}.download";
+            using var response = await _httpClient.GetAsync(asset.BrowserDownloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+            try
+            {
+                using (output)
+                    await response.Content.CopyToAsync(output, cancellationToken);
+
+                if (receipt != null)
+                {
+                    var checksum = release.Assets.FirstOrDefault(a => checksumAssetPredicate!(a.Name))
+                        ?? throw new InvalidOperationException($"Could not find checksum asset for {owner}/{repo} latest release.");
+                    var manifest = await _httpClient.GetStringAsync(checksum.BrowserDownloadUrl, cancellationToken);
+                    var expected = checksumValueSelector!(manifest, asset.Name);
+                    var actual = await ComputeSha256Async(temporary, cancellationToken);
+                    if (!actual.Equals(expected, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("SHA256 verification failed for downloaded tool.");
+
+                    var stagedReceipt = temporary + ".verified";
+                    try
+                    {
+                        await File.WriteAllTextAsync(stagedReceipt, actual, cancellationToken);
+                        File.Move(stagedReceipt, receipt, overwrite: true);
+                    }
+                    finally { File.Delete(stagedReceipt); }
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+                File.Move(temporary, artifactPath, overwrite: true);
+                return new ToolDownloadResult(artifactPath, Downloaded: true);
+            }
+            finally { File.Delete(temporary); }
         }
-
-        var release = await GetLatestReleaseAsync(owner, repo, cancellationToken);
-
-        var artifactAsset = release.Assets.FirstOrDefault(a => assetPredicate(a.Name))
-            ?? throw new InvalidOperationException($"Could not find expected tool asset for {owner}/{repo} latest release.");
-
-        var artifactPath = _toolRepository.GetToolPath(artifactFileName);
-        await DownloadAssetToFileAsync(artifactAsset.BrowserDownloadUrl, artifactPath, cancellationToken);
-
-        if (checksumFileName is null || checksumAssetPredicate is null || checksumValueSelector is null)
-        {
-            return new ToolDownloadResult(artifactPath, Downloaded: true);
-        }
-
-        var checksumAsset = release.Assets.FirstOrDefault(a => checksumAssetPredicate(a.Name))
-            ?? throw new InvalidOperationException($"Could not find checksum asset for {owner}/{repo} latest release.");
-
-        var checksumPath = _toolRepository.GetToolPath(checksumFileName);
-        await DownloadAssetToFileAsync(checksumAsset.BrowserDownloadUrl, checksumPath, cancellationToken);
-
-        var checksumContent = await File.ReadAllTextAsync(checksumPath, cancellationToken);
-        var expectedSha256 = checksumValueSelector(checksumContent, artifactAsset.Name);
-
-        if (string.IsNullOrWhiteSpace(expectedSha256))
-        {
-            File.Delete(artifactPath);
-            throw new InvalidOperationException("Could not parse SHA256 checksum value for downloaded tool.");
-        }
-
-        var actualSha256 = await ComputeSha256Async(artifactPath, cancellationToken);
-        if (!actualSha256.Equals(expectedSha256, StringComparison.OrdinalIgnoreCase))
-        {
-            File.Delete(artifactPath);
-            throw new InvalidOperationException("SHA256 verification failed for downloaded tool.");
-        }
-
-        return new ToolDownloadResult(artifactPath, Downloaded: true);
+        finally { gate.Release(); }
     }
 
     private async Task<GitHubReleaseResponse> GetLatestReleaseAsync(string owner, string repo, CancellationToken cancellationToken)
     {
-        var response = await _httpClient.GetAsync($"https://api.github.com/repos/{owner}/{repo}/releases/latest", cancellationToken);
+        using var response = await _httpClient.GetAsync($"https://api.github.com/repos/{owner}/{repo}/releases/latest", cancellationToken);
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
@@ -117,22 +127,6 @@ public sealed class ToolDownloadService : IToolDownloadService
         }
 
         return release;
-    }
-
-    private async Task DownloadAssetToFileAsync(string downloadUrl, string destinationPath, CancellationToken cancellationToken)
-    {
-        using var response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        var tempPath = destinationPath + ".download";
-        await using (var source = await response.Content.ReadAsStreamAsync(cancellationToken))
-        await using (var target = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
-        {
-            await source.CopyToAsync(target, cancellationToken);
-            await target.FlushAsync(cancellationToken);
-        }
-
-        File.Move(tempPath, destinationPath, overwrite: true);
     }
 
     private static async Task<string> ComputeSha256Async(string filePath, CancellationToken cancellationToken)

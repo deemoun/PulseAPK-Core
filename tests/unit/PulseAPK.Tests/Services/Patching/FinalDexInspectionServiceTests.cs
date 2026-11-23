@@ -104,13 +104,13 @@ public sealed class FinalDexInspectionServiceTests
     {
         var apkPath = CreateApkWithDexPayloads(new Dictionary<string, byte[]>
         {
-            ["classes.dex"] = CreateMinimalDexWithStrings("abc"),
-            ["classes2.dex"] = CreateMinimalDexWithStrings("prefix", "/dev/pulseapk-fake-root-1234", "suffix")
+            ["classes.dex"] = ReadFixture("Meadow.dex"),
+            ["classes2.dex"] = ReadFixture("Ordinary.dex")
         });
 
         var service = new FinalDexInspectionService(new FakeDexMethodLookupService(new Dictionary<string, LookupOutcome>()));
 
-        var (found, diagnostics) = await service.ContainsStringMarkerAsync(apkPath, "/dev/pulseapk-fake-root-");
+        var (found, diagnostics) = await service.ContainsStringMarkerAsync(apkPath, "orange orchard");
 
         Assert.True(found);
         Assert.Contains("classes2.dex", diagnostics);
@@ -122,16 +122,16 @@ public sealed class FinalDexInspectionServiceTests
     {
         var apkPath = CreateApkWithDexPayloads(new Dictionary<string, byte[]>
         {
-            ["classes.dex"] = CreateMinimalDexWithStrings("abc", "def"),
-            ["classes2.dex"] = CreateMinimalDexWithStrings("ghi")
+            ["classes.dex"] = ReadFixture("Ordinary.dex"),
+            ["classes2.dex"] = ReadFixture("Meadow.dex")
         });
 
         var service = new FinalDexInspectionService(new FakeDexMethodLookupService(new Dictionary<string, LookupOutcome>()));
 
-        var (found, diagnostics) = await service.ContainsStringMarkerAsync(apkPath, "/dev/pulseapk-fake-root-");
+        var (found, diagnostics) = await service.ContainsStringMarkerAsync(apkPath, "blue orchard");
 
         Assert.False(found);
-        Assert.Contains("not found in any of the 2 dex entries", diagnostics);
+        Assert.True(diagnostics.Contains("not found in any of the 2 dex entries", StringComparison.Ordinal), diagnostics);
         Assert.DoesNotContain("warning", diagnostics, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -212,63 +212,6 @@ public sealed class FinalDexInspectionServiceTests
         public static LookupOutcome ParseFailure(Exception exception) => new(false, exception);
     }
 
-    private static byte[] CreateMinimalDexWithStrings(params string[] values)
-    {
-        static void WriteInt32(byte[] buffer, int offset, int value)
-            => BitConverter.GetBytes(value).CopyTo(buffer, offset);
-
-        static byte[] EncodeUleb128(int value)
-        {
-            var bytes = new List<byte>();
-            uint remaining = (uint)value;
-            do
-            {
-                var next = (byte)(remaining & 0x7Fu);
-                remaining >>= 7;
-                if (remaining != 0)
-                {
-                    next |= 0x80;
-                }
-
-                bytes.Add(next);
-            } while (remaining != 0);
-
-            return bytes.ToArray();
-        }
-
-        static byte[] BuildStringData(string value)
-        {
-            var utf8 = System.Text.Encoding.UTF8.GetBytes(value);
-            var length = EncodeUleb128(value.Length);
-            return [.. length, .. utf8, 0x00];
-        }
-
-        var stringDatas = values.Select(BuildStringData).ToArray();
-        var headerSize = 0x70;
-        var stringIdsOffset = headerSize;
-        var stringIdsSize = values.Length;
-        var stringIdsByteCount = stringIdsSize * 4;
-        var stringDataOffset = stringIdsOffset + stringIdsByteCount;
-        var totalSize = stringDataOffset + stringDatas.Sum(static data => data.Length);
-
-        var buffer = new byte[totalSize];
-        var magic = System.Text.Encoding.ASCII.GetBytes("dex\n035\0");
-        magic.CopyTo(buffer, 0);
-        WriteInt32(buffer, 0x20, totalSize);
-        WriteInt32(buffer, 0x24, headerSize);
-        WriteInt32(buffer, 0x28, 0x12345678);
-        WriteInt32(buffer, 0x38, stringIdsSize);
-        WriteInt32(buffer, 0x3C, stringIdsOffset);
-
-        var cursor = stringDataOffset;
-        for (var i = 0; i < stringDatas.Length; i++)
-        {
-            WriteInt32(buffer, stringIdsOffset + (i * 4), cursor);
-            var data = stringDatas[i];
-            data.CopyTo(buffer, cursor);
-            cursor += data.Length;
-        }
-
-        return buffer;
-    }
+    private static byte[] ReadFixture(string name) =>
+        File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Fixtures", name));
 }

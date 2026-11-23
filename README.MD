@@ -169,3 +169,9 @@ Even a small tip helps a lot.
 
 We welcome contributions! Please note that all contributors must sign our [Contributor License Agreement (CLA)](CLA.md) to ensure that their work can be legally distributed.
 By submitting a pull request, you agree to the terms of the CLA.
+
+## Create a draft release
+
+In GitHub Actions, select **Build draft release**, choose the source branch, and enter an unused numeric version such as `1.2.9`. The workflow packages that revision for Linux x64 (AppImage), Windows x64 (EXE), and Apple Silicon macOS (app bundle ZIP). After all packages build, it creates a draft targeting the selected commit with the three downloads, SHA-256 checksums, and generated release notes. Existing tags and releases are rejected. Review the draft in GitHub Releases and publish it manually when ready.
+
+**Build Binaries** produces workflow artifacts only. Pull-request tests run separately from release packaging.

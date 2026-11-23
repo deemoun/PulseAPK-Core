@@ -1,6 +1,7 @@
 using PulseAPK.Core.Abstractions.Patching;
 using PulseAPK.Core.Models;
 using System.Text.RegularExpressions;
+using PulseAPK.Core.Utils;
 
 namespace PulseAPK.Core.Services.Patching;
 
@@ -54,7 +55,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
     public async Task<PatchResult> RunAsync(PatchRequest request, CancellationToken cancellationToken = default)
     {
-        var result = new PatchResult();
+        var result = new PatchResult { Signing = request.SignOutput ? SigningOutcome.NotStarted : SigningOutcome.NotRequested };
         var validationErrors = _requestValidator.Validate(request);
         if (validationErrors.Count > 0)
         {
@@ -346,22 +347,25 @@ public sealed class PatchPipelineService : IPatchPipelineService
                 var signResult = await _signingService.SignAsync(rebuiltApkPath, signedPath, cancellationToken);
                 if (!signResult.Success)
                 {
-                    var publishedUnsignedPath = PublishArtifactWithRetry(rebuiltApkPath, request.OutputApkPath);
+                    result.Signing = SigningOutcome.Failed;
                     result.Errors.Add(signResult.Error ?? "Signing failed.");
-                    result.Warnings.Add("Unsigned rebuilt APK was preserved.");
+
                     result.StageSummaries.Add(new PatchStageSummary("signing", false, result.Errors.Last()));
-                    result.OutputApkPath = publishedUnsignedPath;
+                    await PublishAsync(result, rebuiltApkPath, request.OutputApkPath, cancellationToken);
+                    if (result.OutputApkPath != null) result.Warnings.Add("Unsigned rebuilt APK was preserved.");
                     result.SelectedArchitecture = architecture;
                     return result;
                 }
 
                 result.StageSummaries.Add(new PatchStageSummary("signing", true, "Signed APK created."));
+                result.Signing = SigningOutcome.Signed;
                 finalArtifactPath = signResult.SignedApkPath!;
                 finalOutputPath = GetSignedPath(request.OutputApkPath);
             }
 
             if (smaliInjectionApplied && request.SkipDexValidation)
             {
+                result.Verification = VerificationOutcome.Skipped;
                 const string skippedDexValidationMessage = "Final DEX verification was skipped by user request.";
                 result.Warnings.Add(skippedDexValidationMessage);
                 result.StageSummaries.Add(new PatchStageSummary("dex-verification", true, skippedDexValidationMessage));
@@ -395,6 +399,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
 
                 if (!inspection.Found)
                 {
+                    result.Verification = VerificationOutcome.Inconclusive;
                     if (diagnosticSummary.ParsedDexEntries > 0 && diagnosticSummary.FailedDexEntries > 0)
                     {
                         const string inconclusiveMessage = "Final DEX verification inconclusive due to dex parse errors.";
@@ -405,6 +410,7 @@ public sealed class PatchPipelineService : IPatchPipelineService
                     }
                     else if (diagnosticSummary.ParsedDexEntries > 0 && diagnosticSummary.SearchCompleted)
                     {
+                        result.Verification = VerificationOutcome.Failed;
                         var guidance = isRootBypassVerification
                             ? "Root check path marker missing in final dex artifact. Ensure root-path rewrite smali changes run after dex/regeneration transforms."
                             : "Smali helper missing in final dex artifact. Ensure smali mutation runs after any transform that regenerates classes.dex, or disable that transform for patched classes.";
@@ -418,22 +424,23 @@ public sealed class PatchPipelineService : IPatchPipelineService
                         result.StageSummaries.Add(new PatchStageSummary("dex-verification", false, inspection.Diagnostics));
                     }
 
-                    result.OutputApkPath = PublishArtifactWithRetry(finalArtifactPath, finalOutputPath);
+                    await PublishAsync(result, finalArtifactPath, finalOutputPath, cancellationToken);
                     result.SelectedArchitecture = architecture;
                     result.UsedSigning = request.SignOutput;
                     return result;
                 }
 
+                result.Verification = VerificationOutcome.Passed;
                 var successMessage = isRootBypassVerification
                     ? $"Confirmed marker literal '{verificationTarget}' in final APK dex. {inspection.Diagnostics}"
                     : $"Confirmed '{verificationTarget}' in final APK dex. {inspection.Diagnostics}";
                 result.StageSummaries.Add(new PatchStageSummary("dex-verification", true, successMessage));
             }
 
-            result.Success = true;
-            result.OutputApkPath = PublishArtifactWithRetry(finalArtifactPath, finalOutputPath);
+            await PublishAsync(result, finalArtifactPath, finalOutputPath, cancellationToken);
             result.SelectedArchitecture = architecture;
             result.UsedSigning = request.SignOutput;
+            result.Success = result.OutputApkPath != null;
             return result;
         }
         finally
@@ -506,45 +513,21 @@ public sealed class PatchPipelineService : IPatchPipelineService
         }
     }
 
-    private static string PublishArtifactWithRetry(string sourcePath, string outputPath)
+    private static async Task PublishAsync(PatchResult result, string source, string destination, CancellationToken token)
     {
-        if (Path.GetFullPath(sourcePath).Equals(Path.GetFullPath(outputPath), StringComparison.OrdinalIgnoreCase))
+        try
         {
-            return outputPath;
+            using var input = File.OpenRead(source);
+            result.OutputApkPath = await PublishArtifactAsync(input, destination, token);
         }
-
-        var destinationDirectory = Path.GetDirectoryName(outputPath);
-        if (!string.IsNullOrWhiteSpace(destinationDirectory))
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            Directory.CreateDirectory(destinationDirectory);
+            result.Errors.Add($"Could not save APK: {ex.Message}");
         }
-
-        const int maxAttempts = 3;
-        for (var attempt = 1; attempt <= maxAttempts; attempt++)
-        {
-            try
-            {
-                if (File.Exists(outputPath))
-                {
-                    File.Delete(outputPath);
-                }
-
-                File.Move(sourcePath, outputPath);
-                return outputPath;
-            }
-            catch (IOException) when (attempt < maxAttempts)
-            {
-                Thread.Sleep(TimeSpan.FromMilliseconds(150 * attempt));
-            }
-            catch (UnauthorizedAccessException) when (attempt < maxAttempts)
-            {
-                Thread.Sleep(TimeSpan.FromMilliseconds(150 * attempt));
-            }
-        }
-
-        File.Copy(sourcePath, outputPath, overwrite: true);
-        return outputPath;
     }
+
+    internal static Task<string> PublishArtifactAsync(Stream input, string destination, CancellationToken token)
+        => AtomicOutput.WriteAsync(destination, output => input.CopyToAsync(output, token), token);
 
     private static string GetSignedPath(string outputApkPath)
     {

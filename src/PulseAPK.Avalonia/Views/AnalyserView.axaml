@@ -32,7 +32,7 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
                     <Button Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[Browse]}"
-                            Command="{Binding BrowseProjectCommand}"
+                            Command="{Binding BrowseProjectCommand}" IsEnabled="{Binding !IsRunning}"
                             MinWidth="120"
                             Height="38"
                             FontSize="14"
@@ -46,49 +46,87 @@
                             FontSize="14"
                             VerticalContentAlignment="Center"
                             Padding="16,0" />
+                    <Button Content="Cancel" Command="{Binding RunAnalysisCancelCommand}" IsVisible="{Binding IsRunning}" />
                 </StackPanel>
             </Grid>
         </Border>
 
-        <Expander Grid.Row="2"
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch"
-                  IsExpanded="False">
-            <Expander.Header>
-                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                    <Border Classes="console-header-dot"
-                            VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}"
-                               Classes="console-title"
-                               VerticalAlignment="Center" />
-                    <Border Grid.Column="2"
-                            Classes="live-log-pill"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="LIVE LOG"
-                                   Classes="live-log-pill-text" />
-                    </Border>
+        <TabControl Grid.Row="2">
+            <TabItem Header="Findings">
+                <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,*" RowSpacing="6">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <TextBox Watermark="Search path or matched text" Text="{Binding Query}" />
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" />
+                    </Grid>
+                    <TextBlock Grid.Row="1" Text="{Binding ScanStatus}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="2" Text="{Binding FindingCount}" />
+                    <ListBox Grid.Row="3" ItemsSource="{Binding VisibleFindings}" SelectedItem="{Binding SelectedFinding}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="services:Finding">
+                                <Grid ColumnDefinitions="145,65,2*,55,3*" ColumnSpacing="6">
+                                    <TextBlock Text="{Binding Category}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Severity}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding RelativePath}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="3" Text="{Binding LineNumber}" />
+                                    <TextBlock Grid.Column="4" Text="{Binding Context}" TextTrimming="CharacterEllipsis" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock Grid.Row="4" Text="{Binding SelectedFinding.Description}" TextWrapping="Wrap" />
+                    <TextBox Grid.Row="5" IsReadOnly="True" AcceptsReturn="True" Text="{Binding Preview, Mode=OneWay}" />
                 </Grid>
-            </Expander.Header>
-            <Border Classes="console-card compact"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch">
-                <Grid RowDefinitions="Auto,*" RowSpacing="8">
-                    <Border Classes="console-divider" />
-                    <TextBox Grid.Row="1"
-                             Text="{Binding ConsoleLog}"
-                             IsReadOnly="True"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             HorizontalAlignment="Stretch"
-                             VerticalAlignment="Stretch"
-                             Classes="terminal-output"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                             MinHeight="260" />
+            </TabItem>
+            <TabItem Header="Find in project">
+                <Grid RowDefinitions="Auto,Auto,Auto,*,*" RowSpacing="6">
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                        <TextBox Watermark="Literal text" Text="{Binding SearchText}" />
+                        <Button Grid.Column="1" Content="Find" Command="{Binding SearchProjectCommand}" />
+                        <Button Grid.Column="2" Content="Cancel" Command="{Binding SearchProjectCancelCommand}" />
+                    </Grid>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10">
+                        <ComboBox ItemsSource="{Binding SearchTypes}" SelectedItem="{Binding FileType}" />
+                        <TextBox Watermark=".toml" Width="85" IsVisible="{Binding UsesCustomExtension}" Text="{Binding CustomExtension}" />
+                        <CheckBox Content="Match case" IsChecked="{Binding MatchCase}" />
+                        <CheckBox Content="Include libraries" IsChecked="{Binding IncludeLibraries}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="2">
+                        <TextBlock Text="{Binding SearchStatus}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding SearchCoverage}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <TreeView Grid.Row="3" ItemsSource="{Binding SearchFiles}" SelectedItem="{Binding SearchSelection}">
+                        <TreeView.DataTemplates>
+                            <TreeDataTemplate DataType="vm:SearchFileGroup" ItemsSource="{Binding Matches}">
+                                <TextBlock Text="{Binding Path}" />
+                            </TreeDataTemplate>
+                            <DataTemplate DataType="services:Finding">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="{Binding LineNumber}" /><TextBlock Text="{Binding Context}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </TreeView.DataTemplates>
+                    </TreeView>
+                    <TextBox Grid.Row="4" IsReadOnly="True" AcceptsReturn="True" Text="{Binding SearchPreview, Mode=OneWay}" />
                 </Grid>
-            </Border>
-        </Expander>
+            </TabItem>
+            <TabItem Header="Inspect DEX">
+                <StackPanel Spacing="8">
+                    <TextBox Watermark="Case-sensitive text in DEX strings" Text="{Binding DexText}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Choose APK and inspect" Command="{Binding InspectDexCommand}" />
+                        <Button Content="Cancel" Command="{Binding InspectDexCancelCommand}" />
+                    </StackPanel>
+                    <SelectableTextBlock Text="{Binding DexSummary}" TextWrapping="Wrap" />
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Analysis rules">
+                <TextBox IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding RuleInfo, Mode=OneWay}" />
+            </TabItem>
+            <TabItem Header="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[ConsoleLog]}">
+                <TextBox Text="{Binding ConsoleLog, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True"
+                         Classes="terminal-output" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            </TabItem>
+        </TabControl>
 
         <Button Grid.Row="3"
                 Content="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[SaveReport]}"

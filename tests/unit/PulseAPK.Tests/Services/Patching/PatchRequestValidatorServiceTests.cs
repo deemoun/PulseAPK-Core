@@ -153,8 +153,7 @@ public class PatchRequestValidatorServiceTests
         var outputApk = Path.Combine(root, "output.apk");
         var configPath = Path.Combine(root, "frida-gadget.config");
         File.WriteAllText(inputApk, "apk");
-        var config = "{ \"interaction\": { \"path\": \"./libfrida-gadget.script.so\" } }";
-        File.WriteAllBytes(configPath, Encoding.Unicode.GetBytes(config));
+        File.WriteAllBytes(configPath, [0xFF, 0xFE, 0xFF]);
 
         var service = new PatchRequestValidatorService();
         var request = new PatchRequest

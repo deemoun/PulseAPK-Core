@@ -48,6 +48,7 @@
                             FontSize="14"
                             VerticalContentAlignment="Center"
                             Padding="16,0" />
+                    <Button Content="Cancel" Command="{Binding CancelDecompileCommand}" IsVisible="{Binding IsRunning}" />
                 </StackPanel>
             </Grid>
         </Border>

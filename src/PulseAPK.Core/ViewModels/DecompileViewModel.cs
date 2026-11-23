@@ -227,7 +227,7 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            normalizedOutputDir = Path.GetFullPath(outputDir);
+            normalizedOutputDir = Path.TrimEndingDirectorySeparator(Path.GetFullPath(outputDir));
         }
         catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException or IOException or UnauthorizedAccessException)
         {
@@ -236,34 +236,22 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
             return;
         }
 
-        if (IsHighRiskOutputDirectory(normalizedOutputDir))
+        if (IsHighRiskOutputDirectory(normalizedOutputDir) || IsSameOrSubPath(normalizedOutputDir, Path.GetFullPath(ApkPath)))
         {
             await _dialogService.ShowErrorAsync($"The selected output folder '{normalizedOutputDir}' is unsafe. Choose a different location.", "Invalid output folder");
             return;
         }
 
-        var forceOverwrite = false;
+        var input = ApkPath;
+        var decodeResources = DecodeResources;
+        var decodeSources = DecodeSources;
+        var keepManifest = KeepOriginalManifest;
+
+
 
         _appLogService?.LogInfo(
             "Decompile",
             $"Decompile requested. timestamp={DateTimeOffset.UtcNow:O}; apkFile={Path.GetFileName(ApkPath)}; outputDir={normalizedOutputDir}; decodeResources={DecodeResources}; decodeSources={DecodeSources}; keepOriginalManifest={KeepOriginalManifest}; extractToApkFolder={ExtractToApkFolder}");
-
-        if (Directory.Exists(normalizedOutputDir))
-        {
-            var isEmpty = !Directory.EnumerateFileSystemEntries(normalizedOutputDir).Any();
-
-            if (!isEmpty)
-            {
-                var result = await _dialogService.ShowQuestionAsync($"The output directory '{normalizedOutputDir}' already exists and is not empty. Overwrite its contents?", "Confirm overwrite");
-
-                if (!result)
-                {
-                    return;
-                }
-            }
-
-            forceOverwrite = true;
-        }
 
         IsRunning = true;
         var cancellationTokenSource = new CancellationTokenSource();
@@ -271,13 +259,36 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
 
         try
         {
-            var decompileResult = await _apktoolRunner.RunDecompileAsync(ApkPath, normalizedOutputDir, DecodeResources, DecodeSources, KeepOriginalManifest, forceOverwrite, cancellationTokenSource.Token);
+            var original = await DestinationSnapshot.CaptureAsync(normalizedOutputDir, cancellationTokenSource.Token);
+            if (original.Fingerprint != null)
+            {
+                var isEmpty = !Directory.EnumerateFileSystemEntries(normalizedOutputDir).Any();
+
+                if (!isEmpty)
+                {
+                    var result = await _dialogService.ShowQuestionAsync($"The output directory '{normalizedOutputDir}' already exists and is not empty. Overwrite its contents?", "Confirm overwrite");
+
+                    if (!result)
+                    {
+                        return;
+                    }
+                }
+
+
+            }
+
+            using var workspace = new OutputWorkspace(normalizedOutputDir);
+            var staged = Path.Combine(workspace.DirectoryPath, "project");
+            var decompileResult = await _apktoolRunner.RunDecompileAsync(input, staged, decodeResources, decodeSources, keepManifest, false, cancellationTokenSource.Token);
             var exitCode = decompileResult.ExitCode;
 
             if (exitCode == 0)
             {
+                cancellationTokenSource.Token.ThrowIfCancellationRequested();
+                var published = await original.PublishAsync(staged, normalizedOutputDir, true,
+                    message => _dialogService.ShowQuestionAsync(message, "Destination changed"), cancellationTokenSource.Token);
                 AppendLog(Properties.Resources.DecompileSuccessful);
-                await _dialogService.ShowInfoAsync(Properties.Resources.DecompileSuccessful);
+                await _dialogService.ShowInfoAsync($"{Properties.Resources.DecompileSuccessful}{Environment.NewLine}{published}");
             }
             else
             {
@@ -306,6 +317,9 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
             RunDecompileCommand.NotifyCanExecuteChanged();
         }
     }
+
+    [RelayCommand]
+    private void CancelDecompile() => _activeDecompileCancellationTokenSource?.Cancel();
 
     private void OnOutputDataReceived(string message)
     {
@@ -613,7 +627,6 @@ public partial class DecompileViewModel : ObservableObject, IDisposable
         _disposed = true;
 
         _activeDecompileCancellationTokenSource?.Cancel();
-        _activeDecompileCancellationTokenSource?.Dispose();
         _activeDecompileCancellationTokenSource = null;
 
         lock (_logLock)

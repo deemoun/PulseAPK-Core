@@ -18,6 +18,7 @@ public class PatchPipelineServiceTests
         "gadget-injection",
         "smali-patch",
         "build",
+        "dex-preservation",
         "dex-verification"
     ];
 
@@ -31,9 +32,37 @@ public class PatchPipelineServiceTests
         "gadget-injection",
         "smali-patch",
         "build",
+        "dex-preservation",
         "signing",
         "dex-verification"
     ];
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task RunAsync_ReportsPublicationOutcomeAfterSkippedVerification(bool blockDestination)
+    {
+        var root = Directory.CreateTempSubdirectory("pulse-publish-").FullName;
+        try
+        {
+            var input = Path.Combine(root, "input.apk");
+            File.WriteAllText(input, "fixture");
+            var path = blockDestination ? Path.Combine(input, "out.apk") : Path.Combine(root, "out.apk");
+            var result = await CreatePipeline().RunAsync(new PatchRequest
+            {
+                InputApkPath = input, OutputApkPath = path, SkipDexValidation = true
+            });
+            Assert.Equal(VerificationOutcome.Skipped, result.Verification);
+            Assert.Equal(!blockDestination, result.Success);
+            if (blockDestination)
+            {
+                Assert.Null(result.OutputApkPath);
+                Assert.Contains(result.Errors, e => e.Contains("Could not save APK"));
+            }
+            else Assert.Equal(path, result.OutputApkPath);
+        }
+        finally { Directory.Delete(root, true); }
+    }
 
     [Fact]
     public async Task RunAsync_ReturnsFailure_WhenValidationFails()
@@ -62,6 +91,8 @@ public class PatchPipelineServiceTests
             SignOutput = false
         });
 
+        Assert.Equal(SigningOutcome.NotRequested, result.Signing);
+        Assert.Equal(VerificationOutcome.Passed, result.Verification);
         Assert.True(result.Success);
         Assert.Equal(outputApk, result.OutputApkPath);
         AssertStageSequence(result, SuccessfulStagesWithoutSigning);
@@ -83,6 +114,7 @@ public class PatchPipelineServiceTests
             SignOutput = true
         });
 
+        Assert.Equal(SigningOutcome.Signed, result.Signing);
         Assert.True(result.Success);
         Assert.True(result.UsedSigning);
         Assert.Equal(GetSignedPath(outputApk), result.OutputApkPath);
@@ -105,6 +137,7 @@ public class PatchPipelineServiceTests
             InputApkPath = inputApk,
             OutputApkPath = outputApk,
             SignOutput = false,
+            PreserveOriginalDexFiles = false,
             DexPreservationMode = DexPreservationMode.Disabled
         });
 
@@ -344,15 +377,17 @@ public class PatchPipelineServiceTests
         {
             InputApkPath = inputApk,
             OutputApkPath = outputApk,
+            InjectForAllArchitectures = true,
             SignOutput = false
         });
 
         Assert.True(result.Success);
-        Assert.Equal(["arm64-v8a", "armeabi-v7a"], fakeArtifactService.ResolvedArchitectures);
-        Assert.Equal(["arm64-v8a", "armeabi-v7a"], fakeGadgetInjectionService.InjectedArchitectures);
+        Assert.Equal(["arm64-v8a", "armeabi-v7a"], fakeArtifactService.ResolvedArchitectures.Order(StringComparer.Ordinal));
+        Assert.Equal(["arm64-v8a", "armeabi-v7a"], fakeGadgetInjectionService.InjectedArchitectures.Order(StringComparer.Ordinal));
         Assert.Contains(result.StageSummaries, static stage =>
             stage.Stage == "gadget-injection" &&
-            stage.Message.Contains("arm64-v8a, armeabi-v7a", StringComparison.Ordinal));
+            stage.Message.Contains("arm64-v8a", StringComparison.Ordinal) &&
+            stage.Message.Contains("armeabi-v7a", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -426,7 +461,7 @@ public class PatchPipelineServiceTests
 
         Assert.False(result.Success);
         Assert.NotEmpty(result.Errors);
-        var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "build"));
+        var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "build" && !s.Success));
         Assert.False(stage.Success);
         Assert.Contains("exit code 9", stage.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(result.Errors, error => error.Contains("exit code 9", StringComparison.OrdinalIgnoreCase));
@@ -439,6 +474,8 @@ public class PatchPipelineServiceTests
             "gadget-assets",
             "gadget-injection",
             "smali-patch",
+            "build",
+            "build",
             "build"
         ]);
     }
@@ -459,6 +496,8 @@ public class PatchPipelineServiceTests
             SignOutput = true
         });
 
+        Assert.Equal(SigningOutcome.Failed, result.Signing);
+        Assert.Equal(VerificationOutcome.NotRun, result.Verification);
         Assert.False(result.Success);
         Assert.NotEmpty(result.Errors);
         var stage = Assert.Single(result.StageSummaries.Where(static s => s.Stage == "signing"));
@@ -477,6 +516,7 @@ public class PatchPipelineServiceTests
             "gadget-injection",
             "smali-patch",
             "build",
+            "dex-preservation",
             "signing"
         ]);
     }
@@ -627,6 +667,7 @@ public class PatchPipelineServiceTests
             OutputApkPath = outputApk
         });
 
+        Assert.Equal(VerificationOutcome.Inconclusive, result.Verification);
         Assert.False(result.Success);
         var error = Assert.Single(result.Errors);
         Assert.Contains("verification inconclusive due to dex parse errors", error, StringComparison.OrdinalIgnoreCase);
@@ -656,7 +697,7 @@ public class PatchPipelineServiceTests
         var error = Assert.Single(result.Errors);
         Assert.DoesNotContain("helper missing in final dex artifact", error, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("verification inconclusive due to dex parse errors", error, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("before tuple search completed", error, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("before search completed", error, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(result.Warnings, static warning =>
             warning.Contains("parsed dex entries: 0", StringComparison.OrdinalIgnoreCase) &&
             warning.Contains("failed dex entries: 2", StringComparison.OrdinalIgnoreCase));
@@ -808,11 +849,11 @@ public class PatchPipelineServiceTests
             _libAbis = libAbis ?? [];
         }
 
-        public Task<int> DecompileAsync(string apkPath, string outputDirectory, bool decodeResources, bool decodeSources, CancellationToken cancellationToken = default)
+        public Task<ApktoolRunResult> DecompileAsync(string apkPath, string outputDirectory, bool decodeResources, bool decodeSources, CancellationToken cancellationToken = default)
         {
             if (_decompileExitCode != 0)
             {
-                return Task.FromResult(_decompileExitCode);
+                return Task.FromResult(new ApktoolRunResult(_decompileExitCode, [], []));
             }
 
             Directory.CreateDirectory(outputDirectory);
@@ -826,14 +867,14 @@ public class PatchPipelineServiceTests
                 File.WriteAllBytes(Path.Combine(abiDirectory, "libdummy.so"), [0x7F, 0x45, 0x4C, 0x46]);
             }
 
-            return Task.FromResult(0);
+            return Task.FromResult(new ApktoolRunResult(0, [], []));
         }
 
-        public Task<int> BuildAsync(string decompiledDirectory, string outputApkPath, bool useAapt2, CancellationToken cancellationToken = default)
+        public Task<ApktoolRunResult> BuildAsync(string decompiledDirectory, string outputApkPath, bool useAapt2, CancellationToken cancellationToken = default)
         {
             if (_buildExitCode != 0)
             {
-                return Task.FromResult(_buildExitCode);
+                return Task.FromResult(new ApktoolRunResult(_buildExitCode, [], []));
             }
 
             using var stream = File.Create(outputApkPath);
@@ -841,7 +882,7 @@ public class PatchPipelineServiceTests
             var dexEntry = archive.CreateEntry("classes.dex");
             using var writer = new BinaryWriter(dexEntry.Open(), Encoding.UTF8, leaveOpen: false);
             writer.Write(Encoding.ASCII.GetBytes("Lcom/example/MainActivity;->loadFridaGadget()V"));
-            return Task.FromResult(0);
+            return Task.FromResult(new ApktoolRunResult(0, [], []));
         }
     }
 

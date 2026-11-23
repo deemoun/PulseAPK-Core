@@ -8,162 +8,170 @@ namespace PulseAPK.Core.Services
 {
     public class SmaliAnalyserService
     {
-        public async Task<AnalysisResult> AnalyseProjectAsync(string projectPath, Action<string>? logCallback)
+        public const int SearchLimit = 1000;
+        public const string Extensionless = "Extensionless files";
+        public static readonly IReadOnlyList<string> SearchTypes = ["All supported text", ".smali", ".xml", ".json", ".txt", ".properties", ".java", ".kt", ".js", ".yaml", ".yml", ".html", ".css", ".csv", ".md", ".cfg", ".ini"];
+
+        public Task<AnalysisResult> AnalyseProjectAsync(string projectPath, Action<string>? logCallback,
+            CancellationToken cancellationToken = default, Action<string>? progress = null)
         {
+            var root = Path.GetFullPath(projectPath);
+            return Task.Run(() =>
+            {
+                var warnings = new List<string>();
+                var rules = AnalysisRulesLoader.LoadRules(warnings.Add);
+                foreach (var warning in warnings) logCallback?.Invoke(warning);
+                var result = Scan(root, rules, logCallback, cancellationToken, progress);
+                result.RuleWarnings.AddRange(warnings);
+                return result;
+            });
+        }
+
+        public Task<AnalysisResult> SearchAsync(string root, ProjectSearch search, CancellationToken token, Action<Finding[]>? matches = null)
+        {
+            if (string.IsNullOrWhiteSpace(search.Text)) throw new ArgumentException("Enter text to search for.");
+            return Task.Run(() =>
+            {
+                var warnings = new List<string>();
+                var rules = AnalysisRulesLoader.LoadRules(warnings.Add);
+                var result = Scan(root, rules, null, token, search: search, matches: matches);
+                result.RuleWarnings.AddRange(warnings);
+                return result;
+            });
+        }
+
+        internal AnalysisResult Scan(string root, AnalysisRuleSet rules, Action<string>? log, CancellationToken token, Action<string>? progress = null, ProjectSearch? search = null, Action<Finding[]>? matches = null)
+        {
+            if (!Directory.Exists(root)) throw new DirectoryNotFoundException(root);
             var result = new AnalysisResult();
-
-            if (!Directory.Exists(projectPath))
+            result.LibraryPaths = rules.LibraryPaths.Where(path => !string.IsNullOrWhiteSpace(path)).ToArray();
+            result.Rules = rules.Rules.Where(rule => rule != null).ToArray();
+            var patterns = search == null ? BuildRegexCache(rules, warning =>
             {
-                throw new DirectoryNotFoundException($"Project path '{projectPath}' does not exist.");
+                result.RuleWarnings.Add(warning);
+                log?.Invoke(warning);
+            }) : new();
+            result.ActiveCategories.UnionWith(patterns.Keys);
+            var directories = new Stack<DirectoryInfo>();
+            directories.Push(new DirectoryInfo(root));
+            var options = new EnumerationOptions { AttributesToSkip = FileAttributes.ReparsePoint, IgnoreInaccessible = false };
+            var progressTimer = System.Diagnostics.Stopwatch.StartNew();
+            int delivered = 0;
+            var batchTimer = System.Diagnostics.Stopwatch.StartNew();
+            void Deliver(bool flush)
+            {
+                int pending = result.Findings.Count - delivered;
+                if (matches == null || pending == 0) return;
+                if (!flush && delivered != 0 && pending < 64 && batchTimer.ElapsedMilliseconds < 150) return;
+                matches(result.Findings.GetRange(delivered, pending).ToArray());
+                delivered += pending;
+                batchTimer.Restart();
             }
-
-            // Ensure rules are initialized/loaded (this covers missing files/defaults)
-            AnalysisRuleSet rules;
-            try 
+            try
             {
-                // Force a reload/check to ensure we have the latest
-                rules = (AnalysisRuleSet)AnalysisRulesLoader.InitializeRules();
-            }
-            catch (Exception ex)
-            {
-                logCallback?.Invoke($"Warning: Failed to load custom rules: {ex.Message}. Using defaults.");
-                rules = (AnalysisRuleSet)AnalysisRulesLoader.InitializeRules();
-            }
-
-            // Find all .smali files recursively, skipping inaccessible directories (sandbox/container safe)
-            var smaliFiles = GetSmaliFiles(projectPath, logCallback);
-
-            if (smaliFiles.Length == 0)
-            {
-                throw new InvalidOperationException("No Smali files found in the project directory.");
-            }
-
-            logCallback?.Invoke($"Found {smaliFiles.Length} Smali files. Starting analysis...");
-            if (rules.Rules.Count > 0)
-            {
-                logCallback?.Invoke($"Loaded {rules.Rules.Count} analysis categories.");
-                foreach (var rule in rules.Rules)
+                while (directories.TryPop(out var directory))
                 {
-                    result.ActiveCategories.Add(rule.Category);
-                }
-            }
-            logCallback?.Invoke("");
-
-            var regexCache = BuildRegexCache(rules, logCallback);
-            var categoryOrder = BuildCategoryOrder(rules, regexCache);
-            var normalizedProjectRoot = Path.GetFullPath(projectPath).Replace('\\', '/').TrimEnd('/') + "/";
-
-            // Run all detection methods with progress reporting
-            await Task.Run(() =>
-            {
-                int processedFiles = 0;
-                int totalFiles = smaliFiles.Length;
-                int reportInterval = totalFiles > 100 ? totalFiles / 20 : 10; // Report every 5% or every 10 files
-
-                foreach (var file in smaliFiles)
-                {
+                    token.ThrowIfCancellationRequested();
                     try
                     {
-                        // Run all detections on this file
-                        AnalyzeFile(file, result, rules, regexCache, categoryOrder, normalizedProjectRoot);
-                        
-                        processedFiles++;
-                        
-                        // Report progress periodically
-                        if (processedFiles % reportInterval == 0 || processedFiles == totalFiles)
+                        foreach (var entry in directory.EnumerateFileSystemInfos("*", options))
                         {
-                            logCallback?.Invoke($"({processedFiles}/{totalFiles} files processed)");
+                            token.ThrowIfCancellationRequested();
+                            if (entry is DirectoryInfo child)
+                            {
+                                directories.Push(child);
+                                continue;
+                            }
+                            var extension = search?.FileType ?? ".smali";
+                            bool supported = extension == SearchTypes[0]
+                                ? SearchTypes.Skip(1).Contains(entry.Extension, StringComparer.OrdinalIgnoreCase)
+                                : entry.Extension.Equals(extension == Extensionless ? "" : extension, StringComparison.OrdinalIgnoreCase);
+                            if (!supported) continue;
+                            var relative = Path.GetRelativePath(root, entry.FullName);
+                            if (search?.IncludeLibraries != true && IsLibraryClass(relative, rules.LibraryPaths))
+                            {
+                                result.Excluded++;
+                                continue;
+                            }
+                            try
+                            {
+                                AnalyzeFile(entry.FullName, relative, result, patterns, log, token, search, Deliver);
+                                result.Scanned++;
+                            }
+                            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                            {
+                                result.Unreadable++;
+                                log?.Invoke($"Could not read {relative}: {ex.Message}");
+                            }
+                            if (progressTimer.ElapsedMilliseconds >= 300)
+                            {
+                                log?.Invoke(result.Coverage);
+                                progress?.Invoke(result.Coverage);
+                                progressTimer.Restart();
+                            }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                     {
-                        logCallback?.Invoke($"Error reading file {file}: {ex.Message}");
+                        result.Inaccessible++;
+                        log?.Invoke($"Could not enumerate {directory.FullName}: {ex.Message}");
                     }
                 }
-            });
-
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
+                result.Cancelled = true;
+            }
+            Deliver(true);
             return result;
         }
 
-        private string[] GetSmaliFiles(string projectPath, Action<string>? logCallback)
+        private static void AnalyzeFile(string path, string relative, AnalysisResult result,
+            Dictionary<string, List<(Regex Pattern, AnalysisRule Rule)>> patterns, Action<string>? log, CancellationToken token, ProjectSearch? search, Action<bool> deliver)
         {
-            try
+            int number = 0;
+            foreach (var line in File.ReadLines(path))
             {
-                var options = new EnumerationOptions
+                token.ThrowIfCancellationRequested();
+                number++;
+                if (search != null)
                 {
-                    RecurseSubdirectories = true,
-                    IgnoreInaccessible = true,
-                    ReturnSpecialDirectories = false,
-                    AttributesToSkip = FileAttributes.ReparsePoint
-                };
-
-                return Directory.GetFiles(projectPath, "*.smali", options);
-            }
-            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException)
-            {
-                logCallback?.Invoke($"Warning: Unable to enumerate some folders due to sandbox/file-system restrictions: {ex.Message}");
-                return Array.Empty<string>();
-            }
-        }
-
-        private void AnalyzeFile(
-            string filePath,
-            AnalysisResult result,
-            AnalysisRuleSet rules,
-            Dictionary<string, List<Regex>> regexCache,
-            IReadOnlyList<string> categoryOrder,
-            string projectRoot)
-        {
-            // Skip library classes
-            if (IsLibraryClass(filePath, projectRoot, rules.LibraryPaths))
-            {
-                return;
-            }
-
-            var lineNumber = 0;
-            var deduplicationSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var enableCategoryEarlyExit = false;
-            var detectedCategories = enableCategoryEarlyExit
-                ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-                : null;
-            foreach (var line in File.ReadLines(filePath))
-            {
-                lineNumber++;
-
-                foreach (var category in categoryOrder)
+                    if (!line.Contains(search.Text, search.MatchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase)) continue;
+                    result.MatchingLines++;
+                    if (result.Findings.Count < SearchLimit)
+                    {
+                        result.Findings.Add(new Finding { FilePath = path, RelativePath = relative, LineNumber = number, OriginalLine = line, Context = line.Trim() });
+                        deliver(result.Findings.Count == SearchLimit);
+                    }
+                    continue;
+                }
+                foreach (var (category, compiled) in patterns)
                 {
-                    if (detectedCategories != null && detectedCategories.Contains(category))
+                    for (int i = 0; i < compiled.Count; i++)
                     {
-                        continue;
-                    }
-
-                    if (!regexCache.TryGetValue(category, out var cachedPatterns))
-                    {
-                        continue;
-                    }
-
-                    if (CheckPatterns(line, cachedPatterns))
-                    {
-                        AddFinding(category, filePath, lineNumber, line, result, deduplicationSet);
-
-                        if (detectedCategories != null)
+                        try
                         {
-                            detectedCategories.Add(category);
+                            if (!compiled[i].Pattern.IsMatch(line)) continue;
+                            var finding = new Finding { FilePath = path, RelativePath = relative, LineNumber = number,
+                                Context = line.Trim(), OriginalLine = line, Category = category, Severity = compiled[i].Rule.Severity, Description = compiled[i].Rule.Description };
+                            result.Findings.Add(finding);
+                            result.CategoryList(category)?.Add(finding);
+                            break;
+                        }
+                        catch (RegexMatchTimeoutException)
+                        {
+                            log?.Invoke($"Timed out; disabled {category} pattern {compiled[i].Pattern}");
+                            compiled.RemoveAt(i--);
+                            result.Timeouts++;
                         }
                     }
                 }
             }
         }
 
-        private bool IsLibraryClass(string filePath, string projectRoot, List<string> libraryPaths)
+        private bool IsLibraryClass(string relativePath, List<string> libraryPaths)
         {
-            // Normalize path separators for comparison
-            var normalizedPath = Path.GetFullPath(filePath).Replace('\\', '/');
-            var normalizedRoot = projectRoot;
-            var relativePath = normalizedPath.StartsWith(normalizedRoot, StringComparison.OrdinalIgnoreCase)
-                ? normalizedPath.Substring(normalizedRoot.Length)
-                : normalizedPath;
-            var pathSegments = relativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var pathSegments = relativePath.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var pattern in libraryPaths)
             {
@@ -211,17 +219,22 @@ namespace PulseAPK.Core.Services
             return false;
         }
 
-        private Dictionary<string, List<Regex>> BuildRegexCache(AnalysisRuleSet rules, Action<string>? logCallback)
+        private Dictionary<string, List<(Regex Pattern, AnalysisRule Rule)>> BuildRegexCache(AnalysisRuleSet rules, Action<string>? logCallback)
         {
-            var cache = new Dictionary<string, List<Regex>>(StringComparer.OrdinalIgnoreCase);
+            var cache = new Dictionary<string, List<(Regex Pattern, AnalysisRule Rule)>>(StringComparer.OrdinalIgnoreCase);
 
             for (var i = 0; i < rules.Rules.Count; i++)
             {
                 var rule = rules.Rules[i];
+                if (rule == null || string.IsNullOrWhiteSpace(rule.Category) || rule.RegexPatterns == null)
+                {
+                    logCallback?.Invoke($"Skipping invalid rule at position {i + 1}.");
+                    continue;
+                }
                 var category = rule.Category ?? string.Empty;
                 if (!cache.TryGetValue(category, out var compiledPatterns))
                 {
-                    compiledPatterns = new List<Regex>();
+                    compiledPatterns = new List<(Regex Pattern, AnalysisRule Rule)>();
                     cache[category] = compiledPatterns;
                 }
 
@@ -229,7 +242,7 @@ namespace PulseAPK.Core.Services
                 {
                     try
                     {
-                        compiledPatterns.Add(new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled));
+                        compiledPatterns.Add((new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled, TimeSpan.FromMilliseconds(250)), rule));
                     }
                     catch (ArgumentException ex)
                     {
@@ -241,81 +254,27 @@ namespace PulseAPK.Core.Services
             return cache;
         }
 
-        private List<string> BuildCategoryOrder(AnalysisRuleSet rules, Dictionary<string, List<Regex>> regexCache)
-        {
-            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var orderedCategories = new List<string>();
-
-            foreach (var rule in rules.Rules)
-            {
-                var category = rule.Category ?? string.Empty;
-                if (regexCache.ContainsKey(category) && seen.Add(category))
-                {
-                    orderedCategories.Add(category);
-                }
-            }
-
-            return orderedCategories;
-        }
-
-        private void AddFinding(
-            string category,
-            string filePath,
-            int lineNumber,
-            string line,
-            AnalysisResult result,
-            HashSet<string> deduplicationSet)
-        {
-            var normalizedPath = Path.GetFullPath(filePath).Replace('\\', '/');
-            var deduplicationKey = $"{category}|{normalizedPath}|{lineNumber}";
-            if (!deduplicationSet.Add(deduplicationKey))
-            {
-                return;
-            }
-
-            var finding = new Finding
-            {
-                FilePath = filePath,
-                LineNumber = lineNumber,
-                Context = line.Trim()
-            };
-
-            switch (category.ToLowerInvariant())
-            {
-                case "root_check":
-                    result.RootChecks.Add(finding);
-                    break;
-                case "emulator_check":
-                    result.EmulatorChecks.Add(finding);
-                    break;
-                case "hardcoded_creds":
-                    result.HardcodedCredentials.Add(finding);
-                    break;
-                case "sql_query":
-                    result.SqlQueries.Add(finding);
-                    break;
-                case "http_url":
-                    result.HttpUrls.Add(finding);
-                    break;
-                // Add other categories here if the UI supports them or use a generic list if available
-            }
-        }
-
-        private bool CheckPatterns(string line, List<Regex> patterns)
-        {
-            foreach (var pattern in patterns)
-            {
-                if (pattern.IsMatch(line))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
+
+    public sealed record ProjectSearch(string Text, bool MatchCase, string FileType, bool IncludeLibraries);
 
     public class AnalysisResult
     {
+        public List<Finding> Findings { get; } = new();
+        public long MatchingLines { get; set; }
+        public int Scanned, Excluded, Unreadable, Inaccessible, Timeouts;
+        public bool Cancelled;
+        public AnalysisRule[] Rules { get; set; } = [];
+        public string[] LibraryPaths { get; set; } = [];
+        public List<string> RuleWarnings { get; } = [];
+        public string Coverage => $"Scanned {Scanned} files · Excluded {Excluded} · Unreadable {Unreadable} · Inaccessible directories {Inaccessible} · Timed-out rules {Timeouts}";
+        public string Status => Cancelled ? "Cancelled · partial results" :
+            Unreadable + Inaccessible + Timeouts + RuleWarnings.Count > 0 ? "Completed with partial coverage" : "Analysis complete";
+        internal List<Finding>? CategoryList(string category) => category.ToLowerInvariant() switch
+        {
+            "root_check" => RootChecks, "emulator_check" => EmulatorChecks, "hardcoded_creds" => HardcodedCredentials,
+            "sql_query" => SqlQueries, "http_url" => HttpUrls, _ => null
+        };
         public HashSet<string> ActiveCategories { get; set; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         public List<Finding> RootChecks { get; set; } = new List<Finding>();
         public List<Finding> EmulatorChecks { get; set; } = new List<Finding>();
@@ -326,6 +285,11 @@ namespace PulseAPK.Core.Services
 
     public class Finding
     {
+        public string Category { get; set; } = "";
+        public string Severity { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string OriginalLine { get; set; } = "";
+        public string RelativePath { get; set; } = "";
         public string FilePath { get; set; } = string.Empty;
         public int LineNumber { get; set; }
         public string Context { get; set; } = string.Empty;

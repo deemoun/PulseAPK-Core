@@ -62,9 +62,9 @@ public class ToolDownloadServiceTests
             var result = await service.DownloadApktoolAsync();
 
             Assert.True(result.Downloaded);
-            Assert.Equal(toolRepository.GetToolPath("apktool.jar"), result.ToolPath);
-            Assert.True(File.Exists(result.ToolPath));
-            Assert.Equal(payload, await File.ReadAllBytesAsync(result.ToolPath));
+            Assert.Equal(toolRepository.GetToolPath("apktool.jar"), result.Path);
+            Assert.True(File.Exists(result.Path));
+            Assert.Equal(payload, await File.ReadAllBytesAsync(result.Path));
         }
         finally
         {
@@ -73,6 +73,56 @@ public class ToolDownloadServiceTests
                 Directory.Delete(tempRoot, recursive: true);
             }
         }
+    }
+
+    [Theory]
+    [InlineData("missing")]
+    [InlineData("mismatch")]
+    [InlineData("cancel")]
+    public async Task SignerIsCachedOnlyAfterVerification(string failure)
+    {
+        var root = Directory.CreateTempSubdirectory("pulse-tools-");
+        using var cancel = new CancellationTokenSource();
+        try
+        {
+            const string name = "uber-apk-signer-1.jar";
+            byte[] payload = [17, 42];
+            string checksum = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(payload));
+            string release = JsonSerializer.Serialize(new { assets = new[]
+            {
+                new { name, browser_download_url = "https://fixture.test/file" },
+                new { name = "sha256.txt", browser_download_url = "https://fixture.test/check" }
+            } });
+            int copies = 0;
+            string mode = failure;
+            using var client = new HttpClient(new StubHttpMessageHandler(request =>
+            {
+                var path = request.RequestUri!.AbsolutePath;
+                if (path.EndsWith("/latest")) return new(HttpStatusCode.OK) { Content = new StringContent(release) };
+                if (path == "/file")
+                {
+                    Interlocked.Increment(ref copies);
+                    return new(HttpStatusCode.OK) { Content = new ByteArrayContent(payload) };
+                }
+                if (mode == "missing") return new(HttpStatusCode.NotFound);
+                if (mode == "cancel") cancel.Cancel();
+                return new(HttpStatusCode.OK) { Content = new StringContent(mode == "mismatch" ? new string('0', 64) : checksum) };
+            }));
+            var service = new ToolDownloadService(client, new TestToolRepository(root.FullName));
+            var attempt = service.DownloadUbersignerAsync(cancel.Token);
+            if (mode == "missing") await Assert.ThrowsAsync<HttpRequestException>(() => attempt);
+            else if (mode == "cancel") await Assert.ThrowsAnyAsync<OperationCanceledException>(() => attempt);
+            else await Assert.ThrowsAsync<InvalidOperationException>(() => attempt);
+            Assert.Empty(root.GetFiles());
+            mode = "ok";
+            // Simulate a stale, pre-verification cache entry.
+            File.WriteAllText(Path.Combine(root.FullName, "ubersigner.jar"), "old");
+            var results = await Task.WhenAll(Enumerable.Range(0, 4).Select(_ => Task.Run(() => service.DownloadUbersignerAsync())));
+            Assert.Single(results, result => result.Downloaded);
+            Assert.Equal(2, copies);
+            Assert.Equal(payload, File.ReadAllBytes(results[0].Path));
+        }
+        finally { root.Delete(true); }
     }
 
     private sealed class TestToolRepository : IToolRepository
